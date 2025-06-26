@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AssemblyName>TwistedTaleweaver.Bridge</AssemblyName>
+        <RootNamespace>TwistedTaleweaver.Bridge</RootNamespace>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <OutputPath>..\..\bin\</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TwistedTaleweaver.Core\TwistedTaleweaver.Core.csproj" />
+      <ProjectReference Include="..\TwistedTaleweaver.Integration.Twitch\TwistedTaleweaver.Integration.Twitch.csproj" />
+      <ProjectReference Include="..\TwistedTaleweaver.Kafka.Api\TwistedTaleweaver.Kafka.Api.csproj" />
+    </ItemGroup>
+
+</Project>
