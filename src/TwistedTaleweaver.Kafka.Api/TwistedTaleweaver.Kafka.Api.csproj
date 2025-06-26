@@ -15,4 +15,8 @@
         <OutputPath>..\..\bin\</OutputPath>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\TwistedTaleweaver.Core\TwistedTaleweaver.Core.csproj" />
+    </ItemGroup>
+
 </Project>
