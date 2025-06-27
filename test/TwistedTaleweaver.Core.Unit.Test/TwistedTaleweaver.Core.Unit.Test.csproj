@@ -12,8 +12,6 @@
     <PropertyGroup>
         <AssemblyName>TwistedTaleweaver.Core.Unit.Test</AssemblyName>
         <RootNamespace>TwistedTaleweaver.Core.Unit.Test</RootNamespace>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>..\..\bin\tests\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>

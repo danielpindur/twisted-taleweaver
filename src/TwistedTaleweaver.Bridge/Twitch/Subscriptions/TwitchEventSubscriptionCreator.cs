@@ -21,11 +21,11 @@ internal class TwitchEventSubscriptionCreator(
     IEventSubApi eventSubApi, 
     ILogger<TwitchEventSubscriptionCreator> logger, 
     IOptions<TwitchWebsocketConfiguration> twitchWebsocketConfiguration,
-    IOptions<TwistedTaleweaverConfiguration> TwistedTaleweaverConfiguration) : ITwitchEventSubscriptionCreator
+    IOptions<TwistedTaleweaverConfiguration> twistedTaleweaverConfiguration) : ITwitchEventSubscriptionCreator
 {
     public async Task Create(string sessionId)
     {
-        var botUserId = TwistedTaleweaverConfiguration.Value.BotUserId;
+        var botUserId = twistedTaleweaverConfiguration.Value.BotUserId;
         var broadcasters = twitchWebsocketConfiguration.Value.Broadcasters;
 
         foreach (var broadcaster in broadcasters)

@@ -11,8 +11,6 @@
     <PropertyGroup>
         <AssemblyName>TwistedTaleweaver.Bridge</AssemblyName>
         <RootNamespace>TwistedTaleweaver.Bridge</RootNamespace>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>..\..\bin\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
