@@ -37,7 +37,7 @@ internal class StreamFacade(
             var broadcaster = await GetBroadcasterUserAsync(externalBroadcasterId, transaction);
 
             var endStreamKey = new DebouncerKey<Guid>(broadcaster.UserId, DebouncerActionType.EndStream);
-            debouncer.TryCancelOperation(endStreamKey);
+            var pendingStreamEndCancelled = debouncer.TryCancelOperation(endStreamKey);
             
             var currentlyActiveStream = await streamRepository.GetActiveStreamAsync(broadcaster.UserId, transaction);
 
@@ -58,7 +58,7 @@ internal class StreamFacade(
             
             logger.LogDebug("Started new stream for broadcaster {BroadcasterId} with external ID {StreamExternalId}", broadcaster.UserId, streamExternalId);
 
-            if (currentlyActiveStream is null)
+            if (!pendingStreamEndCancelled)
             {
                 await chatApiClient.SendChatMessageAsync(broadcaster.ExternalUserId,
                     "Ah… fresh footsteps in the dark. Welcome, little wanderers - I've been waiting far too long.");
