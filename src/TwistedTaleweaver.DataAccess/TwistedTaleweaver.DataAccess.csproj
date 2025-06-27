@@ -11,8 +11,6 @@
     <PropertyGroup>
         <AssemblyName>TwistedTaleweaver.DataAccess</AssemblyName>
         <RootNamespace>TwistedTaleweaver.DataAccess</RootNamespace>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>..\..\bin\</OutputPath>
     </PropertyGroup>
 
 </Project>

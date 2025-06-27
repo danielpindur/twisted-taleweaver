@@ -11,8 +11,6 @@
     <PropertyGroup>
         <AssemblyName>TwistedTaleweaver</AssemblyName>
         <RootNamespace>TwistedTaleweaver</RootNamespace>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>..\..\bin\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
