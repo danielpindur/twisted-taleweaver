@@ -11,8 +11,6 @@
     <PropertyGroup>
         <AssemblyName>TwistedTaleweaver.Kafka.Api</AssemblyName>
         <RootNamespace>TwistedTaleweaver.Kafka.Api</RootNamespace>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>..\..\bin\</OutputPath>
     </PropertyGroup>
 
 </Project>
