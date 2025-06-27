@@ -8,12 +8,12 @@ public sealed class HttpLogEntry
     /// <summary>
     /// The timestamp when the log entry was created.
     /// </summary>
-    public DateTimeOffset Timestamp { get; set; }
+    public DateTimeOffset Timestamp { get; init; }
 
     /// <summary>
     /// The request information associated with the log entry.
     /// </summary>
-    public required RequestInfo Request { get; set; }
+    public required RequestInfo Request { get; init; }
 
     /// <summary>
     /// The response information associated with the log entry, if available.
