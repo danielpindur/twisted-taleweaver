@@ -11,8 +11,6 @@
     <PropertyGroup>
         <AssemblyName>TwistedTaleweaver.Integration.Twitch</AssemblyName>
         <RootNamespace>TwistedTaleweaver.Integration.Twitch</RootNamespace>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>..\..\bin\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>

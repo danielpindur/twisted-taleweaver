@@ -12,8 +12,6 @@
     <PropertyGroup>
         <AssemblyName>TwistedTaleweaver.Database</AssemblyName>
         <RootNamespace>TwistedTaleweaver.Database</RootNamespace>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <OutputPath>..\..\bin\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
