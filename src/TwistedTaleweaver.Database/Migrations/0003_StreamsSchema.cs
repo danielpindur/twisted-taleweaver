@@ -29,7 +29,7 @@ public class StreamsSchema : Migration
 
         Create.Index("IX_streams_broadcaster_started")
             .OnTable("streams")
-                .OnColumn("user_id").Ascending()
+                .OnColumn("broadcaster_user_id").Ascending()
                 .OnColumn("started_at").Ascending();
     }
 
