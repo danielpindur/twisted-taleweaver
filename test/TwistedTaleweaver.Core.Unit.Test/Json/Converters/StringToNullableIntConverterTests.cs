@@ -8,7 +8,6 @@ namespace TwistedTaleweaver.Core.Unit.Test.Json.Converters;
 public class StringToNullableIntConverterTests
 {
     private readonly StringToNullableIntConverter _converter = new();
-    private readonly JsonSerializerOptions _options = new();
 
     [Test]
     public void Read_WhenNull_ReturnsNull()
@@ -17,7 +16,8 @@ public class StringToNullableIntConverterTests
         var json = "null";
         
         // Act
-        var result = JsonSerializer.Deserialize<int?>(json, _options);
+        var result = JsonSerializer.Deserialize<int?>(json,
+            new JsonSerializerOptions { Converters = { _converter } });
         
         // Assert
         result.ShouldBeNull();

@@ -5,8 +5,10 @@ namespace TwistedTaleweaver.Bridge.Twitch.Common.Deserialization;
 
 internal static class TwitchWebsocketJsonDeserialization
 {
-    public static JsonSerializerOptions Options => new JsonSerializerOptions()
+    private static readonly Lazy<JsonSerializerOptions> _options = new(() => new JsonSerializerOptions()
     {
         Converters = { new EnumMemberJsonConverterFactory(), new StringToNullableIntConverter() }
-    };
+    });
+    
+    public static JsonSerializerOptions Options => _options.Value;
 }

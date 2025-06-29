@@ -20,7 +20,7 @@ internal class NotificationProcessorFactory(IServiceProvider provider) : INotifi
             SubscriptionType.StreamOffline => provider.GetRequiredService<StreamOfflineNotificationProcessor>(),
             SubscriptionType.ChannelChatMessage => provider.GetRequiredService<ChannelChatMessageNotificationProcessor>(),
             
-            _ => throw new ArgumentOutOfRangeException(subscriptionType.ToString())
+            _ => throw new ArgumentOutOfRangeException(nameof(subscriptionType), subscriptionType, $"Unsupported subscription type: {subscriptionType}")
         };
     }
 }

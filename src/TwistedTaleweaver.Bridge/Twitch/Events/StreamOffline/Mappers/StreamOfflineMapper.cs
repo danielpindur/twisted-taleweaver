@@ -7,13 +7,13 @@ internal static class StreamOfflineMapper
 {
     public static StreamEndedPayload ToStreamEndedPayload(this TwitchNotification notification)
     {
-        var streamOnlineEvent = notification.Deserialize<StreamOfflineEvent>();
+        var streamOfflineEvent = notification.Deserialize<StreamOfflineEvent>();
         
         return new StreamEndedPayload()
         {
             NotificationMessageId = notification.MessageId,
             NotificationMessageTimestamp = notification.MessageTimestamp,
-            BroadcasterUserId = streamOnlineEvent.BroadcasterUserId
+            BroadcasterUserId = streamOfflineEvent.BroadcasterUserId
         };
     }
 }

@@ -56,7 +56,7 @@ public abstract class KafkaEventConsumer<TPayload> : IKafkaEventConsumer where T
         }
 
         var eventTypeHeaderValue = Encoding.UTF8.GetString(header);
-        if (!eventTypeHeaderValue.Contains(Event.EventType))
+        if (!eventTypeHeaderValue.Equals($"{Event.GetType().Name}.{Event.EventType}", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException($"Message header '{eventTypeHeaderValue}' does not match expected event type '{Event.EventType}'");
         }

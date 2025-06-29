@@ -36,18 +36,18 @@ public class KafkaConsumerDispatcher : BackgroundService
         _consumer = new ConsumerBuilder<string, string>(config).Build();
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (!_consumers.Any())
         {
             _logger.LogWarning("No Kafka consumers registered. The dispatcher will not start consuming messages.");
             _consumer.Close();
-            return Task.CompletedTask;
+            return;
         }
         
         Subscribe();
 
-        return Task.Run(() => ConsumeLoop(stoppingToken), stoppingToken);
+        await ConsumeLoop(stoppingToken);
     }
 
     private void Subscribe()
@@ -58,7 +58,7 @@ public class KafkaConsumerDispatcher : BackgroundService
         _consumer.Subscribe(topics);
     }
 
-    private void ConsumeLoop(CancellationToken stoppingToken)
+    private async Task ConsumeLoop(CancellationToken stoppingToken)
     {
         try
         {
@@ -75,7 +75,7 @@ public class KafkaConsumerDispatcher : BackgroundService
                     
                     _logger.LogInformation("{@KafkaEvent}", result);
 
-                    DispatchMessage(result.Topic, result.Message, stoppingToken).GetAwaiter().GetResult();
+                    await DispatchMessage(result.Topic, result.Message, stoppingToken);
 
                     _consumer.Commit(result);
                 }
@@ -106,7 +106,8 @@ public class KafkaConsumerDispatcher : BackgroundService
 
         var eventTypeHeader = Encoding.UTF8.GetString(headerBytes);
         var matchingConsumers = _consumers
-            .Where(c => c.Event.Topic == topic && eventTypeHeader.Contains(c.Event.EventType))
+            .Where(c => c.Event.Topic == topic &&
+                        eventTypeHeader.Equals($"{c.Event.GetType().Name}.{c.Event.EventType}", StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         if (!matchingConsumers.Any())

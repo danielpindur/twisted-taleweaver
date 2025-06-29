@@ -43,7 +43,8 @@ public class JsonElementDestructuringPolicyTests
     {
         // Arrange
         var jsonString = "{\"name\":\"test\"}";
-        var jsonElement = JsonDocument.Parse(jsonString).RootElement;
+        using var jsonDocument = JsonDocument.Parse(jsonString);
+        var jsonElement = jsonDocument.RootElement;
 
         // Act
         var result = _policy.TryDestructure(jsonElement, _factory, out var propertyValue);
@@ -58,7 +59,8 @@ public class JsonElementDestructuringPolicyTests
     {
         // Arrange
         var jsonString = "{\"name\":\"test\",\"value\":123}";
-        var jsonElement = JsonDocument.Parse(jsonString).RootElement;
+        using var jsonDocument = JsonDocument.Parse(jsonString);
+        var jsonElement = jsonDocument.RootElement;
 
         // Act
         _policy.TryDestructure(jsonElement, _factory, out var propertyValue);

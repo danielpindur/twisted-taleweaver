@@ -32,7 +32,12 @@ internal sealed class KafkaEventProducer : IKafkaEventProducer
 
         var config = new ProducerConfig
         {
-            BootstrapServers = configuration.Value.BootstrapServers,
+            BootstrapServers = configuration.Value.BootstrapServers
+                ?? throw new InvalidOperationException("Bootstrap servers are required"),
+            Acks = Acks.All,
+            MessageSendMaxRetries = 3,
+            EnableIdempotence = true,
+            RequestTimeoutMs = 30000
         };
 
         _producer = new ProducerBuilder<string, string>(config).Build();

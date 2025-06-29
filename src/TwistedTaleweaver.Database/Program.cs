@@ -1,4 +1,4 @@
-using FluentMigrator.Runner;
+﻿using FluentMigrator.Runner;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,9 +35,14 @@ switch (command)
         break;
     case "down":
         if (args.Length > 1 && long.TryParse(args[1], out var version))
+        {
             runner.MigrateDown(version);
+        }
         else
-            runner.MigrateDown(0);
+        {
+            logger.LogWarning("No version specified for down migration. This will revert ALL migrations. Use 'down 0' to confirm.");
+            return 1;
+        }
         break;
     default:
         logger.LogInformation("Usage: twistedtaleweaver-database [up|down] [version]");
