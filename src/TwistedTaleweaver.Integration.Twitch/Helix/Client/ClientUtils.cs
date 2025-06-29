@@ -88,7 +88,7 @@ namespace TwistedTaleweaver.Integration.Twitch.Helix.Client
         /// <param name="obj">The parameter (header, path, query, form).</param>
         /// <param name="format">The DateTime serialization format.</param>
         /// <returns>Formatted string.</returns>
-        public static string? ParameterToString(object? obj, string? format = ISO8601_DATETIME_FORMAT)
+        public static string? ParameterToString(object? obj, string? format = Iso8601DatetimeFormat)
         {
             if (obj is DateTime dateTime)
                 // Return a formatted date string - Can be customized with Configuration.DateTimeFormat
@@ -396,26 +396,26 @@ namespace TwistedTaleweaver.Integration.Twitch.Helix.Client
         /// <summary>
         /// The base path of the API
         /// </summary>
-        public const string BASE_ADDRESS = "https://api.twitch.tv/helix";
+        public const string BaseAddress = "https://api.twitch.tv/helix";
 
         /// <summary>
         /// The scheme of the API
         /// </summary>
-        public const string SCHEME = "https";
+        public const string Scheme = "https";
 
         /// <summary>
         /// The context path of the API
         /// </summary>
-        public const string CONTEXT_PATH = "/helix";
+        public const string ContextPath = "/helix";
 
         /// <summary>
         /// The host of the API
         /// </summary>
-        public const string HOST = "api.twitch.tv";
+        public const string Host = "api.twitch.tv";
 
         /// <summary>
         /// The format to use for DateTime serialization
         /// </summary>
-        public const string ISO8601_DATETIME_FORMAT = "o";
+        public const string Iso8601DatetimeFormat = "o";
     }
 }

@@ -13,4 +13,8 @@
         <RootNamespace>TwistedTaleweaver.Kafka.Api</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\TwistedTaleweaver.Core\TwistedTaleweaver.Core.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -58,7 +58,7 @@ namespace TwistedTaleweaver.Integration.Twitch.OAuth2.Client
             Action<HttpClient>? client = null, Action<IHttpClientBuilder>? builder = null)
         {
             if (client == null)
-                client = c => c.BaseAddress = new Uri(ClientUtils.BASE_ADDRESS);
+                client = c => c.BaseAddress = new Uri(ClientUtils.BaseAddress);
 
             List<IHttpClientBuilder> builders = new List<IHttpClientBuilder>();
 
