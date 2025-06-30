@@ -1,0 +1,229 @@
+# CodeRabbit Configuration File
+# This file configures how CodeRabbit reviews your pull requests and interacts with your repository
+
+# Basic Settings
+language: "en-US"  # Language for reviews and comments
+tone_instructions: "Act as an experienced senior developer. Provide constructive feedback focusing on maintainability, performance, and best practices. Explain the 'why' behind suggestions. Be direct but supportive, and consider long-term implications."  # Optional: Set a specific tone for reviews (e.g., "Be encouraging and constructive")
+
+# Review Configuration
+reviews:
+  # Review behavior
+  profile: "chill"  # Options: "chill" (standard feedback) or "assertive" (more detailed/nitpicky)
+  request_changes_workflow: false  # Set to true to require resolving CodeRabbit comments before approval
+  
+  # PR/MR Description Features
+  high_level_summary: true  # Generate summary of changes
+  high_level_summary_placeholder: "@coderabbitai summary"  # Placeholder text to replace with summary
+  auto_title_placeholder: "@coderabbitai"  # Add this to PR title for auto-generation
+  
+  # Review Status and Feedback
+  review_status: true  # Post review status updates
+  commit_status: true  # Set commit status (pending/success)
+  fail_commit_status: false  # Set to true to fail status on review errors
+  
+  # Walkthrough Features
+  collapse_walkthrough: false  # Set to true to collapse walkthrough in expandable section
+  changed_files_summary: true  # Include file change summary
+  sequence_diagrams: true  # Generate sequence diagrams when relevant
+  assess_linked_issues: true  # Analyze how changes address linked issues
+  related_issues: true  # Find and mention related issues
+  related_prs: true  # Find and mention related PRs
+  poem: false  # Include a fun poem in reviews (set to false if you prefer serious tone)
+  
+  # Labels and Reviewers
+  suggested_labels: true  # Suggest labels based on changes
+  auto_apply_labels: true  # Set to true to automatically apply suggested labels
+  suggested_reviewers: false  # Suggest reviewers based on changes
+  auto_assign_reviewers: false  # Set to true to automatically assign suggested reviewers
+  
+  # File Filtering (customize for your project)
+  path_filters:
+    # Build and output directories
+    - "!**/bin/**"
+    - "!**/obj/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/publish/**"
+    
+    # Package and dependency directories
+    - "!**/node_modules/**"
+    - "!**/packages/**"
+    - "!**/.nuget/**"
+    
+    # IDE and editor files
+    - "!**/.vs/**"
+    - "!**/.vscode/**"
+    - "!**/.idea/**"
+    - "!**/*.user"
+    - "!**/*.suo"
+    - "!**/*.userosscache"
+    - "!**/*.sln.docstates"
+    
+    # Generated and temporary files
+    - "!**/*Generated*.cs"
+    - "!**/Generated/**"
+    - "!**/*.g.cs"
+    - "!**/*.designer.cs"
+    - "!**/*.Designer.cs"
+    - "!**/AssemblyInfo.cs"
+    - "!**/GlobalAssemblyInfo.cs"
+    - "!**/*.tmp"
+    - "!**/*.temp"
+    - "!**/.tmp/**"
+    
+    # Log and cache files
+    - "!**/*.log"
+    - "!**/logs/**"
+    - "!**/.cache/**"
+    - "!**/TestResults/**"
+    - "!**/coverage/**"
+    - "!**/*.coverage"
+    
+    # Minified and compiled assets
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+    - "!**/wwwroot/lib/**"
+    - "!**/ClientApp/dist/**"
+    
+    # Database and migration files (optional)
+    - "!**/*.db"
+    - "!**/*.sqlite"
+    
+    # Documentation build outputs
+    - "!**/DocFx/**"
+    - "!**/_site/**"
+    
+    # OS and system files
+    - "!**/.DS_Store"
+    - "!**/Thumbs.db"
+    - "!**/desktop.ini"
+  
+  # Path-specific Instructions (customize for your project structure)
+  path_instructions:
+    - path: "**/*.cs"
+      instructions: "Review C# code with nullable reference types enabled. Ensure proper null handling with null-conditional operators (?.) and null-coalescing operators (??). Check for appropriate use of nullable annotations (?, !) and avoid unnecessary null-forgiving operators (!). Verify proper async/await patterns, dispose patterns for IDisposable, and LINQ usage. Follow C# naming conventions (PascalCase for public members, camelCase for private fields). Check for proper exception handling, input validation, and avoid catching generic Exception unless necessary. Ensure dependency injection patterns are followed correctly, and verify that service methods handle null inputs gracefully. For Entity Framework entities, ensure navigation properties and required fields are correctly annotated. Review test methods for null scenario coverage and proper async test patterns."
+    - path: "**/*.js"
+      instructions: "Focus on modern JavaScript best practices, performance, and security. Check for proper error handling."
+    - path: "**/*.ts"
+      instructions: "Ensure proper TypeScript typing, avoid 'any' types, and check for type safety."
+    - path: "**/test/**"
+      instructions: "Review test coverage, assert clarity, and ensure tests are maintainable."
+    - path: "**/*.md"
+      instructions: "Check for clarity, proper formatting, and completeness of documentation."
+  
+  # Label Instructions (customize for your project labels)
+  labeling_instructions:
+    - label: "bug"
+      instructions: "Apply when the PR fixes a bug or addresses unexpected behavior"
+    - label: "feature"
+      instructions: "Apply when the PR adds new functionality"
+    - label: "documentation"
+      instructions: "Apply when the PR primarily updates documentation"
+    - label: "performance"
+      instructions: "Apply when the PR improves performance or optimizes code"
+    - label: "security"
+      instructions: "Apply when the PR addresses security concerns"
+    - label: "refactor"
+      instructions: "Apply when the PR refactors code without changing functionality"
+    - label: "technical debt"
+      instructions: "Apply when the PR addresses technical debt or improves code quality"
+  
+  # Automatic Review Settings
+  auto_review:
+    enabled: true  # Enable automatic reviews
+    auto_incremental_review: true  # Review each new push
+    drafts: false  # Set to true to review draft PRs
+    ignore_title_keywords:  # Skip review if PR title contains these keywords
+      - "WIP"
+      - "work in progress"
+      - "do not review"
+    # labels: []  # Only review PRs with specific labels (leave empty for all)
+    # base_branches: []  # Additional branches to review (beyond default branch)
+  
+  # Finishing Touches (AI-generated improvements)
+  finishing_touches:
+    docstrings:
+      enabled: true  # Allow CodeRabbit to suggest docstrings
+    unit_tests:
+      enabled: true  # Allow CodeRabbit to suggest unit tests
+  
+  # Development Tools Integration
+  tools:
+    # Linting and Code Quality
+    eslint:
+      enabled: true  # JavaScript/TypeScript linting
+    
+    # Security scanning
+    gitleaks:
+      enabled: true  # Secret detection
+    semgrep:
+      enabled: true  # Security vulnerability scanning
+    
+    # Documentation and formatting
+    markdownlint:
+      enabled: true  # Markdown linting
+    
+    # Other useful tools
+    yamllint:
+      enabled: true  # YAML file linting
+    shellcheck:
+      enabled: true  # Shell script analysis
+    github-checks:
+      enabled: true  # Integration with GitHub checks
+      timeout_ms: 90000  # Wait 90 seconds for checks
+    checkov:
+      enabled: true  # Infrastructure security scanning
+
+# Chat Configuration
+chat:
+  auto_reply: true  # Enable automatic responses without tagging
+
+# Knowledge Base (helps CodeRabbit learn from your project)
+knowledge_base:
+  opt_out: false  # Set to true to disable all knowledge base features
+  
+  # Code guidelines (CodeRabbit will learn from these files)
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "**/.cursorrules"
+      - ".github/copilot-instructions.md"
+      - "**/CONTRIBUTING.md"
+      - "**/CODE_STYLE.md"
+      - "**/.eslintrc.*"
+      - "**/prettier.config.*"
+  
+  # Learning scope
+  learnings:
+    scope: "auto"  # Use repository learnings for public repos, org learnings for private
+  
+  issues:
+    scope: "auto"  # Include GitHub issues in knowledge base
+  
+  pull_requests:
+    scope: "auto"  # Learn from previous PRs
+
+# Code Generation Settings
+code_generation:
+  docstrings:
+    language: "en-US"
+    path_instructions:
+      - path: "**/*.cs"
+        instructions: "Generate XML documentation comments with <summary>, <param>, <returns>, and <exception> tags. Include clear descriptions of parameters, return values, and potential exceptions. Follow C# documentation standards with proper formatting."
+      
+      - path: "**/*.js"
+        instructions: "Generate JSDoc comments with @param, @returns, @throws, and @example tags. Include clear parameter types, return value descriptions, and usage examples where appropriate."
+      
+      - path: "**/*.ts"
+        instructions: "Generate TSDoc comments with @param, @returns, @throws, and @example tags. Leverage TypeScript type information and include comprehensive parameter descriptions, return types, and code examples."
+  
+  unit_tests:
+    path_instructions:
+      - path: "**/*.cs"
+        instructions: "Generate NUnit tests with descriptive test method names using Given_When_Then pattern. Include proper async test patterns with [Test] and [TestCase] attributes, mock setup with Moq framework, and assertions using Shouldly library. Test both happy path and edge cases including null handling scenarios with nullable reference types."
+      
+      - path: "**/*.js"
+        instructions: "Generate Jest tests with descriptive test names using 'describe' and 'it' blocks. Include proper mocking with jest.mock(), async/await test patterns, and comprehensive edge case coverage including error scenarios."
+      
+      - path: "**/*.ts"
+        instructions: "Generate Jest tests with TypeScript support using proper type annotations. Include mock implementations with correct typing, async test patterns, and comprehensive test coverage for both type safety and runtime behavior."
