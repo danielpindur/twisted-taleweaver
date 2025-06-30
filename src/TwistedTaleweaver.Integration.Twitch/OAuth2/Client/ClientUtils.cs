@@ -86,7 +86,7 @@ namespace TwistedTaleweaver.Integration.Twitch.OAuth2.Client
         /// <param name="obj">The parameter (header, path, query, form).</param>
         /// <param name="format">The DateTime serialization format.</param>
         /// <returns>Formatted string.</returns>
-        public static string? ParameterToString(object? obj, string? format = ISO8601_DATETIME_FORMAT)
+        public static string? ParameterToString(object? obj, string? format = Iso8601DatetimeFormat)
         {
             if (obj is DateTime dateTime)
                 // Return a formatted date string - Can be customized with Configuration.DateTimeFormat
@@ -278,26 +278,26 @@ namespace TwistedTaleweaver.Integration.Twitch.OAuth2.Client
         /// <summary>
         /// The base path of the API
         /// </summary>
-        public const string BASE_ADDRESS = "http://localhost";
+        public const string BaseAddress = "http://localhost";
 
         /// <summary>
         /// The scheme of the API
         /// </summary>
-        public const string SCHEME = "http";
+        public const string Scheme = "http";
 
         /// <summary>
         /// The context path of the API
         /// </summary>
-        public const string CONTEXT_PATH = "";
+        public const string ContextPath = "";
 
         /// <summary>
         /// The host of the API
         /// </summary>
-        public const string HOST = "localhost";
+        public const string Host = "localhost";
 
         /// <summary>
         /// The format to use for DateTime serialization
         /// </summary>
-        public const string ISO8601_DATETIME_FORMAT = "o";
+        public const string Iso8601DatetimeFormat = "o";
     }
 }

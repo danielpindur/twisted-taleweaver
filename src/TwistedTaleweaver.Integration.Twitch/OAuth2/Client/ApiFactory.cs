@@ -11,9 +11,9 @@ namespace TwistedTaleweaver.Integration.Twitch.OAuth2.Client
         /// <summary>
         /// A method to create an IApi of type IResult
         /// </summary>
-        /// <typeparam name="IResult"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        IResult Create<IResult>() where IResult : IApi;
+        TResult Create<TResult>() where TResult : IApi;
     }
 
     /// <summary>
@@ -38,11 +38,11 @@ namespace TwistedTaleweaver.Integration.Twitch.OAuth2.Client
         /// <summary>
         /// A method to create an IApi of type IResult
         /// </summary>
-        /// <typeparam name="IResult"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public IResult Create<IResult>() where IResult : IApi
+        public TResult Create<TResult>() where TResult : IApi
         {
-            return Services.GetRequiredService<IResult>();
+            return Services.GetRequiredService<TResult>();
         }
     }
 }
