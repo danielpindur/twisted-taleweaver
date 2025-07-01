@@ -12,7 +12,7 @@ internal class TwitchStreamEndedConsumer(IServiceProvider serviceProvider) : Kaf
         
     protected override async Task HandleAsync(StreamEndedPayload payload, CancellationToken cancellationToken)
     {
-        var streamService = serviceProvider.GetRequiredService<IStreamFacade>();
-        await streamService.EndStream(payload.BroadcasterUserId);
+        var streamFacade = serviceProvider.GetRequiredService<IStreamFacade>();
+        await streamFacade.EndStream(payload.BroadcasterUserId);
     }
 }

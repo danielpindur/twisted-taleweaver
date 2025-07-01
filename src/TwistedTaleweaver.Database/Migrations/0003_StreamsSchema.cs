@@ -21,10 +21,10 @@ public class StreamsSchema : Migration
                 .NotNullable()
                 .Unique()
             .WithColumn("started_at")
-                .AsDateTime()
+                .AsDateTimeOffset()
                 .NotNullable()
             .WithColumn("ended_at")
-                .AsDateTime()
+                .AsDateTimeOffset()
                 .Nullable();
 
         Create.Index("IX_streams_broadcaster_started")

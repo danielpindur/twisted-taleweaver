@@ -12,7 +12,7 @@ internal class TwitchStreamStartedConsumer(IServiceProvider serviceProvider) : K
         
     protected override async Task HandleAsync(StreamStartedPayload payload, CancellationToken cancellationToken)
     {
-        var streamService = serviceProvider.GetRequiredService<IStreamFacade>();
-        await streamService.StartStream(payload.BroadcasterUserId, payload.StreamId, payload.StartedAt);
+        var streamFacade = serviceProvider.GetRequiredService<IStreamFacade>();
+        await streamFacade.StartStream(payload.BroadcasterUserId, payload.StreamId, payload.StartedAt);
     }
 }
