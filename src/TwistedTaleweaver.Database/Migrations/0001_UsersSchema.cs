@@ -19,9 +19,9 @@ public class UsersSchema : Migration
                 .NotNullable()
                 .Unique()
             .WithColumn("created_at")
-                .AsDateTime()
+                .AsDateTimeOffset()
                 .NotNullable()
-                .WithDefault(SystemMethods.CurrentDateTime);
+                .WithDefault(SystemMethods.CurrentDateTimeOffset);
     }
 
     public override void Down()

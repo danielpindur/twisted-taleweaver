@@ -8,4 +8,9 @@ internal static class ChatMessagePayloadExtensions
     {
         return payload.Message.StartsWith("!expedition");
     }
+    
+    public static bool IsExpeditionJoinCommand(this ChatMessagePayload payload)
+    {
+        return payload.Message.StartsWith("!join");
+    }
 }
