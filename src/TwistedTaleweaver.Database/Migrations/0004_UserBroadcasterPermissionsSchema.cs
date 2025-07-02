@@ -43,7 +43,7 @@ public class UserBroadcasterPermissionsSchema : Migration
             .WithColumn("granted_at")
                 .AsDateTimeOffset()
                 .NotNullable()
-                .WithDefault(SystemMethods.CurrentDateTime)
+                .WithDefault(SystemMethods.CurrentDateTimeOffset)
             .WithColumn("granted_by_user_id")
                 .AsGuid()
                 .NotNullable()

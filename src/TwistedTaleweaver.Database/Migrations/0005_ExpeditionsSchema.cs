@@ -43,7 +43,7 @@ public class ExpeditionsSchema : Migration
             .WithColumn("created_at")
                 .AsDateTimeOffset()
                 .NotNullable()
-                .WithDefault(SystemMethods.CurrentDateTime)
+                .WithDefault(SystemMethods.CurrentDateTimeOffset)
             .WithColumn("started_at")
                 .AsDateTimeOffset()
                 .Nullable()
@@ -56,7 +56,7 @@ public class ExpeditionsSchema : Migration
             .WithColumn("updated_at")
                 .AsDateTimeOffset()
                 .NotNullable()
-                .WithDefault(SystemMethods.CurrentDateTime);
+                .WithDefault(SystemMethods.CurrentDateTimeOffset);
 
         Create.Index("IX_expeditions_stream_status")
             .OnTable("expeditions")
