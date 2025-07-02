@@ -31,8 +31,9 @@ public class CharactersSchema : Migration
 
         Create.Index("IX_characters_user_broadcaster_status")
             .OnTable("characters")
-            .OnColumn("user_id").Ascending()
-            .OnColumn("broadcaster_user_id").Ascending();
+                .OnColumn("user_id").Ascending()
+                .OnColumn("broadcaster_user_id").Ascending()
+            .WithOptions().Unique();
     }
 
     public override void Down()

@@ -20,6 +20,14 @@ public class CharacterExpeditionsSchema : Migration
                 .AsDateTimeOffset()
                 .NotNullable()
                 .WithDefault(SystemMethods.CurrentDateTimeOffset);
+        
+        Create.PrimaryKey("PK_character_expeditions")
+            .OnTable("character_expeditions")
+            .Columns("character_id", "expedition_id");
+
+        Create.Index("IX_character_expeditions_expedition")
+            .OnTable("character_expeditions")
+            .OnColumn("expedition_id").Ascending();
     }
 
     public override void Down()
