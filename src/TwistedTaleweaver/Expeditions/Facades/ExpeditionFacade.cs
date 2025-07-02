@@ -10,6 +10,7 @@ using TwistedTaleweaver.DataAccess.Permissions.Entities.Enums;
 using TwistedTaleweaver.DataAccess.Permissions.Repositories;
 using TwistedTaleweaver.DataAccess.Streams.Repositories;
 using TwistedTaleweaver.DataAccess.Users.Repositories;
+using TwistedTaleweaver.Users.Clients;
 
 namespace TwistedTaleweaver.Expeditions.Facades;
 
@@ -27,6 +28,7 @@ internal class ExpeditionFacade(
     IUserBroadcasterPermissionRepository userBroadcasterPermissionRepository,
     ICharacterRepository characterRepository,
     IChatApiClient chatApiClient,
+    IUserApiClient userApiClient,
     Func<IUnitOfWork> createUnitOfWork,
     ILogger<ExpeditionFacade> logger) : IExpeditionFacade
 {
@@ -115,10 +117,12 @@ internal class ExpeditionFacade(
                     startedExpedition.ExpeditionId,
                     transaction);
 
+            var externalUser = await userApiClient.ResolveUserAsync(character.ExternalUserId);
+
             if (characterHasAlreadyJoined)
             {
                 await chatApiClient.SendChatMessageAsync(broadcaster.ExternalUserId,
-                    "You've already stepped into the abyss, {CharacterName}. Begging to fall twice is... unbecoming.");
+                    $"You've already stepped into the abyss, {externalUser.Username}. Begging to fall twice is... unbecoming.");
 
                 logger.LogDebug(
                     "Character {CharacterId} has already joined expedition {ExpeditionId} for broadcaster {BroadcasterId} when processing join command",
@@ -136,7 +140,7 @@ internal class ExpeditionFacade(
                 character.CharacterId, startedExpedition.ExpeditionId, broadcaster.UserId);
 
             await chatApiClient.SendChatMessageAsync(broadcaster.ExternalUserId,
-                "Another soul steps forward - {CharacterName}, soon to be shattered or swallowed whole. Welcome to the nightmare.");
+                $"Another soul steps forward - {externalUser.Username}, soon to be shattered or swallowed whole. Welcome to the nightmare.");
         });
     }
 

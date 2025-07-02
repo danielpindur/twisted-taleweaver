@@ -36,14 +36,16 @@ internal class CharacterRepository(IDbConnectionFactory connectionFactory) : ICh
                 );
                 
                 SELECT 
-                    character_id,
-                    user_id,
-                    broadcaster_user_id,
-                    created_at,
-                    updated_at
-                FROM characters 
-                WHERE user_id = @UserId 
-                  AND broadcaster_user_id = @BroadcasterUserId";
+                    c.character_id,
+                    c.user_id,
+                    u.external_user_id,
+                    c.broadcaster_user_id,
+                    c.created_at,
+                    c.updated_at
+                FROM characters c
+                INNER JOIN users u ON c.user_id = u.user_id
+                WHERE c.user_id = @UserId 
+                  AND c.broadcaster_user_id = @BroadcasterUserId";
 
             return await connection.QuerySingleAsync<Character>(sql, new
             {
