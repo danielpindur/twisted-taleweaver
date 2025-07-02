@@ -89,7 +89,7 @@ internal class UserApiClient(
                 {
                     await cache.SetStringAsync(
                         GetExternalUserCacheKey(user.Id),
-                        user.Login,
+                        user.DisplayName,
                         new DistributedCacheEntryOptions
                         {
                             AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(UserCacheDurationInHours)
