@@ -1,5 +1,6 @@
 using System.Reflection;
 using TwistedTaleweaver.Common;
+using TwistedTaleweaver.Expeditions.Tasks;
 
 namespace TwistedTaleweaver.Setup;
 
@@ -57,6 +58,7 @@ public static class ApplicationBuilderExtensions
 
     public static IServiceCollection WithHostedServices(this IServiceCollection services)
     {
+        services.AddHostedService<ExpeditionBackgroundService>();
         
         return services;
     }

@@ -16,9 +16,20 @@ namespace TwistedTaleweaver.Expeditions.Facades;
 
 internal interface IExpeditionFacade : IFacade
 {
-    Task StartExpedition(string broadcasterExternalId, string userExternalId);
+    /// <summary>
+    /// Starts a new expedition for the broadcaster.
+    /// </summary>
+    Task StartExpeditionAsync(string broadcasterExternalId, string userExternalId);
+
+    /// <summary>
+    /// Joins an existing expedition for the broadcaster.
+    /// </summary>    
+    Task JoinExpeditionAsync(string broadcasterExternalId, string userExternalId);
     
-    Task JoinExpedition(string broadcasterExternalId, string userExternalId);
+    /// <summary>
+    /// Processes expeditions asynchronously, handling any necessary updates or state changes.
+    /// </summary>
+    Task ProcessExpeditionsAsync();
 }
 
 internal class ExpeditionFacade(
@@ -32,7 +43,9 @@ internal class ExpeditionFacade(
     Func<IUnitOfWork> createUnitOfWork,
     ILogger<ExpeditionFacade> logger) : IExpeditionFacade
 {
-    public async Task StartExpedition(string broadcasterExternalId, string userExternalId)
+    private static readonly TimeSpan JoinPeriod = TimeSpan.FromMinutes(2);
+
+    public async Task StartExpeditionAsync(string broadcasterExternalId, string userExternalId)
     {
         await using var unitOfWork = createUnitOfWork();
 
@@ -89,7 +102,7 @@ internal class ExpeditionFacade(
         });
     }
 
-    public async Task JoinExpedition(string broadcasterExternalId, string userExternalId)
+    public async Task JoinExpeditionAsync(string broadcasterExternalId, string userExternalId)
     {
         await using var unitOfWork = createUnitOfWork();
 
@@ -141,6 +154,46 @@ internal class ExpeditionFacade(
 
             await chatApiClient.SendChatMessageAsync(broadcaster.ExternalUserId,
                 $"Another soul steps forward - {externalUser.Username}, soon to be shattered or swallowed whole. Welcome to the nightmare.");
+        });
+    }
+
+    public async Task ProcessExpeditionsAsync()
+    {
+        await ProcessExpeditionStartAsync();
+    }
+
+    private async Task ProcessExpeditionStartAsync()
+    {
+        await using var unitOfWork = createUnitOfWork();
+
+        await unitOfWork.ExecuteInTransactionAsync(async transaction =>
+        {
+            var expeditionsToStart = await expeditionRepository.GetExpeditionsToStartAsync(JoinPeriod, transaction);
+            
+            foreach (var expedition in expeditionsToStart)
+            {
+                try
+                {
+                    await expeditionRepository.UpdateExpeditionStatusAsync(
+                        expedition.ExpeditionId,
+                        ExpeditionStatus.Created,
+                        ExpeditionStatus.Started,
+                        transaction);
+
+                    logger.LogDebug(
+                        "Expedition {ExpeditionId} transitioned to Started status",
+                        expedition.ExpeditionId);
+
+                    await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId,
+                        "No more names shall be etched in this tale - the expedition begins, and so does the suffering.");   
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex,
+                        "Failed to start expedition {ExpeditionId}",
+                        expedition.ExpeditionId);
+                }
+            }
         });
     }
 

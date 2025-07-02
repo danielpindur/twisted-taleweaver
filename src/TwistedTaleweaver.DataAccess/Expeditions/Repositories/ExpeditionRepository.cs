@@ -48,6 +48,22 @@ public interface IExpeditionRepository : IRepository
         Guid broadcasterUserId, 
         ExpeditionStatus status, 
         NpgsqlTransaction? transaction = null);
+    
+    /// <summary>
+    /// Gets expeditions that are ready to start based on a waiting period.
+    /// </summary>
+    Task<IEnumerable<Expedition>> GetExpeditionsToStartAsync(
+        TimeSpan waitingPeriod,
+        NpgsqlTransaction? transaction = null);
+    
+    /// <summary>
+    /// Updates the status of an expedition.
+    /// </summary>
+    Task UpdateExpeditionStatusAsync(
+        Guid expeditionId,
+        ExpeditionStatus oldStatus,
+        ExpeditionStatus newStatus,
+        NpgsqlTransaction? transaction = null);
 }
 
 internal class ExpeditionRepository(IDbConnectionFactory connectionFactory) : IExpeditionRepository
@@ -184,6 +200,91 @@ internal class ExpeditionRepository(IDbConnectionFactory connectionFactory) : IE
                 BroadcasterUserId = broadcasterUserId,
                 StatusId = (byte)status
             }, tx);
+        }, transaction);
+    }
+
+    public async Task<IEnumerable<Expedition>> GetExpeditionsToStartAsync(
+        TimeSpan waitingPeriod,
+        NpgsqlTransaction? transaction = null)
+    {
+        return await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            const string sql = @"
+                SELECT 
+                    e.expedition_id,
+                    e.stream_id,
+                    e.created_by_user_id,
+                    e.status_id as Status,
+                    e.created_at,
+                    e.started_at,
+                    e.completed_at,
+                    e.failed_at,
+                    e.updated_at,
+                    u.user_id AS BroadcasterUserId,
+                    u.external_user_id AS BroadcasterExternalUserId
+                FROM expeditions e
+                INNER JOIN streams s ON e.stream_id = s.stream_id
+                INNER JOIN broadcasters b ON s.broadcaster_user_id = b.user_id
+                INNER JOIN users u ON u.user_id = b.user_id
+                WHERE e.status_id = @CreatedStatusId
+                  AND e.created_at <= @CutoffTime";
+
+            var cutoffTime = DateTimeOffset.UtcNow - waitingPeriod;
+        
+            return await connection.QueryAsync<Expedition>(sql, new
+            {
+                CreatedStatusId = (byte)ExpeditionStatus.Created,
+                CutoffTime = cutoffTime
+            }, tx);
+        }, transaction);
+    }
+
+    public async Task UpdateExpeditionStatusAsync(
+        Guid expeditionId,
+        ExpeditionStatus oldStatus,
+        ExpeditionStatus newStatus,
+        NpgsqlTransaction? transaction = null)
+    {
+        await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            var sql = newStatus switch
+            {
+                ExpeditionStatus.Started => @"
+                    UPDATE expeditions 
+                    SET status_id = @NewStatusId,
+                        started_at = @Timestamp,
+                        updated_at = @Timestamp
+                    WHERE expedition_id = @ExpeditionId
+                        AND status_id = @OldStatusId",
+                ExpeditionStatus.Completed => @"
+                    UPDATE expeditions 
+                    SET status_id = @NewStatusId,
+                        completed_at = @Timestamp,
+                        updated_at = @Timestamp
+                    WHERE expedition_id = @ExpeditionId
+                        AND status_id = @OldStatusId",
+                ExpeditionStatus.Failed => @"
+                    UPDATE expeditions 
+                    SET status_id = @NewStatusId,
+                        failed_at = @Timestamp,
+                        updated_at = @Timestamp
+                    WHERE expedition_id = @ExpeditionId
+                        AND status_id = @OldStatusId",
+                _ => throw new ArgumentException($"Unsupported status transition: {newStatus.ToString()}")
+            };
+
+            var rowsAffected = await connection.ExecuteAsync(sql, new
+            {
+                ExpeditionId = expeditionId,
+                NewStatusId = (byte)newStatus,
+                OldStatusId = (byte)oldStatus,
+                Timestamp = DateTimeOffset.UtcNow
+            }, tx);
+        
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException($"Failed to update expedition {expeditionId} status from {oldStatus} to {newStatus}.");
+            }
         }, transaction);
     }
 }
