@@ -41,10 +41,5 @@ internal class ExpeditionBackgroundService(
 
             await Task.Delay(ProcessingInterval, stoppingToken);
         }
-        
-        if (!stoppingToken.IsCancellationRequested)
-        {
-            logger.LogCritical("Expedition background service stopped unexpectedly");
-        }
     }
 }

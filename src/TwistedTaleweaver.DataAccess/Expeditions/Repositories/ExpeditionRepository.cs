@@ -68,7 +68,7 @@ public interface IExpeditionRepository : IRepository
     /// <summary>
     /// Checks if given expedition has any participants
     /// </summary>
-    Task<bool> HasParticipants(
+    Task<bool> HasParticipantsAsync(
         Guid expeditionId,
         NpgsqlTransaction? transaction = null);
 }
@@ -302,7 +302,7 @@ internal class ExpeditionRepository(IDbConnectionFactory connectionFactory) : IE
         }, transaction);
     }
 
-    public async Task<bool> HasParticipants(Guid expeditionId, NpgsqlTransaction? transaction = null)
+    public async Task<bool> HasParticipantsAsync(Guid expeditionId, NpgsqlTransaction? transaction = null)
     {
         return await connectionFactory.ExecuteAsync(async (connection, tx) =>
         {

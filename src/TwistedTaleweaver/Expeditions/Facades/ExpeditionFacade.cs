@@ -175,7 +175,7 @@ internal class ExpeditionFacade(
             {
                 try
                 {
-                    var expeditionHasParticipants = await expeditionRepository.HasParticipants(expedition.ExpeditionId, transaction);
+                    var expeditionHasParticipants = await expeditionRepository.HasParticipantsAsync(expedition.ExpeditionId, transaction);
 
                     if (expeditionHasParticipants)
                     {
@@ -196,7 +196,7 @@ internal class ExpeditionFacade(
         });
     }
 
-    private async Task CancelExpeditionAsync(Expedition expedition, NpgsqlTransaction? transaction)
+    private async Task CancelExpeditionAsync(Expedition expedition, NpgsqlTransaction transaction)
     {
         await expeditionRepository.UpdateExpeditionStatusAsync(
             expedition.ExpeditionId,
