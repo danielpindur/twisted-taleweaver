@@ -7,9 +7,7 @@ using TwistedTaleweaver.Setup;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddTwistedTaleweaverCore();
-builder.AddKafkaMessaging().WithConsumers();
 builder.AddDataAccess();
-builder.AddTwistedTaleweaver().WithHostedServices();
 builder.AddTwitchApiIntegration();
 
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -18,6 +16,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
                             ?? throw new InvalidOperationException("Redis connection string is not configured.");
 });
 
+builder.AddTwistedTaleweaver().WithHostedServices();
+builder.AddKafkaMessaging().WithConsumers();
 
 var app = builder.Build();
 app.Run();
