@@ -64,6 +64,13 @@ public interface IExpeditionRepository : IRepository
         ExpeditionStatus oldStatus,
         ExpeditionStatus newStatus,
         NpgsqlTransaction? transaction = null);
+
+    /// <summary>
+    /// Checks if given expedition has any participants
+    /// </summary>
+    Task<bool> HasParticipants(
+        Guid expeditionId,
+        NpgsqlTransaction? transaction = null);
 }
 
 internal class ExpeditionRepository(IDbConnectionFactory connectionFactory) : IExpeditionRepository
@@ -270,6 +277,13 @@ internal class ExpeditionRepository(IDbConnectionFactory connectionFactory) : IE
                         updated_at = @Timestamp
                     WHERE expedition_id = @ExpeditionId
                         AND status_id = @OldStatusId",
+                ExpeditionStatus.Cancelled => @"
+                    UPDATE expeditions 
+                    SET status_id = @NewStatusId,
+                        cancelled_at = @Timestamp,
+                        updated_at = @Timestamp
+                    WHERE expedition_id = @ExpeditionId
+                        AND status_id = @OldStatusId",
                 _ => throw new ArgumentException($"Unsupported status transition: {newStatus.ToString()}")
             };
 
@@ -285,6 +299,23 @@ internal class ExpeditionRepository(IDbConnectionFactory connectionFactory) : IE
             {
                 throw new InvalidOperationException($"Failed to update expedition {expeditionId} status from {oldStatus} to {newStatus}.");
             }
+        }, transaction);
+    }
+
+    public async Task<bool> HasParticipants(Guid expeditionId, NpgsqlTransaction? transaction = null)
+    {
+        return await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            var sql = @"
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM character_expeditions ce
+                    WHERE ce.expedition_id = @ExpeditionId)";
+            
+            return await connection.QuerySingleAsync<bool>(sql, new
+            {
+                ExpeditionId = expeditionId
+            }, tx);
         }, transaction);
     }
 }
