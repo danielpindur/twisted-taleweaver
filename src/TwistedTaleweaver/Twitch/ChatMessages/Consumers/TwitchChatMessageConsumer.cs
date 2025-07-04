@@ -26,12 +26,12 @@ internal class TwitchChatMessageConsumer(IServiceProvider serviceProvider) : Kaf
     private async Task ProcessExpeditionCreationCommand(ChatMessagePayload payload)
     {
         var expeditionFacade = serviceProvider.GetRequiredService<IExpeditionFacade>();
-        await expeditionFacade.StartExpedition(payload.BroadcasterUserId, payload.ChatterUserId);
+        await expeditionFacade.StartExpeditionAsync(payload.BroadcasterUserId, payload.ChatterUserId);
     }
 
     private async Task ProcessExpeditionJoinCommand(ChatMessagePayload payload)
     {
         var expeditionFacade = serviceProvider.GetRequiredService<IExpeditionFacade>();
-        await expeditionFacade.JoinExpedition(payload.BroadcasterUserId, payload.ChatterUserId);
+        await expeditionFacade.JoinExpeditionAsync(payload.BroadcasterUserId, payload.ChatterUserId);
     }
 }

@@ -4,6 +4,7 @@ using TwistedTaleweaver.Common;
 using TwistedTaleweaver.DataAccess.Characters.Repositories;
 using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Common.Extensions;
+using TwistedTaleweaver.DataAccess.Expeditions.Entities;
 using TwistedTaleweaver.DataAccess.Expeditions.Entities.Enums;
 using TwistedTaleweaver.DataAccess.Expeditions.Repositories;
 using TwistedTaleweaver.DataAccess.Permissions.Entities.Enums;
@@ -16,9 +17,20 @@ namespace TwistedTaleweaver.Expeditions.Facades;
 
 internal interface IExpeditionFacade : IFacade
 {
-    Task StartExpedition(string broadcasterExternalId, string userExternalId);
+    /// <summary>
+    /// Starts a new expedition for the broadcaster.
+    /// </summary>
+    Task StartExpeditionAsync(string broadcasterExternalId, string userExternalId);
+
+    /// <summary>
+    /// Joins an existing expedition for the broadcaster.
+    /// </summary>    
+    Task JoinExpeditionAsync(string broadcasterExternalId, string userExternalId);
     
-    Task JoinExpedition(string broadcasterExternalId, string userExternalId);
+    /// <summary>
+    /// Processes expeditions asynchronously, handling any necessary updates or state changes.
+    /// </summary>
+    Task ProcessExpeditionsAsync();
 }
 
 internal class ExpeditionFacade(
@@ -32,7 +44,9 @@ internal class ExpeditionFacade(
     Func<IUnitOfWork> createUnitOfWork,
     ILogger<ExpeditionFacade> logger) : IExpeditionFacade
 {
-    public async Task StartExpedition(string broadcasterExternalId, string userExternalId)
+    private static readonly TimeSpan JoinPeriod = TimeSpan.FromMinutes(2);
+
+    public async Task StartExpeditionAsync(string broadcasterExternalId, string userExternalId)
     {
         await using var unitOfWork = createUnitOfWork();
 
@@ -89,7 +103,7 @@ internal class ExpeditionFacade(
         });
     }
 
-    public async Task JoinExpedition(string broadcasterExternalId, string userExternalId)
+    public async Task JoinExpeditionAsync(string broadcasterExternalId, string userExternalId)
     {
         await using var unitOfWork = createUnitOfWork();
 
@@ -142,6 +156,76 @@ internal class ExpeditionFacade(
             await chatApiClient.SendChatMessageAsync(broadcaster.ExternalUserId,
                 $"Another soul steps forward - {externalUser.Username}, soon to be shattered or swallowed whole. Welcome to the nightmare.");
         });
+    }
+
+    public async Task ProcessExpeditionsAsync()
+    {
+        await ProcessExpeditionStartAsync();
+    }
+
+    private async Task ProcessExpeditionStartAsync()
+    {
+        await using var unitOfWork = createUnitOfWork();
+
+        await unitOfWork.ExecuteInTransactionAsync(async transaction =>
+        {
+            var expeditionsToStart = await expeditionRepository.GetExpeditionsToStartAsync(JoinPeriod, transaction);
+            
+            foreach (var expedition in expeditionsToStart)
+            {
+                try
+                {
+                    var expeditionHasParticipants = await expeditionRepository.HasParticipantsAsync(expedition.ExpeditionId, transaction);
+
+                    if (expeditionHasParticipants)
+                    {
+                        await StartExpeditionAsync(expedition, transaction);
+                    }
+                    else
+                    {
+                        await CancelExpeditionAsync(expedition, transaction);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex,
+                        "Failed to process expedition {ExpeditionId} starting",
+                        expedition.ExpeditionId);
+                }
+            }
+        });
+    }
+
+    private async Task CancelExpeditionAsync(Expedition expedition, NpgsqlTransaction transaction)
+    {
+        await expeditionRepository.UpdateExpeditionStatusAsync(
+            expedition.ExpeditionId,
+            ExpeditionStatus.Created,
+            ExpeditionStatus.Cancelled,
+            transaction);
+
+        logger.LogDebug(
+            "Expedition {ExpeditionId} transitioned to Cancelled status",
+            expedition.ExpeditionId);
+
+        await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId,
+            "No one dared to chase the tale. The expedition fades, unwritten and unwanted.");
+    }
+    
+    private async Task StartExpeditionAsync(Expedition expedition, NpgsqlTransaction transaction)
+    {
+        await expeditionRepository.UpdateExpeditionStatusAsync(
+            expedition.ExpeditionId,
+            ExpeditionStatus.Created,
+            ExpeditionStatus.Started,
+            transaction);
+
+        logger.LogDebug(
+            "Expedition {ExpeditionId} transitioned to Started status",
+            expedition.ExpeditionId);
+
+        await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId,
+            "No more names shall be etched in this tale - the expedition begins, and so does the suffering.");
     }
 
     private async Task<bool> CanCreateExpedition(Guid userId, Guid broadcasterId, NpgsqlTransaction transaction)

@@ -8,6 +8,10 @@ public class Expedition
     
     public Guid StreamId { get; set; }
     
+    public Guid BroadcasterUserId { get; set; }
+    
+    public required string BroadcasterExternalUserId { get; set; }
+    
     public ExpeditionStatus Status { get; set; }
     
     public Guid CreatedByUserId { get; set; }
