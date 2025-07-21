@@ -43,7 +43,7 @@ internal class StreamFacade(
 
             if (currentlyActiveStream is not null && currentlyActiveStream.ExternalStreamId == streamExternalId)
             {
-                logger.LogInformation("Stream start ignored (duplicate external stream ID {StreamExternalId})", streamExternalId);
+                logger.LogDebug("Stream start ignored (duplicate external stream ID {StreamExternalId})", streamExternalId);
                 return;
             }
             

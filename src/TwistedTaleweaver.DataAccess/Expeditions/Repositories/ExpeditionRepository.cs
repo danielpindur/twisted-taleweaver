@@ -66,9 +66,21 @@ public interface IExpeditionRepository : IRepository
         NpgsqlTransaction? transaction = null);
 
     /// <summary>
-    /// Checks if given expedition has any participants
+    /// Checks if given expedition has any participants.
     /// </summary>
     Task<bool> HasParticipantsAsync(
+        Guid expeditionId,
+        NpgsqlTransaction? transaction = null);
+
+    /// <summary>
+    /// Get started expeditions to calculate the combat for.
+    /// </summary>
+    Task<IEnumerable<Expedition>> GetExpeditionsToCalculateAsync(NpgsqlTransaction? transaction = null);
+
+    /// <summary>
+    /// Gets the participants of an expedition.
+    /// </summary>    
+    Task<IEnumerable<ExpeditionParticipant>> GetParticipantsAsync(
         Guid expeditionId,
         NpgsqlTransaction? transaction = null);
 }
@@ -313,6 +325,58 @@ internal class ExpeditionRepository(IDbConnectionFactory connectionFactory) : IE
                     WHERE ce.expedition_id = @ExpeditionId)";
             
             return await connection.QuerySingleAsync<bool>(sql, new
+            {
+                ExpeditionId = expeditionId
+            }, tx);
+        }, transaction);
+    }
+
+    public async Task<IEnumerable<Expedition>> GetExpeditionsToCalculateAsync(NpgsqlTransaction? transaction = null)
+    {
+        return await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            const string sql = @"
+                SELECT 
+                    e.expedition_id,
+                    e.stream_id,
+                    e.created_by_user_id,
+                    e.status_id as Status,
+                    e.created_at,
+                    e.started_at,
+                    e.completed_at,
+                    e.failed_at,
+                    e.updated_at,
+                    u.user_id AS BroadcasterUserId,
+                    u.external_user_id AS BroadcasterExternalUserId
+                FROM expeditions e
+                INNER JOIN streams s ON e.stream_id = s.stream_id
+                INNER JOIN broadcasters b ON s.broadcaster_user_id = b.user_id
+                INNER JOIN users u ON u.user_id = b.user_id
+                WHERE e.status_id = @StartedStatusId";
+
+            return await connection.QueryAsync<Expedition>(sql, new
+            {
+                StartedStatusId = (byte)ExpeditionStatus.Started
+            }, tx);
+        }, transaction);
+    }
+
+    public async Task<IEnumerable<ExpeditionParticipant>> GetParticipantsAsync(Guid expeditionId, NpgsqlTransaction? transaction = null)
+    {
+        return await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            const string sql = @"
+                SELECT 
+                    ce.character_id,
+                    ce.expedition_id,
+                    u.user_id,
+                    u.external_user_id
+                FROM character_expeditions ce
+                INNER JOIN characters c ON ce.character_id = c.character_id
+                INNER JOIN users u ON u.user_id = c.user_id
+                WHERE ce.expedition_id = @ExpeditionId";
+
+            return await connection.QueryAsync<ExpeditionParticipant>(sql, new
             {
                 ExpeditionId = expeditionId
             }, tx);
