@@ -43,7 +43,8 @@ internal class ExpeditionFacade(
     ICharacterRepository characterRepository,
     IChatApiClient chatApiClient,
     IUserApiClient userApiClient,
-    IExpeditionCombatProcessor  expeditionCombatProcessor,
+    IExpeditionCombatProcessor expeditionCombatProcessor,
+    IExpeditionOutcomeRepository expeditionOutcomeRepository,
     Func<IUnitOfWork> createUnitOfWork,
     ILogger<ExpeditionFacade> logger) : IExpeditionFacade
 {
@@ -327,28 +328,16 @@ internal class ExpeditionFacade(
 
         await unitOfWork.ExecuteInTransactionAsync(async transaction =>
         {
+            await expeditionOutcomeRepository.AddAsync(expeditionOutcome, transaction);
             await expeditionRepository.UpdateExpeditionStatusAsync(
                 expedition.ExpeditionId, 
                 ExpeditionStatus.Started,
                 ExpeditionStatus.Completed,
                 transaction);
 
-            if (expeditionOutcome.Prologue is not null)
+            foreach (var narration in expeditionOutcome.Narrations)
             {
-                await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, expeditionOutcome.Prologue);
-            }
-                
-            foreach (var encounter in expeditionOutcome.Encounters)
-            {
-                foreach (var narrationText in encounter.Narration)
-                {
-                    await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, narrationText);
-                }
-            }
-
-            if (expeditionOutcome.Epilogue is not null)
-            {
-                await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, expeditionOutcome.Epilogue);
+                await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, narration);
             }
         });
     }
