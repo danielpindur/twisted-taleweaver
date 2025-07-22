@@ -18,7 +18,7 @@ internal interface IExpeditionCombatProcessor
 
 internal class ExpeditionCombatProcessor(
     IUserApiClient userApiClient,
-    ILogger<ExpeditionFacade> logger) : IExpeditionCombatProcessor
+    ILogger<ExpeditionCombatProcessor> logger) : IExpeditionCombatProcessor
 {
     public async Task<ExpeditionOutcome> Process(ExpeditionInput input)
     {

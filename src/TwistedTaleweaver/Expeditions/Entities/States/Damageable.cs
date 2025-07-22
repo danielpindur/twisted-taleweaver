@@ -6,7 +6,7 @@ public abstract class Damageable
     {
         if (health <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(health), "Health cannot be negative");
+            throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive");
         }
         
         Max =  health;
@@ -21,7 +21,7 @@ public abstract class Damageable
     {
         if (damage <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(damage), "Damage must be a positive number");
+            throw new ArgumentOutOfRangeException(nameof(damage), "Damage must be positive");
         }
         
         Current -= damage;
@@ -29,6 +29,11 @@ public abstract class Damageable
 
     public void Heal(int health)
     {
+        if (health <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(health), "Health must be positive");
+        }
+        
         Current += health;
 
         if (Current > Max)
