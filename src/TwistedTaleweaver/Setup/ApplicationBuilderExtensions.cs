@@ -1,5 +1,6 @@
 using System.Reflection;
 using TwistedTaleweaver.Common;
+using TwistedTaleweaver.Expeditions.Processors;
 using TwistedTaleweaver.Expeditions.Tasks;
 
 namespace TwistedTaleweaver.Setup;
@@ -13,7 +14,8 @@ public static class ApplicationBuilderExtensions
         return builder.Services
             .AddFacades(assembly)
             .AddApiClients(assembly)
-            .AddSingleton<IDebouncer, Debouncer>();
+            .AddSingleton<IDebouncer, Debouncer>()
+            .AddTransient<IExpeditionCombatProcessor, ExpeditionCombatProcessor>();
     }
     
     private static IServiceCollection AddFacades(this IServiceCollection services, Assembly assembly)
