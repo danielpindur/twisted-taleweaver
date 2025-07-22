@@ -47,7 +47,7 @@ internal class ExpeditionFacade(
     Func<IUnitOfWork> createUnitOfWork,
     ILogger<ExpeditionFacade> logger) : IExpeditionFacade
 {
-    private static readonly TimeSpan JoinPeriod = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan JoinPeriod = TimeSpan.FromSeconds(15); //TimeSpan.FromMinutes(2);
 
     public async Task StartExpeditionAsync(string broadcasterExternalId, string userExternalId)
     {

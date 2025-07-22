@@ -9,13 +9,13 @@ public class ExpeditionState
     public ExpeditionState(ExpeditionInput input)
     {
         ExpeditionId = input.ExpeditionId;
-        Characters = input.Characters.Select(x => new CharacterState(x)).ToList();
+        AliveCharacters = input.Characters.Select(x => new CharacterState(x)).ToList();
         RemainingEncounters = new Queue<EncounterInput>(input.Encounters);
     }
     
     public Guid ExpeditionId { get; init; }
     
-    public required List<CharacterState> Characters { get; init; }
+    public required List<CharacterState> AliveCharacters { get; init; }
     
     public required Queue<EncounterInput> RemainingEncounters { get; init; }
 
@@ -28,8 +28,6 @@ public class ExpeditionState
         
         var encounterInput = RemainingEncounters.Dequeue();
 
-        return new EncounterState(Characters, encounterInput);
+        return new EncounterState(AliveCharacters, encounterInput);
     }
-    
-    public void RemoveDeadCharacters() => Characters.RemoveAll(x => x.Health.Current <= 0);
 }

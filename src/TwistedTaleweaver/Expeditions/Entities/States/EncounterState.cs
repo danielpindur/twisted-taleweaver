@@ -8,14 +8,14 @@ public class EncounterState
     [SetsRequiredMembers]
     public EncounterState(List<CharacterState> characters, EncounterInput encounter)
     {
-        Characters = characters;
+        AliveCharacters = characters;
         Monster = new MonsterState(encounter.Monster);
         EncounterId = encounter.EncounterId;
     }
     
     public Guid EncounterId { get; set; }
     
-    public required List<CharacterState> Characters { get; init; }
+    public required List<CharacterState> AliveCharacters { get; init; }
     
     public required MonsterState Monster { get; init; }
 }
