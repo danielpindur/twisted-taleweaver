@@ -13,7 +13,7 @@ public class EncounterState
         EncounterId = encounter.EncounterId;
     }
     
-    public Guid EncounterId { get; set; }
+    public Guid EncounterId { get; init; }
     
     public required List<CharacterState> AliveCharacters { get; init; }
     

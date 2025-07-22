@@ -77,7 +77,7 @@ public static class NarrationHelper
             "You called for a challenge. The realm sent {0}."
         };
 
-        return messages.Random().ApplyFormat(monsterName);
+        return messages.Random().Format(monsterName);
     }
 
     public static string GenerateCharacterHitMessage(string characterName, string monsterName)
@@ -101,7 +101,7 @@ public static class NarrationHelper
             "{0}'s attack tears through shadow and into {1}."
         };
 
-        return  messages.Random().ApplyFormat(characterName, monsterName);
+        return  messages.Random().Format(characterName, monsterName);
     }
     
     public static string GenerateCharacterMissedMessage(string characterName, string monsterName)
@@ -125,7 +125,7 @@ public static class NarrationHelper
             "{0}'s fury erupts — {1} is untouched, unbothered."
         };
 
-        return messages.Random().ApplyFormat(characterName, monsterName);
+        return messages.Random().Format(characterName, monsterName);
     }
 
     public static string GenerateCharacterDiesMessage(string characterName, string monsterName)
@@ -144,7 +144,7 @@ public static class NarrationHelper
             "{1}'s wrath leaves {0} cold and still."
         };
 
-        return messages.Random().ApplyFormat(characterName, monsterName);
+        return messages.Random().Format(characterName, monsterName);
     }
 
     public static string GenerateMonsterHitMessage(string characterName, string monsterName)
@@ -168,7 +168,7 @@ public static class NarrationHelper
             "A cruel impact — {0} staggers beneath it."
         };
 
-        return messages.Random().ApplyFormat(characterName, monsterName);
+        return messages.Random().Format(characterName, monsterName);
     }
     
     public static string GenerateMonsterMissedMessage(string characterName, string monsterName)
@@ -192,7 +192,7 @@ public static class NarrationHelper
             "This time, {1} fails — and {0} still stands."
         };
 
-        return messages.Random().ApplyFormat(characterName, monsterName);
+        return messages.Random().Format(characterName, monsterName);
     }
     
     public static string GenerateMonsterDiesMessage(string characterName, string monsterName)
@@ -211,6 +211,6 @@ public static class NarrationHelper
             "The battle turns — {0} has slain their foe."
         };
 
-        return messages.Random().ApplyFormat(characterName, monsterName);
+        return messages.Random().Format(characterName, monsterName);
     }
 }

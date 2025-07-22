@@ -68,11 +68,11 @@ internal class ExpeditionCombatProcessor(
     {
         var narration = new List<string> { NarrationHelper.GenerateMonsterAppearMessage(encounter.Monster.Name) };
 
-        while (encounter.Monster.Health.IsAlive && encounter.AliveCharacters.Count > 0)
+        while (encounter.Monster.IsAlive && encounter.AliveCharacters.Count > 0)
         {
             ProcessCharactersAttack(encounter, usernamesByExternalUserId, narration);
 
-            if (!encounter.Monster.Health.IsAlive)
+            if (!encounter.Monster.IsAlive)
             {
                 break;
             }
@@ -107,10 +107,10 @@ internal class ExpeditionCombatProcessor(
                 continue;
             }
             
-            encounter.Monster.Health.ApplyDamage(RollDamage());
+            encounter.Monster.ApplyDamage(RollDamage());
             narration.Add(NarrationHelper.GenerateCharacterHitMessage(externalUser.Username, encounter.Monster.Name));
 
-            if (!encounter.Monster.Health.IsAlive)
+            if (!encounter.Monster.IsAlive)
             {
                 narration.Add(NarrationHelper.GenerateMonsterDiesMessage(externalUser.Username, encounter.Monster.Name));
                 break;
@@ -137,10 +137,10 @@ internal class ExpeditionCombatProcessor(
                 continue;
             }
             
-            target.Health.ApplyDamage(RollDamage());
+            target.ApplyDamage(RollDamage());
             narration.Add(NarrationHelper.GenerateMonsterHitMessage(externalUser.Username, encounter.Monster.Name));
 
-            if (!target.Health.IsAlive)
+            if (!target.IsAlive)
             {
                 narration.Add(NarrationHelper.GenerateCharacterDiesMessage(externalUser.Username, encounter.Monster.Name));
                 encounter.AliveCharacters[targetIndex] = encounter.AliveCharacters[^1];

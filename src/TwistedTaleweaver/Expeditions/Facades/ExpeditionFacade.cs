@@ -253,90 +253,103 @@ internal class ExpeditionFacade(
 
         foreach (var expedition in expeditionsToCalculate)
         {
-            var participants = await expeditionRepository.GetParticipantsAsync(expedition.ExpeditionId);
-
-            var expeditionOutcome = await expeditionCombatProcessor.Process(new ExpeditionInput()
+            try
             {
-                ExpeditionId = expedition.ExpeditionId,
-                Characters = participants.Select(x => new CharacterInput()
-                {
-                    CharacterId = x.CharacterId, 
-                    ExternalUserId = x.ExternalUserId, 
-                    Health = 100
-                }).ToList(),
-                Encounters =
-                [
-                    new()
-                    {
-                        EncounterId = Guid.NewGuid(),
-                        Monster = new MonsterInput()
-                        {
-                            MonsterId = Guid.NewGuid(),
-                            Name = "The Hollow Maw",
-                            Health = 100
-                        }
-                    },
-                    new()
-                    {
-                        EncounterId = Guid.NewGuid(),
-                        Monster = new MonsterInput()
-                        {
-                            MonsterId = Guid.NewGuid(),
-                            Name = "Mother of Needles",
-                            Health = 80
-                        }
-                    },
-                    new()
-                    {
-                        EncounterId = Guid.NewGuid(),
-                        Monster = new MonsterInput()
-                        {
-                            MonsterId = Guid.NewGuid(),
-                            Name = "Warden of the Forgotten",
-                            Health = 120
-                        }
-                    },
-                    new()
-                    {
-                        EncounterId = Guid.NewGuid(),
-                        Monster = new MonsterInput()
-                        {
-                            MonsterId = Guid.NewGuid(),
-                            Name = "The Choir of Teeth",
-                            Health = 90
-                        }
-                    }
-                ]
-            });
-            
-            await using var unitOfWork = createUnitOfWork();
-
-            await unitOfWork.ExecuteInTransactionAsync(async transaction =>
+                await ProcessSingleExpeditionCombat(expedition);
+            }
+            catch (Exception ex)
             {
-                await expeditionRepository.UpdateExpeditionStatusAsync(
-                    expedition.ExpeditionId, 
-                    ExpeditionStatus.Started,
-                    ExpeditionStatus.Completed,
-                    transaction);
-
-                if (expeditionOutcome.Prologue is not null)
-                {
-                    await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, expeditionOutcome.Prologue);
-                }
-                
-                foreach (var encounter in expeditionOutcome.Encounters)
-                {
-                    foreach (var narrationText in encounter.Narration)
-                    {
-                        await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, narrationText);
-                    }
-                }
-
-                if (expeditionOutcome.Epilogue is not null)
-                {
-                    await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, expeditionOutcome.Epilogue);
-                }
-            });
+                logger.LogError(ex, "Failed to process combat for expedition {ExpeditionId}", expedition.ExpeditionId);
+                await expeditionRepository.UpdateExpeditionStatusAsync(expedition.ExpeditionId, ExpeditionStatus.Started, ExpeditionStatus.Failed);
+            }
         }
+    }
+
+    private async Task ProcessSingleExpeditionCombat(Expedition expedition)
+    {
+        var participants = await expeditionRepository.GetParticipantsAsync(expedition.ExpeditionId);
+
+        var expeditionOutcome = await expeditionCombatProcessor.Process(new ExpeditionInput()
+        {
+            ExpeditionId = expedition.ExpeditionId,
+            Characters = participants.Select(x => new CharacterInput()
+            {
+                CharacterId = x.CharacterId, 
+                ExternalUserId = x.ExternalUserId, 
+                Health = 100
+            }).ToList(),
+            Encounters =
+            [
+                new()
+                {
+                    EncounterId = Guid.NewGuid(),
+                    Monster = new MonsterInput()
+                    {
+                        MonsterId = Guid.NewGuid(),
+                        Name = "The Hollow Maw",
+                        Health = 100
+                    }
+                },
+                new()
+                {
+                    EncounterId = Guid.NewGuid(),
+                    Monster = new MonsterInput()
+                    {
+                        MonsterId = Guid.NewGuid(),
+                        Name = "Mother of Needles",
+                        Health = 80
+                    }
+                },
+                new()
+                {
+                    EncounterId = Guid.NewGuid(),
+                    Monster = new MonsterInput()
+                    {
+                        MonsterId = Guid.NewGuid(),
+                        Name = "Warden of the Forgotten",
+                        Health = 120
+                    }
+                },
+                new()
+                {
+                    EncounterId = Guid.NewGuid(),
+                    Monster = new MonsterInput()
+                    {
+                        MonsterId = Guid.NewGuid(),
+                        Name = "The Choir of Teeth",
+                        Health = 90
+                    }
+                }
+            ]
+        });
+            
+        await using var unitOfWork = createUnitOfWork();
+
+        await unitOfWork.ExecuteInTransactionAsync(async transaction =>
+        {
+            await expeditionRepository.UpdateExpeditionStatusAsync(
+                expedition.ExpeditionId, 
+                ExpeditionStatus.Started,
+                ExpeditionStatus.Completed,
+                transaction);
+
+            if (expeditionOutcome.Prologue is not null)
+            {
+                await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, expeditionOutcome.Prologue);
+            }
+                
+            foreach (var encounter in expeditionOutcome.Encounters)
+            {
+                foreach (var narrationText in encounter.Narration)
+                {
+                    await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, narrationText);
+                }
+            }
+
+            if (expeditionOutcome.Epilogue is not null)
+            {
+                await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, expeditionOutcome.Epilogue);
+            }
+        });
     }
 }

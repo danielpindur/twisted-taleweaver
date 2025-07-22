@@ -1,9 +1,14 @@
 namespace TwistedTaleweaver.Expeditions.Entities.States;
 
-public class HealthState
+public abstract class Damageable
 {
-    public HealthState(int health)
+    public Damageable(int health)
     {
+        if (health <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(health), "Health cannot be negative");
+        }
+        
         Max =  health;
         Current = health;
     }
@@ -14,6 +19,11 @@ public class HealthState
 
     public void ApplyDamage(int damage)
     {
+        if (damage <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(damage), "Damage must be a positive number");
+        }
+        
         Current -= damage;
     }
 

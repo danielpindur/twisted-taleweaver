@@ -3,19 +3,16 @@ using TwistedTaleweaver.Expeditions.Entities.Inputs;
 
 namespace TwistedTaleweaver.Expeditions.Entities.States;
 
-public class MonsterState
+public class MonsterState : Damageable
 {
     [SetsRequiredMembers]
-    public MonsterState(MonsterInput input)
+    public MonsterState(MonsterInput input) : base(input.Health)
     {
         MonsterId = input.MonsterId;
         Name = input.Name;
-        Health = new HealthState(input.Health);
     }
     
     public Guid MonsterId { get; init; }
     
     public required string Name { get; init; }
-    
-    public required HealthState Health { get; init; }
 }
