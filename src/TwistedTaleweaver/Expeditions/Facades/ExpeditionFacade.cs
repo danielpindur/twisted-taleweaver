@@ -367,7 +367,7 @@ internal class ExpeditionFacade(
 
         foreach (var encounter in expeditionOutcome.Encounters)
         {
-            encounter.CharacterDeaths.ForEach(x => survivors.Remove(x));
+            survivors.ExceptWith(encounter.CharacterDeaths);
         }
         
         return survivors.ToList();

@@ -18,13 +18,13 @@ public interface IExpeditionOutcomeRepository : IRepository
 
 internal class ExpeditionOutcomeRepository(IDbConnectionFactory connectionFactory) : IExpeditionOutcomeRepository
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
+    
     public async Task AddAsync(ExpeditionOutcome outcome, NpgsqlTransaction? transaction = null)
     {
-        var options = new JsonSerializerOptions
-        {
-            Converters = { new JsonStringEnumConverter() }
-        };
-        
         await connectionFactory.ExecuteAsync(async (connection, tx) =>
         {
             const string sql = @"
@@ -37,7 +37,7 @@ internal class ExpeditionOutcomeRepository(IDbConnectionFactory connectionFactor
                 ExpeditionId = outcome.ExpeditionId,
                 ResultId = (byte)outcome.Result,
                 Narrations = JsonSerializer.Serialize(outcome.Narrations),
-                Encounters = JsonSerializer.Serialize(outcome.Encounters, options)
+                Encounters = JsonSerializer.Serialize(outcome.Encounters, JsonOptions)
             }, tx);
         }, transaction);
     }

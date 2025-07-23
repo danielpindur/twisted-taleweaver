@@ -10,7 +10,7 @@ public class EncounterOutcome
     
     public required Monster Enemy { get; init; }
     
-    public required List<Guid> CharacterDeaths { get; init; }
+    public required IReadOnlyList<Guid> CharacterDeaths { get; init; }
     
     public record Monster
     {
