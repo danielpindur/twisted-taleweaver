@@ -1,5 +1,6 @@
 using System.Reflection;
 using TwistedTaleweaver.Common;
+using TwistedTaleweaver.Expeditions.Configurations;
 using TwistedTaleweaver.Expeditions.Processors;
 using TwistedTaleweaver.Expeditions.Tasks;
 
@@ -11,6 +12,8 @@ public static class ApplicationBuilderExtensions
     {
         var assembly = Assembly.GetCallingAssembly();
 
+        builder.AddConfigurations();
+        
         return builder.Services
             .AddFacades(assembly)
             .AddApiClients(assembly)
@@ -63,5 +66,14 @@ public static class ApplicationBuilderExtensions
         services.AddHostedService<ExpeditionBackgroundService>();
         
         return services;
+    }
+
+    private static void AddConfigurations(this IHostApplicationBuilder builder)
+    {
+        builder.Services
+            .AddOptions<ExpeditionConfiguration>()
+            .Bind(builder.Configuration.GetSection("Expedition"))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
     }
 }
