@@ -1,7 +1,7 @@
+using TwistedTaleweaver.DataAccess.Expeditions.Entities;
+using TwistedTaleweaver.DataAccess.Expeditions.Entities.Enums;
 using TwistedTaleweaver.Expeditions.Entities.Inputs;
-using TwistedTaleweaver.Expeditions.Entities.Outcomes;
 using TwistedTaleweaver.Expeditions.Entities.States;
-using TwistedTaleweaver.Expeditions.Facades;
 using TwistedTaleweaver.Expeditions.Helpers;
 using TwistedTaleweaver.Users.Clients;
 using TwistedTaleweaver.Users.Entities;
@@ -30,7 +30,7 @@ internal class ExpeditionCombatProcessor(
         
         logger.LogDebug("Processing combat for expedition {ExpeditionId}", expeditionState.ExpeditionId);
 
-        expeditionOutcome.Prologue = NarrationHelper.GeneratePrologue();
+        expeditionOutcome.Narrations.Add(NarrationHelper.GeneratePrologue());
         
         while (true)
         {
@@ -42,8 +42,10 @@ internal class ExpeditionCombatProcessor(
                 break;
             }
                 
-            var encounterOutcome = ProcessEncounter(encounter, usernamesByExternalUserId);
+            var (encounterOutcome, narrations) = ProcessEncounter(encounter, usernamesByExternalUserId);
+            
             expeditionOutcome.Encounters.Add(encounterOutcome);
+            expeditionOutcome.Narrations.AddRange(narrations);
                 
             if (expeditionState.AliveCharacters.Count == 0)
             {
@@ -54,37 +56,49 @@ internal class ExpeditionCombatProcessor(
 
         if (expeditionState.AliveCharacters.Count == 0)
         {
-            expeditionOutcome.Epilogue = NarrationHelper.GenerateFailureEpilogue();
+            expeditionOutcome.Narrations.Add(NarrationHelper.GenerateFailureEpilogue());
+            expeditionOutcome.Result = ExpeditionResult.Failure;
         }
         else
         {
-            expeditionOutcome.Epilogue = NarrationHelper.GenerateSuccessEpilogue();
+            expeditionOutcome.Narrations.Add(NarrationHelper.GenerateSuccessEpilogue());
+            expeditionOutcome.Result = ExpeditionResult.Success;
         }
         
         return expeditionOutcome;
     }
 
-    private static EncounterOutcome ProcessEncounter(EncounterState encounter, Dictionary<string, ExternalUser> usernamesByExternalUserId)
+    private static (EncounterOutcome outcome, List<string> narrations) ProcessEncounter(
+        EncounterState encounter, Dictionary<string, ExternalUser> usernamesByExternalUserId)
     {
-        var narration = new List<string> { NarrationHelper.GenerateMonsterAppearMessage(encounter.Monster.Name) };
-
+        var narrations = new List<string> { NarrationHelper.GenerateMonsterAppearMessage(encounter.Monster.Name) };
+        var characterDeaths = new List<Guid>();
+        
         while (encounter.Monster.IsAlive && encounter.AliveCharacters.Count > 0)
         {
-            ProcessCharactersAttack(encounter, usernamesByExternalUserId, narration);
+            ProcessCharactersAttack(encounter, usernamesByExternalUserId, narrations);
 
             if (!encounter.Monster.IsAlive)
             {
                 break;
             }
             
-            ProcessMonsterRetaliation(encounter, usernamesByExternalUserId, narration);
+            ProcessMonsterRetaliation(encounter, usernamesByExternalUserId, narrations, characterDeaths);
         }
         
-        return new EncounterOutcome()
+        var outcome =  new EncounterOutcome()
         {
             EncounterId = encounter.EncounterId,
-            Narration = narration
+            Result = encounter.Monster.IsAlive ? EncounterResult.Failure : EncounterResult.Success,
+            Enemy = new EncounterOutcome.Monster
+            {
+                MonsterId = encounter.Monster.MonsterId,
+                Name = encounter.Monster.Name,
+            },
+            CharacterDeaths = characterDeaths
         };
+
+        return (outcome, narrations);
     }
     
     private static void ProcessCharactersAttack(
@@ -118,10 +132,10 @@ internal class ExpeditionCombatProcessor(
         }
     }
 
-    private static void ProcessMonsterRetaliation(
-        EncounterState encounter,
+    private static void ProcessMonsterRetaliation(EncounterState encounter,
         Dictionary<string, ExternalUser> usernamesByExternalUserId,
-        List<string> narration)
+        List<string> narration, 
+        List<Guid> characterDeaths)
     {
         var attackCount = Math.Min(2, encounter.AliveCharacters.Count);
 
@@ -143,6 +157,8 @@ internal class ExpeditionCombatProcessor(
             if (!target.IsAlive)
             {
                 narration.Add(NarrationHelper.GenerateCharacterDiesMessage(externalUser.Username, encounter.Monster.Name));
+                characterDeaths.Add(target.CharacterId);
+                
                 encounter.AliveCharacters[targetIndex] = encounter.AliveCharacters[^1];
                 encounter.AliveCharacters.RemoveAt(encounter.AliveCharacters.Count - 1);
 
@@ -162,6 +178,6 @@ internal class ExpeditionCombatProcessor(
 
     private static int RollDamage()
     {
-        return Random.Shared.Next(0, 15);
+        return Random.Shared.Next(1, 15);
     }
 }

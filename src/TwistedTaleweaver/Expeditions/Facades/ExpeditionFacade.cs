@@ -1,6 +1,7 @@
 using Npgsql;
 using TwistedTaleweaver.Chat.Clients;
 using TwistedTaleweaver.Common;
+using TwistedTaleweaver.DataAccess.Characters.Entities;
 using TwistedTaleweaver.DataAccess.Characters.Repositories;
 using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Common.Extensions;
@@ -43,7 +44,8 @@ internal class ExpeditionFacade(
     ICharacterRepository characterRepository,
     IChatApiClient chatApiClient,
     IUserApiClient userApiClient,
-    IExpeditionCombatProcessor  expeditionCombatProcessor,
+    IExpeditionCombatProcessor expeditionCombatProcessor,
+    IExpeditionOutcomeRepository expeditionOutcomeRepository,
     Func<IUnitOfWork> createUnitOfWork,
     ILogger<ExpeditionFacade> logger) : IExpeditionFacade
 {
@@ -58,7 +60,7 @@ internal class ExpeditionFacade(
             var broadcaster = await userRepository.GetOrCreateAsync(broadcasterExternalId, transaction);
             var creator = await userRepository.GetOrCreateAsync(userExternalId, transaction);
 
-            if (!await CanCreateExpedition(creator.UserId, broadcaster.UserId, transaction))
+            if (!await CanCreateExpeditionAsync(creator.UserId, broadcaster.UserId, transaction))
             {
                 logger.LogWarning(
                     "Chatter {ChatterId} does not have permission to create an expedition for broadcaster {BroadcasterId} when processing expedition creation command",
@@ -232,7 +234,7 @@ internal class ExpeditionFacade(
             "No more names shall be etched in this tale - the expedition begins, and so does the suffering.");
     }
 
-    private async Task<bool> CanCreateExpedition(Guid userId, Guid broadcasterId, NpgsqlTransaction transaction)
+    private async Task<bool> CanCreateExpeditionAsync(Guid userId, Guid broadcasterId, NpgsqlTransaction transaction)
     {
         if (userId == broadcasterId)
         {
@@ -255,7 +257,7 @@ internal class ExpeditionFacade(
         {
             try
             {
-                await ProcessSingleExpeditionCombat(expedition);
+                await ProcessSingleExpeditionCombatAsync(expedition);
             }
             catch (Exception ex)
             {
@@ -265,9 +267,9 @@ internal class ExpeditionFacade(
         }
     }
 
-    private async Task ProcessSingleExpeditionCombat(Expedition expedition)
+    private async Task ProcessSingleExpeditionCombatAsync(Expedition expedition)
     {
-        var participants = await expeditionRepository.GetParticipantsAsync(expedition.ExpeditionId);
+        var participants = (await expeditionRepository.GetParticipantsAsync(expedition.ExpeditionId)).ToList();
 
         var expeditionOutcome = await expeditionCombatProcessor.Process(new ExpeditionInput()
         {
@@ -290,7 +292,7 @@ internal class ExpeditionFacade(
                         Health = 100
                     }
                 },
-                new()
+                /*new()
                 {
                     EncounterId = Guid.NewGuid(),
                     Monster = new MonsterInput()
@@ -319,37 +321,70 @@ internal class ExpeditionFacade(
                         Name = "The Choir of Teeth",
                         Health = 90
                     }
-                }
+                }*/
             ]
         });
             
+        await ProcessOutcomeAsync(expedition, expeditionOutcome, participants);
+    }
+
+    private async Task ProcessOutcomeAsync(
+        Expedition expedition,
+        ExpeditionOutcome expeditionOutcome,
+        List<ExpeditionParticipant> participants)
+    {
+        var experienceIncrements = CalculateExperienceGains(expeditionOutcome, participants);
+        
         await using var unitOfWork = createUnitOfWork();
 
         await unitOfWork.ExecuteInTransactionAsync(async transaction =>
         {
+            await expeditionOutcomeRepository.AddAsync(expeditionOutcome, transaction);
+
+            if (experienceIncrements.Count != 0)
+            {
+                await characterRepository.AddExperienceIncrementsAsync(experienceIncrements, transaction);
+            }
+            
             await expeditionRepository.UpdateExpeditionStatusAsync(
                 expedition.ExpeditionId, 
                 ExpeditionStatus.Started,
                 ExpeditionStatus.Completed,
                 transaction);
 
-            if (expeditionOutcome.Prologue is not null)
+            foreach (var narration in expeditionOutcome.Narrations)
             {
-                await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, expeditionOutcome.Prologue);
-            }
-                
-            foreach (var encounter in expeditionOutcome.Encounters)
-            {
-                foreach (var narrationText in encounter.Narration)
-                {
-                    await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, narrationText);
-                }
-            }
-
-            if (expeditionOutcome.Epilogue is not null)
-            {
-                await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, expeditionOutcome.Epilogue);
+                await chatApiClient.SendChatMessageAsync(expedition.BroadcasterExternalUserId, narration);
             }
         });
+    }
+
+    private static List<Guid> GetSurvivors(
+        ExpeditionOutcome expeditionOutcome,
+        List<ExpeditionParticipant> participants)
+    {
+        var survivors = participants.Select(x => x.CharacterId).ToHashSet();
+
+        foreach (var encounter in expeditionOutcome.Encounters)
+        {
+            survivors.ExceptWith(encounter.CharacterDeaths);
+        }
+        
+        return survivors.ToList();
+    }
+
+    private static List<CharacterExperienceIncrement> CalculateExperienceGains(
+        ExpeditionOutcome expeditionOutcome,
+        List<ExpeditionParticipant> participants)
+    {
+        var survivors = GetSurvivors(expeditionOutcome, participants);
+        var experienceGain = Random.Shared.Next(10, 51);
+
+        return survivors.Select(x => new CharacterExperienceIncrement()
+        {
+            ExpeditionId = expeditionOutcome.ExpeditionId,
+            CharacterId = x,
+            Amount = experienceGain
+        }).ToList();
     }
 }
