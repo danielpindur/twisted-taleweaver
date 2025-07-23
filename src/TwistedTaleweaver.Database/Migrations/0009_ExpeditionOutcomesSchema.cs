@@ -23,6 +23,7 @@ public class ExpeditionOutcomesSchema : Migration
         Create.Table("expedition_outcomes")
             .WithColumn("expedition_id")
                 .AsGuid()
+                .PrimaryKey()
                 .NotNullable()
                 .ForeignKey("expeditions", "expedition_id")
             .WithColumn("result_id")

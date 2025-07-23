@@ -15,6 +15,13 @@ public interface ICharacterRepository : IRepository
         Guid userId, 
         Guid broadcasterUserId, 
         NpgsqlTransaction? transaction = null);
+
+    /// <summary>
+    /// Adds experience increments to characters.
+    /// </summary>
+    Task AddExperienceIncrementsAsync(
+        List<CharacterExperienceIncrement> experiences,
+        NpgsqlTransaction? transaction = null);
 }
 
 internal class CharacterRepository(IDbConnectionFactory connectionFactory) : ICharacterRepository
@@ -52,6 +59,21 @@ internal class CharacterRepository(IDbConnectionFactory connectionFactory) : ICh
                 UserId = userId,
                 BroadcasterUserId = broadcasterUserId
             }, tx);
+        }, transaction);
+    }
+
+    public async Task AddExperienceIncrementsAsync(
+        List<CharacterExperienceIncrement> experiences, 
+        NpgsqlTransaction? transaction = null)
+    {
+        await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            const string sql = @"
+                INSERT INTO character_experience_increments 
+                (character_id, amount, expedition_id)
+                VALUES (@CharacterId, @Amount, @ExpeditionId)";
+
+            await connection.ExecuteAsync(sql, experiences, tx);
         }, transaction);
     }
 }
