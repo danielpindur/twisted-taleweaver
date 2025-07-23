@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Npgsql;
 using TwistedTaleweaver.Chat.Clients;
 using TwistedTaleweaver.Common;
@@ -12,6 +13,7 @@ using TwistedTaleweaver.DataAccess.Permissions.Entities.Enums;
 using TwistedTaleweaver.DataAccess.Permissions.Repositories;
 using TwistedTaleweaver.DataAccess.Streams.Repositories;
 using TwistedTaleweaver.DataAccess.Users.Repositories;
+using TwistedTaleweaver.Expeditions.Configurations;
 using TwistedTaleweaver.Expeditions.Entities.Inputs;
 using TwistedTaleweaver.Expeditions.Processors;
 using TwistedTaleweaver.Users.Clients;
@@ -46,10 +48,12 @@ internal class ExpeditionFacade(
     IUserApiClient userApiClient,
     IExpeditionCombatProcessor expeditionCombatProcessor,
     IExpeditionOutcomeRepository expeditionOutcomeRepository,
+    IOptions<ExpeditionConfiguration> configuration,
     Func<IUnitOfWork> createUnitOfWork,
     ILogger<ExpeditionFacade> logger) : IExpeditionFacade
 {
-    private static readonly TimeSpan JoinPeriod = TimeSpan.FromSeconds(15); //TimeSpan.FromMinutes(2);
+    private readonly TimeSpan _joinPeriod = TimeSpan.FromMinutes(configuration.Value.JoinPeriodMinutes);
+    private readonly int _timeoutPeriodMinutes = configuration.Value.TimeoutPeriodMinutes;
 
     public async Task StartExpeditionAsync(string broadcasterExternalId, string userExternalId)
     {
@@ -92,7 +96,19 @@ internal class ExpeditionFacade(
                 return;
             }
 
-            // TODO: Check if expedition cooldown passed
+            var lastExpedition = await expeditionRepository.GetLastExpeditionAsync(broadcaster.UserId, transaction);
+
+            if (!ExpeditionTimeoutHasPassed(lastExpedition))
+            {
+                logger.LogWarning(
+                    "Broadcaster {BroadcasterId} has an expedition timeout that has not passed when processing expedition creation command",
+                    broadcaster.UserId);
+                
+                await chatApiClient.SendChatMessageAsync(broadcaster.ExternalUserId,
+                    "The realm recoils from your last foray — patience, the next gate stirs slowly.");
+                
+                return;
+            }
 
             var expeditionId = await expeditionRepository.CreateExpeditionAsync(
                 activeStream.StreamId,
@@ -106,6 +122,16 @@ internal class ExpeditionFacade(
             await chatApiClient.SendChatMessageAsync(broadcaster.ExternalUserId,
                 "The ink is wet, the page awaits... I’ve summoned horrors untold. Who dares become part of this next tale?");
         });
+    }
+
+    private bool ExpeditionTimeoutHasPassed(Expedition? lastExpedition)
+    {
+        if (lastExpedition?.CompletedAt is null)
+        {
+            return true;
+        }
+        
+        return (DateTimeOffset.UtcNow - lastExpedition.CompletedAt.Value).TotalMinutes > _timeoutPeriodMinutes;
     }
 
     public async Task JoinExpeditionAsync(string broadcasterExternalId, string userExternalId)
@@ -175,7 +201,7 @@ internal class ExpeditionFacade(
 
         await unitOfWork.ExecuteInTransactionAsync(async transaction =>
         {
-            var expeditionsToStart = await expeditionRepository.GetExpeditionsToStartAsync(JoinPeriod, transaction);
+            var expeditionsToStart = await expeditionRepository.GetExpeditionsToStartAsync(_joinPeriod, transaction);
             
             foreach (var expedition in expeditionsToStart)
             {

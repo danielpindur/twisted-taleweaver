@@ -26,6 +26,13 @@ public interface IExpeditionRepository : IRepository
         NpgsqlTransaction? transaction = null);
     
     /// <summary>
+    /// Returns last expedition for given broadcaster, if any.
+    /// </summary>
+    Task<Expedition?> GetLastExpeditionAsync(
+        Guid broadcasterUserId, 
+        NpgsqlTransaction? transaction = null);
+    
+    /// <summary>
     /// Adds a character to an expedition.
     /// </summary>
     Task JoinExpeditionAsync(
@@ -147,7 +154,37 @@ internal class ExpeditionRepository(IDbConnectionFactory connectionFactory) : IE
             }, tx);
         }, transaction);
     }
-    
+
+    public async Task<Expedition?> GetLastExpeditionAsync(
+        Guid broadcasterUserId, 
+        NpgsqlTransaction? transaction = null)
+    {
+        return await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            const string sql = @"
+                SELECT
+                    e.expedition_id,
+                    e.stream_id,
+                    e.created_by_user_id,
+                    e.status_id as Status,
+                    e.created_at,
+                    e.started_at,
+                    e.completed_at,
+                    e.failed_at,
+                    e.updated_at
+                FROM expeditions e
+                INNER JOIN streams s ON e.stream_id = s.stream_id
+                WHERE s.broadcaster_user_id = @BroadcasterUserId 
+                ORDER BY e.created_at DESC
+                LIMIT 1";
+
+            return await connection.QuerySingleOrDefaultAsync<Expedition>(sql, new
+            {
+                BroadcasterUserId = broadcasterUserId
+            }, tx);
+        }, transaction);
+    }
+
     public async Task JoinExpeditionAsync(
         Guid characterId,
         Guid expeditionId,
