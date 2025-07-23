@@ -131,7 +131,7 @@ internal class ExpeditionFacade(
             return true;
         }
         
-        return (DateTimeOffset.Now - lastExpedition.CompletedAt.Value).TotalMinutes > _timeoutPeriodMinutes;
+        return (DateTimeOffset.UtcNow - lastExpedition.CompletedAt.Value).TotalMinutes > _timeoutPeriodMinutes;
     }
 
     public async Task JoinExpeditionAsync(string broadcasterExternalId, string userExternalId)
