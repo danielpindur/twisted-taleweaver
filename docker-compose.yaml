@@ -1,0 +1,11 @@
+﻿services:
+  example.gateway:
+    image: twistedtaleweaver.gateway
+    build:
+      context: .
+      dockerfile: src/TwistedTaleweaver.Gateway/Dockerfile
+    ports:
+      - "8081:8080"
+    env_file:
+      - .env
+      
