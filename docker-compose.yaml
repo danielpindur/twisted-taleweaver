@@ -1,5 +1,5 @@
 ﻿services:
-  example.gateway:
+  twistedtaleweaver.gateway:
     image: twistedtaleweaver.gateway
     build:
       context: .
