@@ -1,68 +1,116 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
+@layer base {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    /* Dark Medieval Background Palette */
+    --background: 240 8% 8%;
+    --foreground: 35 80% 85%;
+
+    /* Card and Surface Colors */
+    --card: 240 8% 12%;
+    --card-foreground: 35 80% 85%;
+
+    --popover: 240 8% 10%;
+    --popover-foreground: 35 80% 85%;
+
+    /* Primary - Gothic Gold */
+    --primary: 42 85% 65%;
+    --primary-foreground: 240 8% 8%;
+    --primary-glow: 42 95% 75%;
+
+    /* Secondary - Deep Purple */
+    --secondary: 260 15% 20%;
+    --secondary-foreground: 35 80% 85%;
+
+    /* Muted - Dark Stone */
+    --muted: 240 8% 15%;
+    --muted-foreground: 35 40% 65%;
+
+    /* Accent - Crimson */
+    --accent: 0 70% 45%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Destructive - Blood Red */
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders and Inputs */
+    --border: 240 15% 25%;
+    --input: 240 8% 15%;
+    --ring: 42 85% 65%;
+
+    /* Taleweaver - Malevolent Purple */
+    --taleweaver: 270 50% 35%;
+    --taleweaver-foreground: 270 80% 85%;
+
+    /* Player - Hero Blue */
+    --player: 210 70% 50%;
+    --player-foreground: 210 100% 95%;
+
+    /* Status Colors */
+    --health: 120 60% 45%;
+    --danger: 0 85% 55%;
+    --warning: 45 90% 60%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(42 85% 65%), hsl(42 95% 75%));
+    --gradient-dark: linear-gradient(180deg, hsl(240 8% 12%), hsl(240 8% 8%));
+    --gradient-taleweaver: linear-gradient(135deg, hsl(270 50% 35%), hsl(280 60% 45%));
+
+    /* Shadows */
+    --shadow-glow: 0 0 20px hsl(42 85% 65% / 0.3);
+    --shadow-dark: 0 10px 25px hsl(240 8% 4% / 0.5);
+    --shadow-evil: 0 0 30px hsl(270 50% 35% / 0.4);
+
+    --radius: 0.75rem;
   }
-  a:hover {
-    color: #747bff;
+}
+
+@layer base {
+  * {
+    @apply border-border;
   }
-  button {
-    background-color: #f9f9f9;
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Custom Scrollbar Styling - Force Dark Theme */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar {
+    height: 8px !important;
+    width: 8px !important;
+    background: hsl(var(--muted)) !important;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted)) !important;
+    border-radius: 4px !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border)) !important;
+    border-radius: 4px !important;
+    border: 1px solid hsl(var(--muted)) !important;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground)) !important;
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background: hsl(var(--foreground)) !important;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: hsl(var(--muted)) !important;
   }
 }
