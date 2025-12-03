@@ -11,17 +11,17 @@ public class UsersSchema : Migration
         
         Create.Table("users")
             .WithColumn("user_id")
-            .AsGuid()
-            .PrimaryKey()
-            .WithDefault(SystemMethods.NewGuid)
+                .AsGuid()
+                .PrimaryKey()
+                .WithDefault(SystemMethods.NewGuid)
             .WithColumn("external_user_id")
-            .AsString(36)
-            .NotNullable()
-            .Unique()
+                .AsString(36)
+                .NotNullable()
+                .Unique()
             .WithColumn("created_at")
-            .AsDateTimeOffset()
-            .NotNullable()
-            .WithDefault(SystemMethods.CurrentDateTimeOffset);
+                .AsDateTimeOffset()
+                .NotNullable()
+                .WithDefault(SystemMethods.CurrentDateTimeOffset);
     }
 
     public override void Down()

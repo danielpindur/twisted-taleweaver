@@ -23,4 +23,8 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\TwistedTaleweaver\TwistedTaleweaver.csproj" />
+    </ItemGroup>
+
 </Project>
