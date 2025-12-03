@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwistedTaleweaver.Gateway", "src\TwistedTaleweaver.Gateway\TwistedTaleweaver.Gateway.csproj", "{86BBCF05-93CE-4139-8F28-3E43C2C5A8F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwistedTaleweaver.Database", "src\TwistedTaleweaver.Database\TwistedTaleweaver.Database.csproj", "{80C12BD0-289C-4759-97CA-F52B61CA794E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{86BBCF05-93CE-4139-8F28-3E43C2C5A8F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86BBCF05-93CE-4139-8F28-3E43C2C5A8F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86BBCF05-93CE-4139-8F28-3E43C2C5A8F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80C12BD0-289C-4759-97CA-F52B61CA794E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80C12BD0-289C-4759-97CA-F52B61CA794E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80C12BD0-289C-4759-97CA-F52B61CA794E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80C12BD0-289C-4759-97CA-F52B61CA794E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

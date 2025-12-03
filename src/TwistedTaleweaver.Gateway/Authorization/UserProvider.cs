@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 namespace TwistedTaleweaver.Gateway.Authorization;
 
-internal interface IUserProvider
+public interface IUserProvider
 {
     string UserId { get; }
 }

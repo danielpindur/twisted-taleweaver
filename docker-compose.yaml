@@ -1,4 +1,49 @@
 ﻿services:
+  postgres:
+    image: postgres:18.1
+    environment:
+      POSTGRES_DB: twistedtaleweaver
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: SuperSecretPassword
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@twistedtaleweaver.com
+      PGADMIN_DEFAULT_PASSWORD: SuperSecretPassword
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+  twistedtaleweaver-database:
+    restart: no
+    image: twistedtaleweaver.database
+    build:
+      context: .
+      dockerfile: src/TwistedTaleweaver.Database/Dockerfile
+    environment:
+      - ConnectionStrings__Database=Host=postgres;Port=5432;Database=twistedtaleweaver;Username=postgres;Password=SuperSecretPassword
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   twistedtaleweaver.gateway:
     image: twistedtaleweaver.gateway
     build:
@@ -6,6 +51,14 @@
       dockerfile: src/TwistedTaleweaver.Gateway/Dockerfile
     ports:
       - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      twistedtaleweaver-database:
+        condition: service_completed_successfully
     env_file:
       - .env
       
+volumes:
+  postgres-data:
+  pgadmin-data:
