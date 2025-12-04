@@ -9,9 +9,9 @@ namespace TwistedTaleweaver.Expeditions.CommandHandlers;
 
 public class CreateExpeditionCommand 
 {
-    public required string Name { get; set; }
+    public string? Name { get; set; }
     
-    public required string Description { get; set; }
+    public string? Description { get; set; }
     
     public ExpeditionDifficulty Difficulty { get; set; }
     
@@ -35,6 +35,18 @@ internal class CreateExpeditionCommandHandler(
 {
     public async Task<CreateExpeditionResult> ExecuteAsync(CreateExpeditionCommand command)
     {
+        if (string.IsNullOrEmpty(command.Name))
+        {
+            // TODO: Actual generation
+            command.Name = "GeneratedName";
+        }
+
+        if (string.IsNullOrEmpty(command.Description))
+        {
+            // TODO: Actual generation
+            command.Description = "GeneratedDescription";
+        }
+        
         await using var unitOfWork = createUnitOfWork();
 
         return await unitOfWork.ExecuteInTransactionAsync(async transaction =>

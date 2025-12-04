@@ -4,8 +4,8 @@
 /* eslint-disable */
 import type { ExpeditionDifficulty } from './ExpeditionDifficulty';
 export type ExpeditionRequest = {
-    name: string;
-    description: string;
+    name?: string | null;
+    description?: string | null;
     difficulty: ExpeditionDifficulty;
     maxParticipants: number | string;
 };

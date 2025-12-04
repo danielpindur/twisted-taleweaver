@@ -4,8 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Landing from "@/pages/Landing";
 import NotFound from "@/pages/NotFound";
+import Rooms from "@/pages/Rooms";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
@@ -27,6 +29,14 @@ function App() {
 							<Route path="/" element={<Landing />} />
 
 							{/* Protected routes */}
+							<Route 
+                path="/rooms" 
+                element={
+                  <ProtectedRoute>
+                    <Rooms />
+                  </ProtectedRoute>
+                } 
+              />
 
 							{/* 404 route */}
 							<Route path="*" element={<NotFound />} />

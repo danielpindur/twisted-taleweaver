@@ -9,18 +9,16 @@ namespace TwistedTaleweaver.Gateway.Expeditions.Contracts;
 public class ExpeditionRequest
 {
     /// <summary>
-    /// Name of the expedition
+    /// Name of the expedition - if empty a name will be generated
     /// </summary>
     [Length(1, 100)]
-    [Required]
-    public required string Name { get; set; }
+    public string? Name { get; set; }
     
     /// <summary>
-    /// Description of the expedition to drive the narrative 
+    /// Description of the expedition to drive the narrative - if empty a description will be generated
     /// </summary>
     [Length(1, int.MaxValue)]
-    [Required]
-    public required string Description { get; set; }
+    public string? Description { get; set; }
     
     /// <summary>
     /// Difficulty level of the expedition

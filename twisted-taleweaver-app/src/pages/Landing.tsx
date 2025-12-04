@@ -38,8 +38,8 @@ const Landing = () => {
                   size="lg"
                   className="gap-2 font-crimson text-lg px-8 py-4"
                   onClick={() => openSignIn({
-                    afterSignInUrl: "/dashboard",
-                    afterSignUpUrl: "/dashboard",
+                    afterSignInUrl: "/rooms",
+                    afterSignUpUrl: "/rooms",
                   })}>
                   <Link to="#">
                     <Sword className="h-5 w-5" />
@@ -49,7 +49,7 @@ const Landing = () => {
               </SignedOut>
               <SignedIn>
                 <Button asChild size="lg" className="gap-2 font-crimson text-lg px-8 py-4" onClick={() => openSignIn()}>
-                  <Link to="/dashboard">
+                  <Link to="/rooms">
                     <Sword className="h-5 w-5" />
                     Explore the Realms
                   </Link>
