@@ -15,7 +15,9 @@ public interface IExpeditionByIdQueryHandler : IQueryHandler<ExpeditionByIdQuery
 {
 }
 
-internal class ExpeditionByIdQueryHandler(IDbConnectionFactory connectionFactory) : IExpeditionByIdQueryHandler
+internal class ExpeditionByIdQueryHandler(
+    IDbConnectionFactory connectionFactory,
+    IExpeditionParticipantsQueryHandler expeditionParticipantsQueryHandler) : IExpeditionByIdQueryHandler
 {
     public async Task<Expedition?> ExecuteAsync(ExpeditionByIdQuery query)
     {
@@ -43,20 +45,9 @@ internal class ExpeditionByIdQueryHandler(IDbConnectionFactory connectionFactory
                 query.ExpeditionId
             }, tx);
         });
-        
-        var participantsTask = connectionFactory.ExecuteAsync(async (connection, tx) =>
-        {
-            const string sql = @"
-                SELECT 
-                    ep.user_id
-                FROM expedition_participants ep
-                WHERE ep.expedition_id = @ExpeditionId";
 
-            return await connection.QueryAsync<ExpeditionParticipant>(sql, new
-            { 
-                query.ExpeditionId
-            }, tx);
-        });
+        var participantsByExpeditionIdTask = expeditionParticipantsQueryHandler.ExecuteAsync(
+            new ExpeditionParticipantsQuery() { ExpeditionIds = new List<Guid>() { query.ExpeditionId } });
 
         var expedition = await expeditionTask;
 
@@ -65,7 +56,10 @@ internal class ExpeditionByIdQueryHandler(IDbConnectionFactory connectionFactory
             return null;
         }
 
-        expedition.Participants = (await participantsTask).ToList();
+        var participantsByExpeditionId = await participantsByExpeditionIdTask;
+        expedition.Participants = participantsByExpeditionId.TryGetValue(query.ExpeditionId, out var participants) 
+            ? participants : 
+            new List<ExpeditionParticipant>();
         
         return expedition;
     }

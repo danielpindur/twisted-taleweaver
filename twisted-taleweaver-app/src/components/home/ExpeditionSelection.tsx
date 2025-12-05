@@ -352,7 +352,7 @@ export const ExpeditionSelection = () => {
               </p>
             )}
 
-            {data?.items.map((expedition) => (
+            {!isError && data?.items.map((expedition) => (
               <Card key={expedition.expeditionId} className="bg-card border-border shadow-dark hover:shadow-glow transition-all duration-300">
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">

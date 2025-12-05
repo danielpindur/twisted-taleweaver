@@ -52,8 +52,6 @@ public class Expedition
     /// </summary>    
     public ExpeditionOutcome? Outcome { get; set; }
     
-    // TODO: User created
-    
     /// <summary>
     /// Participants in the expedition
     /// </summary>

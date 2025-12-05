@@ -4,12 +4,14 @@ using TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
 using TwistedTaleweaver.Gateway.Common.Pagination.Mappers;
 using ExpeditionContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.Expedition;
 using ExpeditionParticipantContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionParticipant;
+using ClerkUser = Clerk.Net.Client.Models.User;
 
 namespace TwistedTaleweaver.Gateway.Expeditions.Mappers;
 
 internal static class ExpeditionMapper
 {
-    public static ExpeditionContract ToContract(this Expedition source)
+    public static ExpeditionContract ToContract(
+        this Expedition source, Dictionary<string, ClerkUser> clerkUserByExternalId)
     {
         return new ExpeditionContract()
         {
@@ -20,7 +22,7 @@ internal static class ExpeditionMapper
             Difficulty =  source.Difficulty,
             MaxParticipants = source.MaxParticipants,
             Outcome = source.Outcome,
-            Participants = source.Participants.ToContract(),
+            Participants = source.Participants.ToContract(clerkUserByExternalId),
             CreatedAt = source.CreatedAt,
             UpdatedAt = source.UpdatedAt,
             StartedAt = source.StartedAt,
@@ -28,21 +30,26 @@ internal static class ExpeditionMapper
         };
     }
 
-    public static PaginatedResponse<ExpeditionContract> ToContract(this PaginatedResult<Expedition> source)
+    public static PaginatedResponse<ExpeditionContract> ToContract(
+        this PaginatedResult<Expedition> source, Dictionary<string, ClerkUser> clerkUserByExternalId)
     {
-        return source.ToContract(ToContract);
+        return source.ToContract(x => x.ToContract(clerkUserByExternalId));
     }
 
-    private static ExpeditionParticipantContract ToContract(this ExpeditionParticipant source)
+    private static ExpeditionParticipantContract ToContract(
+        this ExpeditionParticipant source, Dictionary<string, ClerkUser> clerkUserByExternalId)
     {
         return new ExpeditionParticipantContract()
         {
-            UserId = source.UserId
+            UserId = source.UserId,
+            Name = clerkUserByExternalId[source.ExternalUserId].Username!
         };
     }
 
-    private static List<ExpeditionParticipantContract> ToContract(this List<ExpeditionParticipant> source)
+    private static List<ExpeditionParticipantContract> ToContract(
+        this List<ExpeditionParticipant> source,
+        Dictionary<string, ClerkUser> clerkUserByExternalId)
     {
-        return source.Select(ToContract).ToList();
+        return source.Select(x => x.ToContract(clerkUserByExternalId)).ToList();
     }
 }

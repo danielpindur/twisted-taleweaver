@@ -1,12 +1,10 @@
+using TwistedTaleweaver.Gateway.Users.Contracts;
+
 namespace TwistedTaleweaver.Gateway.Expeditions.Contracts;
 
 /// <summary>
 /// Represents a participant in an expedition
 /// </summary>
-public class ExpeditionParticipant
+public class ExpeditionParticipant : User
 {
-    /// <summary>
-    /// The unique identifier of the user participating in the expedition
-    /// </summary>
-    public Guid UserId { get; set; }
 }

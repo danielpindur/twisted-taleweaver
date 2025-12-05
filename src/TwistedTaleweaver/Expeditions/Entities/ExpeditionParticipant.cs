@@ -1,6 +1,7 @@
+using TwistedTaleweaver.Users.Entities;
+
 namespace TwistedTaleweaver.Expeditions.Entities;
 
-public class ExpeditionParticipant
+public class ExpeditionParticipant : User
 {
-    public Guid UserId { get; set; }
 }
