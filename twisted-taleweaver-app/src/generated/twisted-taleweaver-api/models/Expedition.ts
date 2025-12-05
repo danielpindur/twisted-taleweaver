@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { ExpeditionDifficulty } from './ExpeditionDifficulty';
 import type { ExpeditionOutcome } from './ExpeditionOutcome';
+import type { ExpeditionParticipant } from './ExpeditionParticipant';
 import type { ExpeditionStatus } from './ExpeditionStatus';
 export type Expedition = {
     expeditionId: string;
@@ -13,6 +14,7 @@ export type Expedition = {
     difficulty: ExpeditionDifficulty;
     maxParticipants: number | string;
     outcome?: (null | ExpeditionOutcome);
+    participants: Array<ExpeditionParticipant>;
     createdAt: string;
     updatedAt: string;
     startedAt?: string | null;

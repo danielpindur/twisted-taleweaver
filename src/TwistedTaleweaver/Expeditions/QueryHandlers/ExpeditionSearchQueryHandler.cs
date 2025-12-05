@@ -50,6 +50,32 @@ internal class ExpeditionSearchQueryHandler(IDbConnectionFactory connectionFacto
                 query.Offset
             }, tx);
         })).ToList();
+        
+        var participants = await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            const string sql = @"
+                SELECT 
+                    ep.expedition_id,
+                    ep.user_id
+                FROM expedition_participants ep
+                WHERE ep.expedition_id = ANY(@ExpeditionIds)";
+
+            return await connection.QueryAsync<ExpeditionParticipantDto>(sql, new
+            { 
+                ExpeditionIds = dtos.Select(ep => ep.ExpeditionId).ToList()
+            }, tx);
+        });
+        
+        var participantsByExpeditionId = participants
+            .GroupBy(x => x.ExpeditionId)
+            .ToDictionary(x => x.Key, x => x.ToList());
+
+        foreach (var dto in dtos)
+        {
+            dto.Participants = participantsByExpeditionId.TryGetValue(dto.ExpeditionId, out var expeditionParticipants) 
+                ? expeditionParticipants.Select(x => x as ExpeditionParticipant).ToList() 
+                : new List<ExpeditionParticipant>();
+        }
 
         return new PaginatedResult<Expedition>(dtos, dtos.FirstOrDefault()?.TotalCount ?? 0, query);
     }
@@ -57,5 +83,10 @@ internal class ExpeditionSearchQueryHandler(IDbConnectionFactory connectionFacto
     private class ExpeditionWithCount : Expedition
     {
         public int TotalCount { get; set; }
+    }
+
+    private class ExpeditionParticipantDto : ExpeditionParticipant
+    {
+        public Guid ExpeditionId { get; set; }
     }
 }

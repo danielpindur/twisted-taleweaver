@@ -18,6 +18,8 @@ public class Expedition
 
     public ExpeditionOutcome? Outcome { get; set; }
     
+    public required List<ExpeditionParticipant> Participants { get; set; }
+    
     public DateTimeOffset CreatedAt { get; set; }
     
     public DateTimeOffset UpdatedAt { get; set; }

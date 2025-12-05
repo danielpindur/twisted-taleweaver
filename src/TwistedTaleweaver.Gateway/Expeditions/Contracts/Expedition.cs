@@ -53,6 +53,12 @@ public class Expedition
     public ExpeditionOutcome? Outcome { get; set; }
     
     // TODO: User created
+    
+    /// <summary>
+    /// Participants in the expedition
+    /// </summary>
+    [Required]
+    public required List<ExpeditionParticipant> Participants { get; set; }
 
     /// <summary>
     /// Date and time when the expedition was created

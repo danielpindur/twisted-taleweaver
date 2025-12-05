@@ -52,6 +52,7 @@ internal class CreateExpeditionCommandHandler(
         return await unitOfWork.ExecuteInTransactionAsync(async transaction =>
         {
             var expeditionId = await CreateExpeditionAsync(command.UserId, command.Name, command.Description, command.Difficulty, command.MaxParticipants, transaction);
+            await JoinExpeditionAsync(expeditionId, command.UserId, transaction);
 
             return new CreateExpeditionResult() { ExpeditionId = expeditionId };
         });
@@ -80,6 +81,27 @@ internal class CreateExpeditionCommandHandler(
                 Description = description,
                 Difficulty = difficulty,
                 MaxParticipants = maxParticipants,
+                UserId = userId
+            }, tx);
+        }, transaction);
+    }
+
+    private async Task JoinExpeditionAsync(
+        Guid expeditionId,
+        Guid userId,
+        NpgsqlTransaction transaction)
+    {
+        await connectionFactory.ExecuteAsync(async (connection, tx) =>
+        {
+            const string sql = @"
+                INSERT INTO expedition_participants 
+                (expedition_id, user_id)
+                VALUES 
+                (@ExpeditionId, @UserId)";
+
+            return await connection.ExecuteAsync(sql, new
+            { 
+                ExpeditionId = expeditionId,
                 UserId = userId
             }, tx);
         }, transaction);
