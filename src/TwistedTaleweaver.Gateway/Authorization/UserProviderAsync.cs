@@ -1,18 +1,23 @@
 using System.Security.Claims;
+using TwistedTaleweaver.Users.CommandHandlers;
+using TwistedTaleweaver.Users.Entities;
 
 namespace TwistedTaleweaver.Gateway.Authorization;
 
 public interface IUserProvider
 {
-    string UserId { get; }
+    Task<User> GetUserAsync();
 }
 
-internal class UserProvider(IHttpContextAccessor httpContextAccessor) : IUserProvider
+internal class UserProvider(
+    IHttpContextAccessor httpContextAccessor,
+    Lazy<IGetOrCreateUserCommandHandler> getOrCreateUserCommandHandler) : IUserProvider
 {
     private ClaimsPrincipal? User => httpContextAccessor.HttpContext?.User;
+    
     private bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
-    public string UserId
+    private string ExternalUserId
     {
         get
         {
@@ -28,14 +33,20 @@ internal class UserProvider(IHttpContextAccessor httpContextAccessor) : IUserPro
                 throw new UnauthorizedAccessException("User ID claim not found.");
             }
 
-            var userId = userIdClaim.Value;
+            var externalUserId = userIdClaim.Value;
 
-            if (string.IsNullOrWhiteSpace(userId))
+            if (string.IsNullOrWhiteSpace(externalUserId))
             {
                 throw new UnauthorizedAccessException("User ID claim is empty.");
             }
 
-            return userId;
+            return externalUserId;
         }
+    }
+    
+    public async Task<User> GetUserAsync()
+    {
+        return await getOrCreateUserCommandHandler.Value
+            .ExecuteAsync(new GetOrCreateUserCommand() { ExternalUserId = ExternalUserId });
     }
 }

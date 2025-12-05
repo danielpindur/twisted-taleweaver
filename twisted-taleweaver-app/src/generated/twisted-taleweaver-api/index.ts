@@ -12,5 +12,6 @@ export { ExpeditionDifficulty } from './models/ExpeditionDifficulty';
 export { ExpeditionOutcome } from './models/ExpeditionOutcome';
 export type { ExpeditionRequest } from './models/ExpeditionRequest';
 export { ExpeditionStatus } from './models/ExpeditionStatus';
+export type { PaginatedResponseOfExpedition } from './models/PaginatedResponseOfExpedition';
 
 export { ExpeditionsService } from './services/ExpeditionsService';

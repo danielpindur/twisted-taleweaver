@@ -1,4 +1,4 @@
-import { ExpeditionSelection } from "@/components/home/RoomSelection";
+import { ExpeditionSelection } from "@/components/home/ExpeditionSelection";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";

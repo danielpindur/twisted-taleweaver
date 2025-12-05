@@ -1,0 +1,28 @@
+using TwistedTaleweaver.Common.Pagination.Entities;
+using TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
+using PaginationQuery = TwistedTaleweaver.Common.Pagination.QueryHandlers.PaginationQuery;
+using PaginationQueryContract = TwistedTaleweaver.Gateway.Common.Pagination.Contracts.PaginationQuery;
+
+namespace TwistedTaleweaver.Gateway.Common.Pagination.Mappers;
+
+internal static class PaginationMapper
+{
+    public static TQuery WithPagination<TQuery>(this TQuery query, PaginationQueryContract queryContract)
+        where TQuery : PaginationQuery
+    {
+        query.PageNumber = queryContract.PageNumber;
+        query.PageSize = queryContract.PageSize;
+        
+        return query;
+    }
+
+    public static PaginatedResponse<TResponse> ToContract<TResult, TResponse>(
+        this PaginatedResult<TResult> source, Func<TResult, TResponse> map)
+    {
+        return new PaginatedResponse<TResponse>(
+            source.Items.Select(map),
+            source.TotalItems,
+            source.PageNumber,
+            source.PageSize);
+    }
+}

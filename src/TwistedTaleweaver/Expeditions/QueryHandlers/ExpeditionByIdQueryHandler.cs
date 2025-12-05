@@ -19,6 +19,8 @@ internal class ExpeditionByIdQueryHandler(IDbConnectionFactory connectionFactory
 {
     public async Task<Expedition?> ExecuteAsync(ExpeditionByIdQuery query)
     {
+        // TODO: Does this need permission checks? 
+        
         return await connectionFactory.ExecuteAsync(async (connection, tx) =>
         {
             const string sql = @"

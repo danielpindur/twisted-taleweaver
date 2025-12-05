@@ -17,7 +17,7 @@ public class CreateExpeditionCommand
     
     public byte MaxParticipants { get; set; }
     
-    public required string ExternalUserId { get; set; }
+    public Guid UserId { get; set; }
 }
 
 public class CreateExpeditionResult
@@ -51,32 +51,13 @@ internal class CreateExpeditionCommandHandler(
 
         return await unitOfWork.ExecuteInTransactionAsync(async transaction =>
         {
-            var userId = await GetUserId(command.ExternalUserId, transaction);
-            var expeditionId = await CreateExpedition(userId, command.Name, command.Description, command.Difficulty, command.MaxParticipants, transaction);
+            var expeditionId = await CreateExpeditionAsync(command.UserId, command.Name, command.Description, command.Difficulty, command.MaxParticipants, transaction);
 
             return new CreateExpeditionResult() { ExpeditionId = expeditionId };
         });
     }
 
-    private async Task<Guid> GetUserId(string externalUserId, NpgsqlTransaction transaction)
-    {
-        return await connectionFactory.ExecuteAsync(async (connection, tx) =>
-        {
-            const string sql = @"
-                INSERT INTO users (external_user_id)
-                VALUES ('user_31MpMWGa4Xq8pxD4wbk3F8Hehd2')
-                ON CONFLICT (external_user_id) DO UPDATE
-                    SET external_user_id = EXCLUDED.external_user_id
-                RETURNING user_id";
-
-            return await connection.QuerySingleAsync<Guid>(sql, new
-            { 
-                ExternalUserId = externalUserId
-            }, tx);
-        }, transaction);
-    }
-
-    private async Task<Guid> CreateExpedition(
+    private async Task<Guid> CreateExpeditionAsync(
         Guid userId,
         string name,
         string description,

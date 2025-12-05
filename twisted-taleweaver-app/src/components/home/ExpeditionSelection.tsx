@@ -117,7 +117,6 @@ export const ExpeditionSelection = () => {
     },
   });
 
-
   const getStatusColor = (status: ExpeditionStatus) => {
     switch (status) {
       case ExpeditionStatus.CREATED: return "bg-warning text-background";
