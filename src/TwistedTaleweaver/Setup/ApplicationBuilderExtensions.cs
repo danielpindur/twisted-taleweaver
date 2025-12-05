@@ -1,4 +1,5 @@
 using System.Reflection;
+using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TwistedTaleweaver.Common.CommandHandlers;
@@ -16,7 +17,8 @@ public static class ApplicationBuilderExtensions
         return builder.Services
             .AddDataAccess()
             .AddCommandHandlers(assembly)
-            .AddQueryHandlers(assembly);
+            .AddQueryHandlers(assembly)
+            .AddLazyResolution();
     }
 
     extension(IServiceCollection services)
@@ -48,11 +50,19 @@ public static class ApplicationBuilderExtensions
 
         private IServiceCollection AddDataAccess()
         {
+            DefaultTypeMap.MatchNamesWithUnderscores = true;
+
             services
                 .AddSingleton<IDbConnectionFactory, DbConnectionFactory>()
                 .AddTransient<Func<IUnitOfWork>>(provider =>
                     () => new UnitOfWork(provider.GetRequiredService<IDbConnectionFactory>()));
 
+            return services;
+        }
+        
+        private IServiceCollection AddLazyResolution()
+        {
+            services.AddTransient(typeof(Lazy<>), typeof(LazyFactory<>));
             return services;
         }
     }

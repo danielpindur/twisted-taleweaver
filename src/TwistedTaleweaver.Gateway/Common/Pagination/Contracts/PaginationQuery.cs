@@ -6,11 +6,16 @@ namespace TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
 public abstract class PaginationQuery
 {
     private const int MaxPageSize = 100;
+    private const int MinPageNumber = 1;
 
     /// <summary>
     /// Page number to retrieve (1-based)
     /// </summary>
-    public int PageNumber { get; set; } = 1;
+    public int PageNumber
+    {
+        get;
+        set => field = value < MinPageNumber ? MinPageNumber : value;
+    } = 1;
 
     /// <summary>
     /// Number of items per page

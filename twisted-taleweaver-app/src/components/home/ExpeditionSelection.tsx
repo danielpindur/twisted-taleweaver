@@ -8,63 +8,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Users, Skull, Plus, Swords, KeyRound, Archive, Loader2, AlertCircle } from "lucide-react";
+import { TextArea } from "@/components/ui/textarea";
+import { Users, Plus, Swords, KeyRound, Loader2, AlertCircle } from "lucide-react";
 import { useApiClient } from "@/hooks/useApiClient";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExpeditionsService } from "@/generated/twisted-taleweaver-api";
 import type { ExpeditionRequest } from "@/generated/twisted-taleweaver-api/models/ExpeditionRequest";
-import type { Expedition } from "@/generated/twisted-taleweaver-api/models/Expedition";
 import { ExpeditionStatus } from "@/generated/twisted-taleweaver-api/models/ExpeditionStatus";
 import { ExpeditionDifficulty } from "@/generated/twisted-taleweaver-api/models/ExpeditionDifficulty";
-
-// TODO: Replace with actual API data
-const mockExpeditions: Expedition[] = [
-  {
-    expeditionId: crypto.randomUUID(),
-    name: "The Cursed Catacombs",
-    description: "Ancient crypts filled with restless spirits and forgotten treasures. A perfect place for heroes to meet their doom.",
-    //currentPlayers: 3,
-    maxParticipants: 6,
-    status: ExpeditionStatus.CREATED,
-    difficulty: ExpeditionDifficulty.MEDIUM,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    expeditionId: crypto.randomUUID(), 
-    name: "Doom's Embrace",
-    description: "A foreboding fortress where shadows whisper of past failures. Will you add your name to the list of the fallen?",
-    //currentPlayers: 4,
-    maxParticipants: 4,
-    status: ExpeditionStatus.STARTED,
-    difficulty: ExpeditionDifficulty.HARD,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    expeditionId: crypto.randomUUID(),
-    name: "The Weeping Woods",
-    description: "Trees that bleed sorrow and paths that lead nowhere. Even the bravest souls lose their way here.",
-    //currentPlayers: 2,
-    maxParticipants: 5,
-    status: ExpeditionStatus.CREATED,
-    difficulty: ExpeditionDifficulty.EASY,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    expeditionId: crypto.randomUUID(),
-    name: "Nightmare's End",
-    description: "The final trial where legends are made... or more commonly, where heroes become cautionary tales.",
-    //currentPlayers: 1,
-    maxParticipants: 3,
-    status: ExpeditionStatus.COMPLETED,
-    difficulty: ExpeditionDifficulty.NIGHTMARE,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-];
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
@@ -93,6 +44,7 @@ export const ExpeditionSelection = () => {
 
     onSuccess: (data) => {
       queryClient.setQueryData(["expedition", data.expeditionId], data);
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] });
 
       toast({
         title: "Expedition Created!",
@@ -137,6 +89,8 @@ export const ExpeditionSelection = () => {
   const navigateToExpedition = (expeditionId: string) => {
     navigate("/expedition/" + expeditionId);
   };
+
+  // TODO: Handle long name and description display properly
 
   const handleCreateExpedition = () => {
     const request: ExpeditionRequest = {
@@ -201,13 +155,14 @@ export const ExpeditionSelection = () => {
     }
   };
 
-
-  // TODO: Why would I be loaded old rooms here?
-  // Filter rooms by status and user participation
-  const userActiveExpeditions = mockExpeditions.filter(e => 
-    e.status !== ExpeditionStatus.COMPLETED //&& room.currentPlayers > 0 // TODO: Replace with actual user participation check
-  );
-  const completedExpeditions = mockExpeditions.filter(e => e.status === ExpeditionStatus.COMPLETED);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["expeditions"],
+    queryFn: () => {
+      return requestWithAuth(() =>
+        ExpeditionsService.getApiExpeditions()
+      );
+    },
+  });
 
   return (
     <div className="bg-background p-6">
@@ -251,7 +206,7 @@ export const ExpeditionSelection = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="expedition-description" className="font-crimson">Description (Optional)</Label>
-                  <Textarea
+                  <TextArea
                     id="expedition-description"
                     placeholder="Leave empty for auto-generated description"
                     value={newExpeditionDescription}
@@ -380,7 +335,24 @@ export const ExpeditionSelection = () => {
             My Active Expeditions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {userActiveExpeditions.map((expedition) => (
+            {isLoading && (
+              <div className="col-span-full flex justify-center items-center h-32">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            )}
+            {isError && (
+              <div className="col-span-full flex justify-center items-center text-center text-red-500 font-crimson">
+                <AlertCircle className="inline-block h-5 w-5 mr-1" />
+                Failed to load expeditions. Try refreshing the page.
+              </div>
+            )}
+            {!isLoading && !isError && data?.items.length === 0 && (
+              <p className="col-span-full flex justify-center items-center text-muted-foreground text-center font-crimson italic">
+                No active expeditions found. Dare to create a new one?
+              </p>
+            )}
+
+            {data?.items.map((expedition) => (
               <Card key={expedition.expeditionId} className="bg-card border-border shadow-dark hover:shadow-glow transition-all duration-300">
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
@@ -425,69 +397,6 @@ export const ExpeditionSelection = () => {
               </Card>
             ))}
           </div>
-        </div>
-
-        {/* Completed Expeditions Section */}
-        {completedExpeditions.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-cinzel font-semibold text-muted-foreground">
-                Tales of Old
-              </h2>
-              <Button 
-                variant="ghost" 
-                className="gap-2 text-muted-foreground"
-                onClick={() => navigate("/archives")}
-              >
-                <Archive className="h-4 w-4" />
-                View All Archives
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {completedExpeditions.slice(0, 3).map((expedition) => (
-                <Card key={expedition.expeditionId} className="bg-muted/30 border-border/50 opacity-75">
-                  <CardHeader>
-                    <div className="flex justify-between items-start mb-2">
-                      <CardTitle className="font-cinzel text-lg text-muted-foreground">{expedition.name}</CardTitle>
-                      <Badge className={getDifficultyColor(expedition.difficulty)}>
-                        {expedition.difficulty}
-                      </Badge>
-                    </div>
-                    <CardDescription className="font-crimson text-xs text-muted-foreground">
-                      {expedition.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Users className="h-4 w-4" />
-                          <span className="font-crimson">
-                            {0/*room.currentPlayer*/}/{expedition.maxParticipants} souls
-                          </span>
-                        </div>
-                        <Badge className={getStatusColor(expedition.status)}>
-                          Tale Complete
-                        </Badge>
-                      </div>
-                      <Button variant="outline" className="w-full gap-2" disabled>
-                        <Skull className="h-4 w-4" />
-                        Completed
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Footer Quote */}
-        <div className="text-center mt-12">
-          <p className="text-muted-foreground font-crimson italic text-lg">
-            "Choose wisely, for each path leads but to a different shade of ruin..."
-          </p>
-          <p className="text-primary font-cinzel text-sm mt-2">- The Twisted Taleweaver</p>
         </div>
       </div>
     </div>

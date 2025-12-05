@@ -2,7 +2,7 @@ import { ExpeditionSelection } from "@/components/home/ExpeditionSelection";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
-import { LoadingSpinner } from "@/components/ui/spinner";
+import { Loader2 } from "lucide-react";
 
 const Dashboard = () => {
   const { signOut } = useClerk();
@@ -16,11 +16,14 @@ const Dashboard = () => {
   };
 
   if (!isLoaded) {
-    return (<LoadingSpinner />);
+    return (
+      <div className="flex justify-center items-center h-32">
+       <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>);
   }
 
   return (
-    <MainLayout user={user!} onLogout={handleLogout}>
+    <MainLayout user={user!} onLogout={handleLogout} showFooterQuote={true}>
       <ExpeditionSelection />
     </MainLayout>
   );

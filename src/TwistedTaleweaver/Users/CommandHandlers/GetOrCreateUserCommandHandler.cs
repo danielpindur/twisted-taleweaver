@@ -23,7 +23,7 @@ internal class GetOrCreateUserCommandHandler(IDbConnectionFactory connectionFact
         {
             const string sql = @"
                 INSERT INTO users (external_user_id)
-                VALUES ('user_31MpMWGa4Xq8pxD4wbk3F8Hehd2')
+                VALUES (@ExternalUserId)
                 ON CONFLICT (external_user_id) DO UPDATE
                     SET external_user_id = EXCLUDED.external_user_id
                 RETURNING user_id, external_user_id";

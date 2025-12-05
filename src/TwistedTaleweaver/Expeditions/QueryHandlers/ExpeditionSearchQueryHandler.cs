@@ -26,12 +26,12 @@ internal class ExpeditionSearchQueryHandler(IDbConnectionFactory connectionFacto
             const string sql = @"
                 SELECT 
                     e.expedition_id,
-                    e.expedition_name,
+                    e.expedition_name AS name,
                     e.description,
-                    e.status_id,
-                    e.difficulty_id,
+                    e.status_id AS status,
+                    e.difficulty_id AS difficulty,
                     e.max_participants,
-                    e.outcome_id,
+                    e.outcome_id AS outcome,
                     e.created_by_user_id,
                     e.created_at,
                     e.started_at,
