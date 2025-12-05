@@ -29,7 +29,7 @@ public class ExpeditionRequest
     /// <summary>
     /// Maximum number of participants allowed in the expedition
     /// </summary>
-    [Length(1, byte.MaxValue)]
+    [Range(1, 10)]
     [Required]
     public byte MaxParticipants { get; set; }
 }

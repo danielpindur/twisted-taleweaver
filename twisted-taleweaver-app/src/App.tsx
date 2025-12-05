@@ -1,13 +1,14 @@
-import { ClerkProvider } from "@clerk/clerk-react";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { BrowserRouter, Routes, Route } from 'react-router'
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TooltipProvider } from "./components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Landing from "@/pages/Landing";
 import NotFound from "@/pages/NotFound";
-import Rooms from "@/pages/Rooms";
+import Dashboard from "@/pages/Dashboard";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
@@ -17,8 +18,8 @@ if (!PUBLISHABLE_KEY) {
 const queryClient = new QueryClient();
 
 function App() {
-    
 
+    
 	return (
 		<QueryClientProvider client={queryClient}>
 			<TooltipProvider>
@@ -26,9 +27,17 @@ function App() {
 					<BrowserRouter>
 						<Routes>
 							{/* Public routes */}
-							<Route path="/" element={<Landing />} />
+							<Route path="/" element={
+								<>
+									<SignedIn>
+										<Dashboard />
+									</SignedIn>
+									<SignedOut>
+										<Landing />
+									</SignedOut>
+								</>} />
 
-							{/* Protected routes */}
+							{/* Protected routes 
 							<Route 
                 path="/rooms" 
                 element={
@@ -36,7 +45,7 @@ function App() {
                     <Rooms />
                   </ProtectedRoute>
                 } 
-              />
+              />*/}
 
 							{/* 404 route */}
 							<Route path="*" element={<NotFound />} />
@@ -46,6 +55,7 @@ function App() {
 					<Sonner />
 				</ClerkProvider>
 			</TooltipProvider>
+			<ReactQueryDevtools initialIsOpen={false} />
 		</QueryClientProvider>
 	);
 }

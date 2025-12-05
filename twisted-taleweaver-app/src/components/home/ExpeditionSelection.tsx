@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,142 +9,145 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Users, Crown, Skull, Plus, LogOut, Swords, KeyRound, Archive, Loader2, AlertCircle } from "lucide-react";
-import type { UserResource } from "@clerk/types";
-
-interface Room {
-  id: string;
-  name: string;
-  description: string;
-  currentPlayers: number;
-  maxPlayers: number;
-  status: "waiting" | "in-progress" | "completed";
-  difficulty: "easy" | "medium" | "hard" | "nightmare";
-}
-
-interface RoomSelectionProps {
-  user: UserResource;
-  onJoinRoom: (roomId: string) => void;
-  onLogout: () => void;
-}
+import { Users, Skull, Plus, Swords, KeyRound, Archive, Loader2, AlertCircle } from "lucide-react";
+import { useApiClient } from "@/hooks/useApiClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ExpeditionsService } from "@/generated/twisted-taleweaver-api";
+import type { ExpeditionRequest } from "@/generated/twisted-taleweaver-api/models/ExpeditionRequest";
+import type { Expedition } from "@/generated/twisted-taleweaver-api/models/Expedition";
+import { ExpeditionStatus } from "@/generated/twisted-taleweaver-api/models/ExpeditionStatus";
+import { ExpeditionDifficulty } from "@/generated/twisted-taleweaver-api/models/ExpeditionDifficulty";
 
 // TODO: Replace with actual API data
-const mockRooms: Room[] = [
+const mockExpeditions: Expedition[] = [
   {
-    id: "1",
+    expeditionId: crypto.randomUUID(),
     name: "The Cursed Catacombs",
     description: "Ancient crypts filled with restless spirits and forgotten treasures. A perfect place for heroes to meet their doom.",
-    currentPlayers: 3,
-    maxPlayers: 6,
-    status: "waiting",
-    difficulty: "medium"
+    //currentPlayers: 3,
+    maxParticipants: 6,
+    status: ExpeditionStatus.CREATED,
+    difficulty: ExpeditionDifficulty.MEDIUM,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: "2", 
+    expeditionId: crypto.randomUUID(), 
     name: "Doom's Embrace",
     description: "A foreboding fortress where shadows whisper of past failures. Will you add your name to the list of the fallen?",
-    currentPlayers: 4,
-    maxPlayers: 4,
-    status: "in-progress",
-    difficulty: "hard"
+    //currentPlayers: 4,
+    maxParticipants: 4,
+    status: ExpeditionStatus.STARTED,
+    difficulty: ExpeditionDifficulty.HARD,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: "3",
+    expeditionId: crypto.randomUUID(),
     name: "The Weeping Woods",
     description: "Trees that bleed sorrow and paths that lead nowhere. Even the bravest souls lose their way here.",
-    currentPlayers: 2,
-    maxPlayers: 5,
-    status: "waiting",
-    difficulty: "easy"
+    //currentPlayers: 2,
+    maxParticipants: 5,
+    status: ExpeditionStatus.CREATED,
+    difficulty: ExpeditionDifficulty.EASY,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: "4",
+    expeditionId: crypto.randomUUID(),
     name: "Nightmare's End",
     description: "The final trial where legends are made... or more commonly, where heroes become cautionary tales.",
-    currentPlayers: 1,
-    maxPlayers: 3,
-    status: "completed",
-    difficulty: "nightmare"
+    //currentPlayers: 1,
+    maxParticipants: 3,
+    status: ExpeditionStatus.COMPLETED,
+    difficulty: ExpeditionDifficulty.NIGHTMARE,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   }
 ];
 
-export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps) => {
+export const ExpeditionSelection = () => {
   const navigate = useNavigate();
+  const { requestWithAuth } = useApiClient();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
+  
   const [isJoining, setIsJoining] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [newRoomName, setNewRoomName] = useState("");
-  const [newRoomDescription, setNewRoomDescription] = useState("");
-  const [newRoomDifficulty, setNewRoomDifficulty] = useState<Room["difficulty"]>("medium");
-  const [maxPlayers, setMaxPlayers] = useState("4");
+  
+  const [newExpeditionName, setNewExpeditionName] = useState("");
+  const [newExpeditionDescription, setNewExpeditionDescription] = useState("");
+  const [newExpeditionDifficulty, setNewExpeditionDifficulty] = useState<ExpeditionDifficulty>(ExpeditionDifficulty.MEDIUM);
+  const [newMaxParticipants, setNewMaxParticipants] = useState("4");
+  
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState("");
   
-  const getStatusColor = (status: Room["status"]) => {
-    switch (status) {
-      case "waiting": return "bg-warning text-background";
-      case "in-progress": return "bg-player text-background";
-      case "completed": return "bg-secondary text-secondary-foreground";
-    }
-  };
+  const createExpeditionMutation = useMutation({
+    mutationFn: (request: ExpeditionRequest) =>
+      requestWithAuth(() =>
+        ExpeditionsService.postApiExpeditions(request)
+      ),
 
-  const getDifficultyColor = (difficulty: Room["difficulty"]) => {
-    switch (difficulty) {
-      case "easy": return "bg-health text-background";
-      case "medium": return "bg-warning text-background";
-      case "hard": return "bg-accent text-accent-foreground";
-      case "nightmare": return "bg-destructive text-destructive-foreground";
-    }
-  };
+    onSuccess: (data) => {
+      queryClient.setQueryData(["expedition", data.expeditionId], data);
 
-  // TODO: Implement actual room creation API call
-  const handleCreateRoom = async () => {
-    setIsCreating(true);
-    
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // No validation needed for name/description since they're optional
-      const newRoomId = `room-${Date.now()}`; // TODO: Replace with actual API response
-      console.log("Creating room:", { 
-        name: newRoomName.trim() || null, // Send null if empty for backend auto-generation
-        description: newRoomDescription.trim() || null, 
-        maxPlayers, 
-        difficulty: newRoomDifficulty 
-      });
-      
-      setIsCreateDialogOpen(false);
-      setNewRoomName("");
-      setNewRoomDescription("");
-      setNewRoomDifficulty("medium");
-      setMaxPlayers("4");
-      
       toast({
         title: "Expedition Created!",
         description: "Your tale of doom begins...",
       });
-      
-      // Join the newly created room
-      handleJoinRoom(newRoomId);
-      
-    } catch (error) {
+
+      setIsCreateDialogOpen(false);
+      setNewExpeditionName("");
+      setNewExpeditionDescription("");
+      setNewExpeditionDifficulty(ExpeditionDifficulty.MEDIUM);
+      setNewMaxParticipants("4");
+
+      navigateToExpedition(data.expeditionId);
+    },
+
+    onError: (_) => {
       toast({
         title: "Creation Failed",
         description: "Failed to create expedition. Try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsCreating(false);
+    },
+  });
+
+
+  const getStatusColor = (status: ExpeditionStatus) => {
+    switch (status) {
+      case ExpeditionStatus.CREATED: return "bg-warning text-background";
+      case ExpeditionStatus.STARTED: return "bg-player text-background";
+      case ExpeditionStatus.COMPLETED: return "bg-secondary text-secondary-foreground";
     }
   };
 
-  // TODO: Check if user has character, if not trigger character creation first
-  const handleJoinRoom = (roomId: string) => {
-    // Navigate directly to the expedition - character creation will happen there
-    onJoinRoom(roomId);
+  const getDifficultyColor = (difficulty: ExpeditionDifficulty) => {
+    switch (difficulty) {
+      case ExpeditionDifficulty.EASY: return "bg-health text-background";
+      case ExpeditionDifficulty.MEDIUM: return "bg-warning text-background";
+      case ExpeditionDifficulty.HARD: return "bg-accent text-accent-foreground";
+      case ExpeditionDifficulty.NIGHTMARE: return "bg-destructive text-destructive-foreground";
+    }
+  };
+
+  const navigateToExpedition = (expeditionId: string) => {
+    navigate("/expedition/" + expeditionId);
+  };
+
+  const handleCreateExpedition = () => {
+    const request: ExpeditionRequest = {
+      name: newExpeditionName || undefined,
+      description: newExpeditionDescription || undefined,
+      difficulty: newExpeditionDifficulty,
+      maxParticipants: Number(newMaxParticipants),
+    };
+
+    createExpeditionMutation.mutate(request);
   };
 
   // TODO: Implement actual join by code API call
@@ -175,7 +178,7 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
       }
       
       console.log("Joining expedition with code:", joinCode);
-      handleJoinRoom(joinCode);
+      navigateToExpedition(joinCode);
       setIsJoinDialogOpen(false);
       setJoinCode("");
       setJoinError("");
@@ -200,11 +203,12 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
   };
 
 
+  // TODO: Why would I be loaded old rooms here?
   // Filter rooms by status and user participation
-  const userActiveRooms = mockRooms.filter(room => 
-    room.status !== "completed" && room.currentPlayers > 0 // TODO: Replace with actual user participation check
+  const userActiveExpeditions = mockExpeditions.filter(e => 
+    e.status !== ExpeditionStatus.COMPLETED //&& room.currentPlayers > 0 // TODO: Replace with actual user participation check
   );
-  const completedRooms = mockRooms.filter(room => room.status === "completed");
+  const completedExpeditions = mockExpeditions.filter(e => e.status === ExpeditionStatus.COMPLETED);
 
   return (
     <div className="bg-background p-6">
@@ -237,22 +241,22 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="room-name" className="font-crimson">Expedition Name (Optional)</Label>
+                  <Label htmlFor="expedition-name" className="font-crimson">Expedition Name (Optional)</Label>
                   <Input
-                    id="room-name"
+                    id="expedition-name"
                     placeholder="Leave empty for auto-generated name"
-                    value={newRoomName}
-                    onChange={(e) => setNewRoomName(e.target.value)}
+                    value={newExpeditionName}
+                    onChange={(e) => setNewExpeditionName(e.target.value)}
                     className="bg-input border-border"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="room-description" className="font-crimson">Description (Optional)</Label>
+                  <Label htmlFor="expedition-description" className="font-crimson">Description (Optional)</Label>
                   <Textarea
-                    id="room-description"
+                    id="expedition-description"
                     placeholder="Leave empty for auto-generated description"
-                    value={newRoomDescription}
-                    onChange={(e) => setNewRoomDescription(e.target.value)}
+                    value={newExpeditionDescription}
+                    onChange={(e) => setNewExpeditionDescription(e.target.value)}
                     className="bg-input border-border min-h-[80px]"
                   />
                   <p className="text-xs text-muted-foreground font-crimson italic">
@@ -267,40 +271,40 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
                       type="number"
                       min="2"
                       max="8"
-                      value={maxPlayers}
-                      onChange={(e) => setMaxPlayers(e.target.value)}
+                      value={newMaxParticipants}
+                      onChange={(e) => setNewMaxParticipants(e.target.value)}
                       className="bg-input border-border"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="font-crimson">Difficulty</Label>
-                    <Select value={newRoomDifficulty} onValueChange={(value: Room["difficulty"]) => setNewRoomDifficulty(value)}>
+                    <Select value={newExpeditionDifficulty} onValueChange={(value: ExpeditionDifficulty) => setNewExpeditionDifficulty(value)}>
                       <SelectTrigger className="bg-input border-border">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="easy">Easy - Child's Play</SelectItem>
-                        <SelectItem value="medium">Medium - Standard Doom</SelectItem>
-                        <SelectItem value="hard">Hard - Certain Death</SelectItem>
-                        <SelectItem value="nightmare">Nightmare - Beyond Despair</SelectItem>
+                        <SelectItem value={ExpeditionDifficulty.EASY}>Easy - Child's Play</SelectItem>
+                        <SelectItem value={ExpeditionDifficulty.MEDIUM}>Medium - Standard Doom</SelectItem>
+                        <SelectItem value={ExpeditionDifficulty.HARD}>Hard - Certain Death</SelectItem>
+                        <SelectItem value={ExpeditionDifficulty.NIGHTMARE}>Nightmare - Beyond Despair</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="flex gap-2 pt-4">
                   <Button 
-                    onClick={handleCreateRoom} 
+                    onClick={handleCreateExpedition} 
                     className="flex-1"
-                    disabled={isCreating}
+                    disabled={createExpeditionMutation.isPending}
                   >
-                    {isCreating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                    {isCreating ? "Weaving Tale..." : "Begin the Tale"}
+                    {createExpeditionMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {createExpeditionMutation.isPending ? "Weaving Tale..." : "Begin the Tale"}
                   </Button>
                   <Button 
                     variant="outline" 
                     onClick={() => setIsCreateDialogOpen(false)}
                     className="flex-1"
-                    disabled={isCreating}
+                    disabled={createExpeditionMutation.isPending}
                   >
                     Reconsider
                   </Button>
@@ -377,19 +381,19 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
             My Active Expeditions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {userActiveRooms.map((room) => (
-              <Card key={room.id} className="bg-card border-border shadow-dark hover:shadow-glow transition-all duration-300">
+            {userActiveExpeditions.map((expedition) => (
+              <Card key={expedition.expeditionId} className="bg-card border-border shadow-dark hover:shadow-glow transition-all duration-300">
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="font-cinzel text-xl text-primary">{room.name}</CardTitle>
+                    <CardTitle className="font-cinzel text-xl text-primary">{expedition.name}</CardTitle>
                     <div className="flex flex-col gap-1">
-                      <Badge className={getDifficultyColor(room.difficulty)}>
-                        {room.difficulty}
+                      <Badge className={getDifficultyColor(expedition.difficulty)}>
+                        {expedition.difficulty}
                       </Badge>
                     </div>
                   </div>
                   <CardDescription className="font-crimson text-sm">
-                    {room.description}
+                    {expedition.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -399,12 +403,12 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
                       <div className="flex items-center gap-2 text-sm">
                         <Users className="h-4 w-4" />
                         <span className="font-crimson">
-                          {room.currentPlayers}/{room.maxPlayers} souls
+                          {0/*room.currentPlayers*/}/{expedition.maxParticipants} souls
                         </span>
                       </div>
-                      <Badge className={getStatusColor(room.status)}>
-                        {room.status === "waiting" && "Gathering Victims"}
-                        {room.status === "in-progress" && "Doom in Progress"}
+                      <Badge className={getStatusColor(expedition.status)}>
+                        {expedition.status === ExpeditionStatus.CREATED && "Gathering Victims"}
+                        {expedition.status === ExpeditionStatus.STARTED && "Doom in Progress"}
                       </Badge>
                     </div>
 
@@ -412,7 +416,7 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
                     <Button
                       variant="default"
                       className="w-full gap-2"
-                      onClick={() => onJoinRoom(room.id)}
+                      onClick={() => navigateToExpedition(expedition.expeditionId)}
                     >
                       <Swords className="h-4 w-4" />
                       Continue Expedition
@@ -425,7 +429,7 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
         </div>
 
         {/* Completed Expeditions Section */}
-        {completedRooms.length > 0 && (
+        {completedExpeditions.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-cinzel font-semibold text-muted-foreground">
@@ -441,17 +445,17 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {completedRooms.slice(0, 3).map((room) => (
-                <Card key={room.id} className="bg-muted/30 border-border/50 opacity-75">
+              {completedExpeditions.slice(0, 3).map((expedition) => (
+                <Card key={expedition.expeditionId} className="bg-muted/30 border-border/50 opacity-75">
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
-                      <CardTitle className="font-cinzel text-lg text-muted-foreground">{room.name}</CardTitle>
-                      <Badge className={getDifficultyColor(room.difficulty)}>
-                        {room.difficulty}
+                      <CardTitle className="font-cinzel text-lg text-muted-foreground">{expedition.name}</CardTitle>
+                      <Badge className={getDifficultyColor(expedition.difficulty)}>
+                        {expedition.difficulty}
                       </Badge>
                     </div>
                     <CardDescription className="font-crimson text-xs text-muted-foreground">
-                      {room.description}
+                      {expedition.description}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -460,10 +464,10 @@ export const RoomSelection = ({ user, onJoinRoom, onLogout }: RoomSelectionProps
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Users className="h-4 w-4" />
                           <span className="font-crimson">
-                            {room.currentPlayers}/{room.maxPlayers} souls
+                            {0/*room.currentPlayer*/}/{expedition.maxParticipants} souls
                           </span>
                         </div>
-                        <Badge className={getStatusColor(room.status)}>
+                        <Badge className={getStatusColor(expedition.status)}>
                           Tale Complete
                         </Badge>
                       </div>

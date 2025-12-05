@@ -15,7 +15,7 @@ public class UsersSchema : Migration
                 .PrimaryKey()
                 .WithDefault(SystemMethods.NewGuid)
             .WithColumn("external_user_id")
-                .AsString(36)
+                .AsString(100)
                 .NotNullable()
                 .Unique()
             .WithColumn("created_at")

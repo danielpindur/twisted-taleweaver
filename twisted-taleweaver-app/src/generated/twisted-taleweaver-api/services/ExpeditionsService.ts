@@ -23,4 +23,20 @@ export class ExpeditionsService {
             mediaType: 'application/json',
         });
     }
+    /**
+     * @param expeditionId
+     * @returns Expedition OK
+     * @throws ApiError
+     */
+    public static getApiExpeditions(
+        expeditionId: string,
+    ): CancelablePromise<Expedition> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/expeditions/{expeditionId}',
+            path: {
+                'expeditionId': expeditionId,
+            },
+        });
+    }
 }

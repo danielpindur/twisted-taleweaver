@@ -36,4 +36,21 @@ public class ExpeditionsController(
         
         return Ok(expedition!.ToContract());
     }
+
+    /// <summary>
+    /// Gets an expedition by its unique identifier
+    /// </summary>
+    [HttpGet("{expeditionId:guid}")]
+    public async Task<ActionResult<Expedition>> GetExpeditionById([FromRoute] Guid expeditionId)
+    {
+        var expedition = await expeditionByIdQueryHandler.ExecuteAsync(new ExpeditionByIdQuery()
+            { ExpeditionId = expeditionId });
+
+        if (expedition == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(expedition.ToContract());
+    }
 }

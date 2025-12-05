@@ -11,6 +11,7 @@ public class Expedition
     /// <summary>
     /// Unique identifier of the expedition
     /// </summary>
+    [Required]
     public Guid ExpeditionId { get; set; }
     
     /// <summary>
@@ -30,17 +31,20 @@ public class Expedition
     /// <summary>
     /// Current status of the expedition
     /// </summary>
+    [Required]
     public ExpeditionStatus Status { get; set; }
     
     /// <summary>
     /// Difficulty level of the expedition
     /// </summary>
+    [Required]
     public ExpeditionDifficulty  Difficulty { get; set; }
     
     /// <summary>
     /// Maximum number of participants allowed in the expedition
     /// </summary>
-    [Length(1, byte.MaxValue)]
+    [Range(1, 10)]
+    [Required]
     public byte MaxParticipants { get; set; }
 
     /// <summary>
@@ -53,11 +57,13 @@ public class Expedition
     /// <summary>
     /// Date and time when the expedition was created
     /// </summary>
+    [Required]
     public DateTimeOffset CreatedAt { get; set; }
     
     /// <summary>
     /// Date and time when the expedition was last updated
     /// </summary>
+    [Required]
     public DateTimeOffset UpdatedAt { get; set; }
     
     /// <summary>

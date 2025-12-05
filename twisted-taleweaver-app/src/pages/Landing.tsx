@@ -37,10 +37,7 @@ const Landing = () => {
                   asChild
                   size="lg"
                   className="gap-2 font-crimson text-lg px-8 py-4"
-                  onClick={() => openSignIn({
-                    afterSignInUrl: "/rooms",
-                    afterSignUpUrl: "/rooms",
-                  })}>
+                  onClick={() => openSignIn()}>
                   <Link to="#">
                     <Sword className="h-5 w-5" />
                     Begin Your Quest

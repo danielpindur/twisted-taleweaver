@@ -11,7 +11,7 @@ public static class ApplicationBuilderExtensions
 {
     public static IServiceCollection AddTwistedTaleweaver(this IHostApplicationBuilder builder)
     {
-        var assembly = Assembly.GetCallingAssembly();
+        var assembly = Assembly.GetExecutingAssembly();
 
         return builder.Services
             .AddDataAccess()
@@ -23,42 +23,25 @@ public static class ApplicationBuilderExtensions
     {
         private IServiceCollection AddCommandHandlers(Assembly assembly)
         {
-            var commandHandlerTypes = assembly
-                .GetTypes()
-                .Where(t =>
-                    !t.IsAbstract &&
-                    (typeof(ICommandHandler<>).IsAssignableFrom(t) || typeof(ICommandHandler<,>).IsAssignableFrom(t)));
-
-            foreach (var type in commandHandlerTypes)
-            {
-                var @interface = type
-                    .GetInterfaces()
-                    .Single(i =>
-                        (i != typeof(ICommandHandler<>) && typeof(ICommandHandler<>).IsAssignableFrom(i)) ||
-                        (i != typeof(ICommandHandler<,>) && typeof(ICommandHandler<>).IsAssignableFrom(i)));
-            
-                services.AddTransient(@interface, type);
-            }
+            services.Scan(scan => scan
+                .FromAssemblies(assembly)
+                    .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), false)
+                        .AsImplementedInterfaces(x => !x.IsGenericType)
+                        .WithTransientLifetime()
+                    .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), false)
+                        .AsImplementedInterfaces(x => !x.IsGenericType)
+                        .WithTransientLifetime());
 
             return services;
         }
 
         private IServiceCollection AddQueryHandlers(Assembly assembly)
         {
-            var queryHandlerTypes = assembly
-                .GetTypes()
-                .Where(t =>
-                    !t.IsAbstract &&
-                    typeof(IQueryHandler<,>).IsAssignableFrom(t));
-
-            foreach (var type in queryHandlerTypes)
-            {
-                var @interface = type
-                    .GetInterfaces()
-                    .Single(i => i != typeof(IQueryHandler<,>) && typeof(IQueryHandler<,>).IsAssignableFrom(i));
-            
-                services.AddTransient(@interface, type);
-            }
+            services.Scan(scan => scan
+                .FromAssemblies(assembly)
+                    .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), false)
+                        .AsImplementedInterfaces(x => !x.IsGenericType)
+                        .WithTransientLifetime());
 
             return services;
         }

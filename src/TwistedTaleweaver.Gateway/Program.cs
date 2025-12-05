@@ -12,6 +12,7 @@ using Serilog.Formatting.Compact;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.ExceptionHandlers;
 using TwistedTaleweaver.Gateway.Transformers;
+using TwistedTaleweaver.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -137,6 +138,7 @@ builder.Services
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+builder.AddTwistedTaleweaver();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<UnauthorizedAccessExceptionHandler>();
