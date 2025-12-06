@@ -12,7 +12,7 @@ export type Expedition = {
     description: string;
     status: ExpeditionStatus;
     difficulty: ExpeditionDifficulty;
-    maxParticipants: number | string;
+    maxParticipants: number;
     outcome?: (null | ExpeditionOutcome);
     participants: Array<ExpeditionParticipant>;
     createdAt: string;

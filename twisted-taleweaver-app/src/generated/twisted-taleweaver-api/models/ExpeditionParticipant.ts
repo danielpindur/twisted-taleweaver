@@ -4,5 +4,6 @@
 /* eslint-disable */
 export type ExpeditionParticipant = {
     userId?: string;
+    name: string;
 };
 

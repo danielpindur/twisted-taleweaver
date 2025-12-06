@@ -31,8 +31,8 @@ export class ExpeditionsService {
      * @throws ApiError
      */
     public static getApiExpeditions(
-        pageNumber?: number | string,
-        pageSize?: number | string,
+        pageNumber?: number,
+        pageSize?: number,
     ): CancelablePromise<PaginatedResponseOfExpedition> {
         return __request(OpenAPI, {
             method: 'GET',

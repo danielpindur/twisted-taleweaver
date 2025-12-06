@@ -5,9 +5,9 @@
 import type { Expedition } from './Expedition';
 export type PaginatedResponseOfExpedition = {
     items: Array<Expedition>;
-    pageNumber: number | string;
-    pageSize: number | string;
-    totalItems: number | string;
-    totalPages?: number | string;
+    pageNumber: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
 };
 

@@ -16,6 +16,7 @@ import { ExpeditionsService } from "@/generated/twisted-taleweaver-api";
 import type { ExpeditionRequest } from "@/generated/twisted-taleweaver-api/models/ExpeditionRequest";
 import { ExpeditionStatus } from "@/generated/twisted-taleweaver-api/models/ExpeditionStatus";
 import { ExpeditionDifficulty } from "@/generated/twisted-taleweaver-api/models/ExpeditionDifficulty";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ export const ExpeditionSelection = () => {
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
   
   const [isJoining, setIsJoining] = useState(false);
   
@@ -156,10 +159,10 @@ export const ExpeditionSelection = () => {
   };
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["expeditions"],
+    queryKey: ["expeditions", currentPage, pageSize],
     queryFn: () => {
       return requestWithAuth(() =>
-        ExpeditionsService.getApiExpeditions()
+        ExpeditionsService.getApiExpeditions(currentPage, pageSize)
       );
     },
   });
@@ -396,6 +399,39 @@ export const ExpeditionSelection = () => {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Pagination for Active Expeditions */}
+            {!isLoading && !isError && data && data.items.length !== 0 && data.totalPages !== 1 && (
+              <div className="col-span-full flex justify-center items-center justify-center mt-6">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: data.totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(Math.min(data?.totalPages, currentPage + 1))}
+                        className={currentPage === data?.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </div>
         </div>
       </div>
