@@ -1,8 +1,11 @@
+using Tapper;
+
 namespace TwistedTaleweaver.Gateway.Users.Contracts;
 
 /// <summary>
 /// Represents a user within the system
 /// </summary>
+[TranspilationSource]
 public class User
 {
     /// <summary>

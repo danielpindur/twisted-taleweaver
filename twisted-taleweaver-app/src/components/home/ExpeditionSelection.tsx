@@ -17,6 +17,8 @@ import type { ExpeditionRequest } from "@/generated/twisted-taleweaver-api/model
 import { ExpeditionStatus } from "@/generated/twisted-taleweaver-api/models/ExpeditionStatus";
 import { ExpeditionDifficulty } from "@/generated/twisted-taleweaver-api/models/ExpeditionDifficulty";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
+import { getStatusColor } from "@/utils/ExpeditionStatusUtils";
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
@@ -71,23 +73,6 @@ export const ExpeditionSelection = () => {
       });
     },
   });
-
-  const getStatusColor = (status: ExpeditionStatus) => {
-    switch (status) {
-      case ExpeditionStatus.CREATED: return "bg-warning text-background";
-      case ExpeditionStatus.STARTED: return "bg-player text-background";
-      case ExpeditionStatus.COMPLETED: return "bg-secondary text-secondary-foreground";
-    }
-  };
-
-  const getDifficultyColor = (difficulty: ExpeditionDifficulty) => {
-    switch (difficulty) {
-      case ExpeditionDifficulty.EASY: return "bg-health text-background";
-      case ExpeditionDifficulty.MEDIUM: return "bg-warning text-background";
-      case ExpeditionDifficulty.HARD: return "bg-accent text-accent-foreground";
-      case ExpeditionDifficulty.NIGHTMARE: return "bg-destructive text-destructive-foreground";
-    }
-  };
 
   const navigateToExpedition = (expeditionId: string) => {
     navigate("/expedition/" + expeditionId);

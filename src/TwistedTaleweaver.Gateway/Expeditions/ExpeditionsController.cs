@@ -16,7 +16,7 @@ namespace TwistedTaleweaver.Gateway.Expeditions;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ExpeditionsController(
+public sealed class ExpeditionsController(
     IUserProvider userProvider, 
     Lazy<ICreateExpeditionCommandHandler> createExpeditionCommandHandler,
     Lazy<IExpeditionByIdQueryHandler> expeditionByIdQueryHandler,

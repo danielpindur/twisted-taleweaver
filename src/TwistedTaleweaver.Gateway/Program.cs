@@ -11,6 +11,7 @@ using Serilog;
 using Serilog.Formatting.Compact;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.ExceptionHandlers;
+using TwistedTaleweaver.Gateway.Messages.Hubs;
 using TwistedTaleweaver.Gateway.Transformers;
 using TwistedTaleweaver.Integration.Clerk.Setup;
 using TwistedTaleweaver.Setup;
@@ -129,6 +130,8 @@ builder.Services.AddRequestTimeouts(options =>
     };
 });
 
+builder.Services.AddSignalR();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserProvider, UserProvider>();
 builder.Services
@@ -174,5 +177,6 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/openapi/v1.json", "v1");
 });
 app.MapControllers();
+app.MapHub<MessagesHub>("/hubs/messages");
 
 app.Run();
