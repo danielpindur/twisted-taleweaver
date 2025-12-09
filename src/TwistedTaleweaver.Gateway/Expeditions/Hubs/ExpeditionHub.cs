@@ -7,7 +7,7 @@ using TypedSignalR.Client;
 namespace TwistedTaleweaver.Gateway.Messages.Hubs;
 
 [Hub]
-public interface IMessagesHub
+public interface IExpeditionHub
 {
     Task CreateMessage(MessageRequest message);
 }
@@ -19,7 +19,7 @@ public interface IMessagesClient
 }
 
 [Authorize]
-public sealed class MessagesHub : Hub<IMessagesClient>, IMessagesHub
+public sealed class ExpeditionHub : Hub<IMessagesClient>, IExpeditionHub
 {
     public async Task CreateMessage(MessageRequest message)
     {
