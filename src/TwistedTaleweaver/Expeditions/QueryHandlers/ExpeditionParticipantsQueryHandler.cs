@@ -8,15 +8,35 @@ namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 
 public class ExpeditionParticipantsQuery
 {
+    public Guid ExpeditionId { get; set; }
+}
+
+public class ExpeditionsParticipantsQuery
+{
     public required List<Guid> ExpeditionIds { get; set; }
 }
 
-public interface IExpeditionParticipantsQueryHandler 
-    : IQueryHandler<ExpeditionParticipantsQuery, Dictionary<Guid, List<ExpeditionParticipant>>>;
+public interface IExpeditionParticipantsQueryHandler
+    : IQueryHandler<ExpeditionsParticipantsQuery, Dictionary<Guid, List<ExpeditionParticipant>>>,
+        IQueryHandler<ExpeditionParticipantsQuery, List<ExpeditionParticipant>>
+{
+}
 
 internal class ExpeditionParticipantsQueryHandler(IDbConnectionFactory connectionFactory) : IExpeditionParticipantsQueryHandler
 {
-    public async Task<Dictionary<Guid, List<ExpeditionParticipant>>> ExecuteAsync(ExpeditionParticipantsQuery query)
+    public async Task<List<ExpeditionParticipant>> ExecuteAsync(ExpeditionParticipantsQuery query)
+    {
+        var participantsByExpeditionId = await ExecuteAsync(new ExpeditionsParticipantsQuery
+        {
+            ExpeditionIds = [query.ExpeditionId]
+        });
+        
+        return participantsByExpeditionId.TryGetValue(query.ExpeditionId, out var expeditionParticipants)
+            ? expeditionParticipants
+            : new List<ExpeditionParticipant>();
+    }
+    
+    public async Task<Dictionary<Guid, List<ExpeditionParticipant>>> ExecuteAsync(ExpeditionsParticipantsQuery query)
     {
         var participants = await connectionFactory.ExecuteAsync(async (connection, tx) =>
         {

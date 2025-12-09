@@ -46,7 +46,7 @@ internal static class ExpeditionMapper
         };
     }
 
-    private static List<ExpeditionParticipantContract> ToContract(
+    public static List<ExpeditionParticipantContract> ToContract(
         this List<ExpeditionParticipant> source,
         Dictionary<string, ClerkUser> clerkUserByExternalId)
     {

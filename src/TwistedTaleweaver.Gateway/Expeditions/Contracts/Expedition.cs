@@ -79,6 +79,4 @@ public class Expedition
     /// Date and time when the expedition was completed
     /// </summary>
     public DateTimeOffset? CompletedAt { get; set; }
-    
-    // TODO: Participants
 }

@@ -54,7 +54,7 @@ internal class ExpeditionSearchQueryHandler(
         })).ToList();
         
         var participantsByExpeditionId = await expeditionParticipantsQueryHandler.ExecuteAsync(
-            new ExpeditionParticipantsQuery() { ExpeditionIds = dtos.Select(ep => ep.ExpeditionId).ToList() });
+            new ExpeditionsParticipantsQuery() { ExpeditionIds = dtos.Select(ep => ep.ExpeditionId).ToList() });
 
         foreach (var dto in dtos)
         {

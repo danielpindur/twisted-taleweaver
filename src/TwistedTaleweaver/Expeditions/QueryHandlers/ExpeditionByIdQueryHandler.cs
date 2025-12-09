@@ -46,8 +46,8 @@ internal class ExpeditionByIdQueryHandler(
             }, tx);
         });
 
-        var participantsByExpeditionIdTask = expeditionParticipantsQueryHandler.ExecuteAsync(
-            new ExpeditionParticipantsQuery() { ExpeditionIds = new List<Guid>() { query.ExpeditionId } });
+        var participantsTask = expeditionParticipantsQueryHandler.ExecuteAsync(
+            new ExpeditionParticipantsQuery() { ExpeditionId = query.ExpeditionId });
 
         var expedition = await expeditionTask;
 
@@ -56,10 +56,7 @@ internal class ExpeditionByIdQueryHandler(
             return null;
         }
 
-        var participantsByExpeditionId = await participantsByExpeditionIdTask;
-        expedition.Participants = participantsByExpeditionId.TryGetValue(query.ExpeditionId, out var participants) 
-            ? participants : 
-            new List<ExpeditionParticipant>();
+        expedition.Participants = await participantsTask;
         
         return expedition;
     }
