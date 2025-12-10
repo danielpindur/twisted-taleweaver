@@ -362,7 +362,7 @@ export const ExpeditionSelection = () => {
                       <div className="flex items-center gap-2 text-sm">
                         <Users className="h-4 w-4" />
                         <span className="font-crimson">
-                          {expedition.participants.length}/{expedition.maxParticipants} souls
+                          {expedition.currentParticipants}/{expedition.maxParticipants} souls
                         </span>
                       </div>
                       <Badge className={getStatusColor(expedition.status)}>

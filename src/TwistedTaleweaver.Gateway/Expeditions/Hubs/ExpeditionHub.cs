@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using TwistedTaleweaver.Gateway.Expeditions.Contracts;
+using TwistedTaleweaver.Domain.Expeditions;
+using TwistedTaleweaver.Domain.Users;
 using TwistedTaleweaver.Gateway.Messages.Contracts;
-using TwistedTaleweaver.Gateway.Users.Contracts;
 using TypedSignalR.Client;
 
 namespace TwistedTaleweaver.Gateway.Expeditions.Hubs;
@@ -16,7 +16,7 @@ public interface IExpeditionHub
 [Receiver]
 public interface IExpeditionClient
 {
-    Task ParticipantsUpdated(List<ExpeditionParticipant> participants);
+    //Task ParticipantsUpdated(List<ExpeditionParticipant> participants);
     
     Task OnMessageSent(Message message);
 }

@@ -2,7 +2,7 @@ using Dapper;
 using TwistedTaleweaver.Common.DataAccess;
 using TwistedTaleweaver.Common.DataAccess.Extensions;
 using TwistedTaleweaver.Common.QueryHandlers;
-using TwistedTaleweaver.Expeditions.Entities;
+using TwistedTaleweaver.Domain.Expeditions;
 
 namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 

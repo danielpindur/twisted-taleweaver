@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using TwistedTaleweaver.Expeditions.Entities.Enums;
+using TwistedTaleweaver.Domain.Expeditions.Enums;
 
 namespace TwistedTaleweaver.Gateway.Expeditions.Contracts;
 

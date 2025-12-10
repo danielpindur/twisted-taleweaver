@@ -3,7 +3,9 @@ using Npgsql;
 using TwistedTaleweaver.Common.CommandHandlers;
 using TwistedTaleweaver.Common.DataAccess;
 using TwistedTaleweaver.Common.DataAccess.Extensions;
-using TwistedTaleweaver.Expeditions.Entities.Enums;
+using TwistedTaleweaver.Domain.Expeditions.Enums;
+using TwistedTaleweaver.Integration.OpenAi.Adapters;
+using TwistedTaleweaver.Integration.OpenAi.Expeditions;
 
 namespace TwistedTaleweaver.Expeditions.CommandHandlers;
 
@@ -30,28 +32,19 @@ public interface ICreateExpeditionCommandHandler : ICommandHandler<CreateExpedit
 }
 
 internal class CreateExpeditionCommandHandler(
+    IGenerationAdapter generationAdapter,
     Func<IUnitOfWork> createUnitOfWork,
     IDbConnectionFactory connectionFactory) : ICreateExpeditionCommandHandler
 {
     public async Task<CreateExpeditionResult> ExecuteAsync(CreateExpeditionCommand command)
     {
-        if (string.IsNullOrEmpty(command.Name))
-        {
-            // TODO: Actual generation
-            command.Name = "GeneratedName";
-        }
-
-        if (string.IsNullOrEmpty(command.Description))
-        {
-            // TODO: Actual generation
-            command.Description = "GeneratedDescription";
-        }
+        var generatedExpedition = await generationAdapter.GenerateAsync(command.Difficulty, command.Name, command.Description);
         
         await using var unitOfWork = createUnitOfWork();
 
         return await unitOfWork.ExecuteInTransactionAsync(async transaction =>
         {
-            var expeditionId = await CreateExpeditionAsync(command.UserId, command.Name, command.Description, command.Difficulty, command.MaxParticipants, transaction);
+            var expeditionId = await CreateExpeditionAsync(command.UserId, generatedExpedition.Name, generatedExpedition.Description, command.Difficulty, command.MaxParticipants, transaction);
             await JoinExpeditionAsync(expeditionId, command.UserId, transaction);
 
             return new CreateExpeditionResult() { ExpeditionId = expeditionId };

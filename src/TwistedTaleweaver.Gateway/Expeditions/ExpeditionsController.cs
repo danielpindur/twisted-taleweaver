@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwistedTaleweaver.Domain.Expeditions;
 using TwistedTaleweaver.Expeditions.CommandHandlers;
 using TwistedTaleweaver.Expeditions.QueryHandlers;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
 using TwistedTaleweaver.Gateway.Common.Pagination.Mappers;
 using TwistedTaleweaver.Gateway.Expeditions.Contracts;
-using TwistedTaleweaver.Gateway.Expeditions.Hubs;
-using TwistedTaleweaver.Gateway.Expeditions.Mappers;
-using TwistedTaleweaver.Integration.Clerk.Users;
 using ExpeditionSearchQuery = TwistedTaleweaver.Expeditions.QueryHandlers.ExpeditionSearchQuery;
 using ExpeditionSearchQueryContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionSearchQuery;
 
@@ -23,15 +21,13 @@ public sealed class ExpeditionsController(
     Lazy<IExpeditionByIdQueryHandler> expeditionByIdQueryHandler,
     Lazy<IExpeditionSearchQueryHandler> expeditionSearchQueryHandler,
     Lazy<IJoinExpeditionCommandHandler> joinExpeditionCommandHandler,
-    Lazy<IExpeditionParticipantsQueryHandler> expeditionParticipantsQueryHandler,
-    Lazy<IUsersClient> usersClient,
-    Lazy<ExpeditionHub> expeditionHub) : ControllerBase
+    Lazy<IExpeditionParticipantsQueryHandler> expeditionParticipantsQueryHandler) : ControllerBase
 {
     /// <summary>
     /// Creates a new expedition
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<Expedition>> CreateExpedition([FromBody] ExpeditionRequest request)
+    public async Task<ActionResult<ExpeditionSlim>> CreateExpedition([FromBody] ExpeditionRequest request)
     {
         var user = await userProvider.GetUserAsync();
         
@@ -46,11 +42,8 @@ public sealed class ExpeditionsController(
 
         var expedition = await expeditionByIdQueryHandler.Value.ExecuteAsync(new ExpeditionByIdQuery()
             { ExpeditionId = result.ExpeditionId });
-
-        var clerkUserByExternalId = await usersClient.Value
-            .GetUsersAsync(expedition!.Participants.Select(x => x.ExternalUserId));
         
-        return Ok(expedition.ToContract(clerkUserByExternalId));
+        return Ok(expedition);
     }
 
     /// <summary>
@@ -67,17 +60,14 @@ public sealed class ExpeditionsController(
             return NotFound();
         }
         
-        var clerkUserByExternalId = await usersClient.Value
-            .GetUsersAsync(expedition.Participants.Select(x => x.ExternalUserId));
-
-        return Ok(expedition.ToContract(clerkUserByExternalId));
+        return Ok(expedition);
     }
 
     /// <summary>
     /// Searches expeditions based on provided criteria
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<PaginatedResponse<Expedition>>> SearchExpeditions([FromQuery]ExpeditionSearchQueryContract query)
+    public async Task<ActionResult<PaginatedResponse<ExpeditionSlim>>> SearchExpeditions([FromQuery]ExpeditionSearchQueryContract query)
     {
         var user = await userProvider.GetUserAsync();
         
@@ -87,22 +77,14 @@ public sealed class ExpeditionsController(
                 UserId = user.UserId
             }.WithPagination(query));
         
-        var externalUserIds = paginatedExpeditions.Items
-            .SelectMany(x => x.Participants)
-            .Select(x => x.ExternalUserId)
-            .Distinct();
-        
-        var clerkUserByExternalId = await usersClient.Value
-            .GetUsersAsync(externalUserIds);
-
-        return Ok(paginatedExpeditions.ToContract(clerkUserByExternalId));
+        return Ok(paginatedExpeditions.ToContract());
     }
 
     /// <summary>
     /// Join an expedition
     /// </summary>
     [HttpPost("{expeditionId:guid}/join")]
-    public async Task<ActionResult> JoinExpedition([FromQuery] Guid expeditionId)
+    public async Task<ActionResult> JoinExpedition([FromRoute] Guid expeditionId)
     {
         var user = await userProvider.GetUserAsync();
 
@@ -115,11 +97,10 @@ public sealed class ExpeditionsController(
         var expeditionParticipants = (await expeditionParticipantsQueryHandler.Value
             .ExecuteAsync(new ExpeditionParticipantsQuery() { ExpeditionId = expeditionId }));
 
-        var clerkUserByExternalId = await usersClient.Value
-            .GetUsersAsync(expeditionParticipants.Select(x => x.ExternalUserId));
-        
+        /*
         await expeditionHub.Value.Clients.Group(expeditionId.ToString())
-            .ParticipantsUpdated(expeditionParticipants.ToContract(clerkUserByExternalId));
+            .ParticipantsUpdated(expeditionParticipants.ToContract());
+        */
         
         return Ok();
     }

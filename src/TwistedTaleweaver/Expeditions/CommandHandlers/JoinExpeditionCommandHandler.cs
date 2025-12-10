@@ -4,7 +4,6 @@ using Npgsql;
 using TwistedTaleweaver.Common.CommandHandlers;
 using TwistedTaleweaver.Common.DataAccess;
 using TwistedTaleweaver.Common.DataAccess.Extensions;
-using TwistedTaleweaver.Expeditions.Entities;
 
 namespace TwistedTaleweaver.Expeditions.CommandHandlers;
 

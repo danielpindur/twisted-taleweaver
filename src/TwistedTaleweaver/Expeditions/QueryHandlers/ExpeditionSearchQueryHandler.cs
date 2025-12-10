@@ -4,7 +4,7 @@ using TwistedTaleweaver.Common.DataAccess.Extensions;
 using TwistedTaleweaver.Common.Pagination.Entities;
 using TwistedTaleweaver.Common.Pagination.QueryHandlers;
 using TwistedTaleweaver.Common.QueryHandlers;
-using TwistedTaleweaver.Expeditions.Entities;
+using TwistedTaleweaver.Domain.Expeditions;
 
 namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 
@@ -13,7 +13,7 @@ public class ExpeditionSearchQuery : PaginationQuery
     public Guid UserId { get; set; }
 }
 
-public interface IExpeditionSearchQueryHandler : IQueryHandler<ExpeditionSearchQuery, PaginatedResult<Expedition>>
+public interface IExpeditionSearchQueryHandler : IQueryHandler<ExpeditionSearchQuery, PaginatedResult<ExpeditionSlim>>
 {
 }
 
@@ -21,7 +21,7 @@ internal class ExpeditionSearchQueryHandler(
     IDbConnectionFactory connectionFactory,
     IExpeditionParticipantsQueryHandler expeditionParticipantsQueryHandler) : IExpeditionSearchQueryHandler
 {
-    public async Task<PaginatedResult<Expedition>> ExecuteAsync(ExpeditionSearchQuery query)
+    public async Task<PaginatedResult<ExpeditionSlim>> ExecuteAsync(ExpeditionSearchQuery query)
     {
         var dtos = (await connectionFactory.ExecuteAsync(async (connection, tx) =>
         {
@@ -58,15 +58,15 @@ internal class ExpeditionSearchQueryHandler(
 
         foreach (var dto in dtos)
         {
-            dto.Participants = participantsByExpeditionId.TryGetValue(dto.ExpeditionId, out var expeditionParticipants) 
-                ? expeditionParticipants
-                : new List<ExpeditionParticipant>();
+            dto.CurrentParticipants = participantsByExpeditionId.TryGetValue(dto.ExpeditionId, out var expeditionParticipants) 
+                ? (byte)expeditionParticipants.Count
+                : byte.MinValue;
         }
 
-        return new PaginatedResult<Expedition>(dtos, dtos.FirstOrDefault()?.TotalCount ?? 0, query);
+        return new PaginatedResult<ExpeditionSlim>(dtos, dtos.FirstOrDefault()?.TotalCount ?? 0, query);
     }
 
-    private class ExpeditionWithCount : Expedition
+    private class ExpeditionWithCount : ExpeditionSlim
     {
         public int TotalCount { get; set; }
     }

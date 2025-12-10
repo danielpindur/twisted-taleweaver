@@ -2,7 +2,7 @@ using Dapper;
 using TwistedTaleweaver.Common.DataAccess;
 using TwistedTaleweaver.Common.DataAccess.Extensions;
 using TwistedTaleweaver.Common.QueryHandlers;
-using TwistedTaleweaver.Expeditions.Entities;
+using TwistedTaleweaver.Domain.Expeditions;
 
 namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 
@@ -31,12 +31,7 @@ internal class ExpeditionByIdQueryHandler(
                     e.status_id AS status,
                     e.difficulty_id AS difficulty,
                     e.max_participants,
-                    e.outcome_id AS outcome,
-                    e.created_by_user_id,
-                    e.created_at,
-                    e.started_at,
-                    e.completed_at,
-                    e.updated_at
+                    e.outcome_id AS outcome
                 FROM expeditions e
                 WHERE e.expedition_id = @ExpeditionId";
 
@@ -56,7 +51,7 @@ internal class ExpeditionByIdQueryHandler(
             return null;
         }
 
-        expedition.Participants = await participantsTask;
+        expedition.CurrentParticipants = (byte)(await participantsTask).Count;
         
         return expedition;
     }

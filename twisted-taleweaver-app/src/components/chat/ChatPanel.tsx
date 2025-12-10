@@ -1,0 +1,326 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { CombatEncounterTopPanel } from "./CombatEncounterTopPanel";
+import { PreExpeditionPanel } from "./PreExpeditionPanel";
+import type { Monster } from "@/interfaces/Monster";
+import type { ChatMessage } from "@/interfaces/ChatMessage";
+import type { Character } from "@/interfaces/Character";
+import type { PendingExpedition } from "@/interfaces/PendingExpedition";
+import { TurnIndicator } from "./TurnIndicator";
+import { ChatInput } from "./ChatInput";
+import { ChatMessages } from "./ChatMessages";
+import { Sword, Shield, Eye, Sparkles, MessageSquare, Map, Backpack } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { canUserAct, getCurrentTurnCharacter } from "@/utils/TurnUtils";
+import type { UserResource } from "@clerk/types";
+
+// TODO: Replace with actual API data
+import { mockMonsters } from "@/mock/MockMonsters";
+import { mockMessages } from "@/mock/MockChatMessages";
+import { mockPendingExpedition, mockPreExpeditionMessages } from "@/mock/MockPendingExpeditions";
+
+export interface ChatPanelProps {
+  characters: Character[],
+  partyPanelCollapsed: boolean,
+  characterPanelCollapsed: boolean,
+  user: UserResource,
+  expeditionStatus?: "pre-expedition" | "active" | "completed"
+}
+
+export const ChatPanel = ({characters, partyPanelCollapsed, characterPanelCollapsed, user, expeditionStatus = "active"}: ChatPanelProps) => {
+  const [isInCombat] = useState(expeditionStatus === "active"); // TODO: Get from game state
+  const [combatMonsters] = useState<Monster[]>(mockMonsters); // TODO: Get from combat state
+  const [expedition] = useState<PendingExpedition>(mockPendingExpedition); // TODO: Get from API
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    expeditionStatus === "pre-expedition" ? mockPreExpeditionMessages : mockMessages
+  );
+ 
+  // TODO: Implement actual message sending API call
+  const handleSendMessage = (messageToSend: string) => {
+    if (messageToSend.trim()) {
+      const message: ChatMessage = {
+        id: Date.now().toString(),
+        sender: "character",
+        characterName: user.username!,
+        content: messageToSend,
+        timestamp: new Date(),
+        type: expeditionStatus === "pre-expedition" ? "dialogue" : "action"
+      };
+      
+      setMessages(prev => [...prev, message]);
+      
+      // TODO: Send to backend via websocket/API
+    }
+  };
+
+  // TODO: Implement actual expedition start API call
+  const handleStartExpedition = () => {
+    console.log("Starting expedition:", expedition.id);
+    
+    // Add system message for expedition start
+    const startMessage: ChatMessage = {
+      id: Date.now().toString(),
+      sender: "system",
+      content: "The expedition begins! May fortune favor the brave...",
+      timestamp: new Date(),
+      type: "system"
+    };
+    
+    setMessages(prev => [...prev, startMessage]);
+    
+    // TODO: Transition to active expedition state via API
+  };
+
+  // Mock function to simulate loading more messages
+  const handleLoadMoreMessages = () => {
+    console.log("Loading more messages...");
+    
+    // Generate some mock older messages
+    const olderMessages: ChatMessage[] = [];
+    const currentCount = messages.length;
+    
+    for (let i = 0; i < 10; i++) {
+      const messageId = (currentCount + i + 1000).toString();
+      const senders = ["taleweaver", "character", "monster", "system"] as const;
+      const randomSender = senders[Math.floor(Math.random() * senders.length)];
+      
+      let message: ChatMessage;
+      
+      if (randomSender === "taleweaver") {
+        message = {
+          id: messageId,
+          sender: "taleweaver",
+          content: [
+            "The shadows whisper of ancient secrets hidden in these halls...",
+            "A cold wind carries the scent of decay and forgotten magic.",
+            "The very walls seem to pulse with malevolent energy.",
+            "Your torchlight flickers, as if the darkness itself seeks to snuff it out.",
+            "Strange runes carved into the stone begin to glow ominously..."
+          ][Math.floor(Math.random() * 5)],
+          timestamp: new Date(Date.now() - (i + 1) * 60000) // Messages from 1+ minutes ago
+        };
+      } else if (randomSender === "character") {
+        message = {
+          id: messageId,
+          sender: "character",
+          characterName: user.username!,
+          content: [
+            "I carefully examine the area for any hidden dangers.",
+            "Let me check for traps before we proceed.",
+            "I ready my weapon and advance cautiously.",
+            "Something doesn't feel right about this place.",
+            "I cast a protective spell on the party."
+          ][Math.floor(Math.random() * 5)],
+          timestamp: new Date(Date.now() - (i + 1) * 60000)
+        };
+      } else if (randomSender === "monster") {
+        message = {
+          id: messageId,
+          sender: "monster",
+          monsterName: "Shadow Beast",
+          content: [
+            "*growls menacingly from the darkness*",
+            "*emerges from the shadows with glowing red eyes*",
+            "*lets out a bone-chilling howl*",
+            "*stalks the party with predatory intent*"
+          ][Math.floor(Math.random() * 4)],
+          timestamp: new Date(Date.now() - (i + 1) * 60000)
+        };
+      } else {
+        message = {
+          id: messageId,
+          sender: "system",
+          content: [
+            "You hear the distant sound of dripping water.",
+            "A torch on the wall gutters and goes out.",
+            "The temperature drops noticeably.",
+            "You notice fresh scratches on the stone floor."
+          ][Math.floor(Math.random() * 4)],
+          timestamp: new Date(Date.now() - (i + 1) * 60000)
+        };
+      }
+      
+      olderMessages.unshift(message); // Add to beginning (oldest first)
+    }
+    
+    // Add the older messages to the beginning of the current messages
+    setMessages(prevMessages => [...olderMessages, ...prevMessages]);
+  };
+  
+  // Find current user based on username
+  const currentUser = characters.find(char => char.name === user.username!) || characters[0];
+  
+  // Turn-based logic
+  const isUserTurn = canUserAct(characters, user.username!);
+  const currentTurnCharacter = getCurrentTurnCharacter(characters);
+
+  return (
+    <div className="flex-1 flex flex-col min-w-0" style={{ minWidth: '200px' }}>
+      {expeditionStatus === "pre-expedition" ? (
+        <PreExpeditionPanel 
+          expedition={expedition} 
+          currentUser={currentUser}
+          onStartExpedition={handleStartExpedition}
+          characters={characters}
+        />
+      ) : (
+        <>
+          <CombatEncounterTopPanel isInCombat={isInCombat} combatMonsters={combatMonsters} />
+          <ChatMessages messages={messages} characters={characters} onLoadMoreMessages={handleLoadMoreMessages} />
+          <TurnIndicator characters={characters} />
+
+          {/* Message Input */}
+          <div className="bg-card border-t border-border p-4 space-y-3">
+            <ChatInput 
+              handleSendMessage={handleSendMessage} 
+              disabled={!isUserTurn}
+              currentTurnCharacter={currentTurnCharacter}
+            />
+            
+            <div className={`flex gap-2 justify-center ${
+              partyPanelCollapsed || characterPanelCollapsed 
+                ? 'gap-3' 
+                : 'gap-2'
+            }`}>
+            {isInCombat ? (
+            // Combat Actions
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8" 
+                    disabled={!isUserTurn}
+                  >
+                    <Sword className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isUserTurn ? "Attack" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8" 
+                    disabled={!isUserTurn}
+                  >
+                    <Shield className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isUserTurn ? "Defend" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8" 
+                    disabled={!isUserTurn}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isUserTurn ? "Cast Spell" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8" 
+                    disabled={!isUserTurn}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isUserTurn ? "Search" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+                </TooltipContent>
+              </Tooltip>
+            </>
+          ) : (
+            // Non-Combat Actions
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8" 
+                    disabled={!isUserTurn}
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isUserTurn ? "Talk" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8" 
+                    disabled={!isUserTurn}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isUserTurn ? "Investigate" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8" 
+                    disabled={!isUserTurn}
+                  >
+                    <Map className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isUserTurn ? "Travel" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8" 
+                    disabled={!isUserTurn}
+                  >
+                    <Backpack className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isUserTurn ? "Use Item" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+                </TooltipContent>
+              </Tooltip>
+            </>
+            )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};

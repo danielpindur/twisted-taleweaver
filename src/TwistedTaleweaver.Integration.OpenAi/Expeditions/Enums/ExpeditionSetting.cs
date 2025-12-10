@@ -1,0 +1,91 @@
+namespace TwistedTaleweaver.Integration.OpenAi.Expeditions.Enums;
+
+internal enum ExpeditionSetting
+{
+    // Natural Environments
+    WhisperingPines,
+    FrozenTundra,
+    ShatteredGlacier,
+    PerilousHighlands,
+    VerdantLabyrinth,
+    EmberWastes,
+    JadeRainforest,
+    CrystalCaverns,
+    MireboundBog,
+    BleakSteppe,
+    HollowCanopy,
+    SingingDunes,
+    StormcarvedCoast,
+    MidnightTide,
+
+    // Supernatural / Arcane Environments
+    EldritchHollow,
+    TwilightSanctum,
+    AstralFrontier,
+    VeilshatteredReach,
+    NightmareMarsh,
+    WraithwindValley,
+    ArkhamlikeDistrict,
+    BloodrootExpanse,
+    EternumVaults,
+    NullstoneRavine,
+    CinderfallNecropolis,
+    StarlitCatacombs,
+    AbyssalCorridors,
+    DreadspireKeep,
+    ObsidianFathoms,
+    RunesearedWilds,
+    EvershiftingMaze,
+
+    // Cosmic / Sci-Fi
+    DerelictStarship,
+    OrbitalGraveyard,
+    QuantumFaultline,
+    IonStormDrifts,
+    GravityWellRiftlands,
+    TerraformerRuins,
+    XenolithFields,
+    CryosleeperColony,
+    EventHorizonOutpost,
+    DysonHusk,
+    NanitePlagueZone,
+    ChronoSpillTerritory,
+
+    // Mystical Civilizations
+    ForgottenEmpireRuins,
+    SunkenKingdom,
+    GildedAstrarium,
+    FeywovenCourt,
+    SerpentineDynastyVaults,
+    AshenMonastery,
+    CelestialObservatory,
+    ClockworkMetropolis,
+    MonolithShrines,
+    WarpfireBastion,
+    RootspireHollow,
+
+    // Horror / Weird Fiction
+    CorpseHarbor,
+    VisceraGardens,
+    LamentingHospice,
+    HowlingAtrium,
+    GloomriddenMotel,
+    PuppetmakerQuarter,
+    TallowlightDistrict,
+    TheChalkMire,
+    TheUnendingBasement,
+    TheHouseThatHatesYou,
+
+    // Abstract / Surreal
+    NonlinearStaircase,
+    ImpossibleCourtyard,
+    EscherianSpire,
+    BackwardsSky,
+    DreamfractureDomain,
+    RecursiveVillage,
+    ParadoxFields,
+    FracturedMemorySea,
+    WhispermazeArchive,
+    KaleidoscopeFrontier,
+    NegativeCity
+}

@@ -31,7 +31,7 @@ public static class ApplicationBuilderExtensions
         
         private IServiceCollection AddClients()
         {
-            services.AddSingleton<IUsersClient, UsersClient>();
+            services.AddSingleton<IUsersAdapter, UsersAdapter>();
 
             return services;
         }

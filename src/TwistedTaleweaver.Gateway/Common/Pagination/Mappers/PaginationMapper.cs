@@ -25,4 +25,13 @@ internal static class PaginationMapper
             source.PageNumber,
             source.PageSize);
     }
+    
+    public static PaginatedResponse<T> ToContract<T>(this PaginatedResult<T> source)
+    {
+        return new PaginatedResponse<T>(
+            source.Items,
+            source.TotalItems,
+            source.PageNumber,
+            source.PageSize);
+    }
 }

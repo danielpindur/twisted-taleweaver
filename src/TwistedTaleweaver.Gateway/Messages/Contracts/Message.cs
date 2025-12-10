@@ -1,5 +1,5 @@
 using Tapper;
-using TwistedTaleweaver.Gateway.Users.Contracts;
+using TwistedTaleweaver.Domain.Users;
 
 namespace TwistedTaleweaver.Gateway.Messages.Contracts;
 

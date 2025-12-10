@@ -4,12 +4,17 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Clerk.Net.DependencyInjection" Version="1.15.0" />
       <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TwistedTaleweaver.Domain\TwistedTaleweaver.Domain.csproj" />
     </ItemGroup>
 
 </Project>

@@ -3,8 +3,9 @@
 /* tslint:disable */
 // @ts-nocheck
 import type { HubConnection, IStreamResult, Subject } from '@microsoft/signalr';
-import type { IMessagesHub, IMessagesClient } from './TwistedTaleweaver.Gateway.Messages.Hubs';
+import type { IExpeditionHub, IExpeditionClient } from './TwistedTaleweaver.Gateway.Expeditions.Hubs';
 import type { MessageRequest, Message } from '../TwistedTaleweaver.Gateway.Messages.Contracts';
+import type { ExpeditionParticipant } from '../TwistedTaleweaver.Gateway.Expeditions.Contracts';
 
 
 // components
@@ -43,66 +44,73 @@ class ReceiverMethodSubscription implements Disposable {
 // API
 
 export type HubProxyFactoryProvider = {
-    (hubType: "IMessagesHub"): HubProxyFactory<IMessagesHub>;
+    (hubType: "IExpeditionHub"): HubProxyFactory<IExpeditionHub>;
 }
 
 export const getHubProxyFactory = ((hubType: string) => {
-    if(hubType === "IMessagesHub") {
-        return IMessagesHub_HubProxyFactory.Instance;
+    if(hubType === "IExpeditionHub") {
+        return IExpeditionHub_HubProxyFactory.Instance;
     }
 }) as HubProxyFactoryProvider;
 
 export type ReceiverRegisterProvider = {
-    (receiverType: "IMessagesClient"): ReceiverRegister<IMessagesClient>;
+    (receiverType: "IExpeditionClient"): ReceiverRegister<IExpeditionClient>;
 }
 
 export const getReceiverRegister = ((receiverType: string) => {
-    if(receiverType === "IMessagesClient") {
-        return IMessagesClient_Binder.Instance;
+    if(receiverType === "IExpeditionClient") {
+        return IExpeditionClient_Binder.Instance;
     }
 }) as ReceiverRegisterProvider;
 
 // HubProxy
 
-class IMessagesHub_HubProxyFactory implements HubProxyFactory<IMessagesHub> {
-    public static Instance = new IMessagesHub_HubProxyFactory();
+class IExpeditionHub_HubProxyFactory implements HubProxyFactory<IExpeditionHub> {
+    public static Instance = new IExpeditionHub_HubProxyFactory();
 
     private constructor() {
     }
 
-    public readonly createHubProxy = (connection: HubConnection): IMessagesHub => {
-        return new IMessagesHub_HubProxy(connection);
+    public readonly createHubProxy = (connection: HubConnection): IExpeditionHub => {
+        return new IExpeditionHub_HubProxy(connection);
     }
 }
 
-class IMessagesHub_HubProxy implements IMessagesHub {
+class IExpeditionHub_HubProxy implements IExpeditionHub {
 
     public constructor(private connection: HubConnection) {
     }
 
-    public readonly createMessage = async (message: MessageRequest): Promise<void> => {
-        return await this.connection.invoke("CreateMessage", message);
+    public readonly joinExpedition = async (expeditionId: string): Promise<void> => {
+        return await this.connection.invoke("JoinExpedition", expeditionId);
+    }
+
+    public readonly sendMessage = async (message: MessageRequest): Promise<void> => {
+        return await this.connection.invoke("SendMessage", message);
     }
 }
 
 
 // Receiver
 
-class IMessagesClient_Binder implements ReceiverRegister<IMessagesClient> {
+class IExpeditionClient_Binder implements ReceiverRegister<IExpeditionClient> {
 
-    public static Instance = new IMessagesClient_Binder();
+    public static Instance = new IExpeditionClient_Binder();
 
     private constructor() {
     }
 
-    public readonly register = (connection: HubConnection, receiver: IMessagesClient): Disposable => {
+    public readonly register = (connection: HubConnection, receiver: IExpeditionClient): Disposable => {
 
-        const __messageCreated = (...args: [Message]) => receiver.messageCreated(...args);
+        const __onExpeditionJoined = (...args: [ExpeditionParticipant]) => receiver.onExpeditionJoined(...args);
+        const __onMessageSent = (...args: [Message]) => receiver.onMessageSent(...args);
 
-        connection.on("MessageCreated", __messageCreated);
+        connection.on("OnExpeditionJoined", __onExpeditionJoined);
+        connection.on("OnMessageSent", __onMessageSent);
 
         const methodList: ReceiverMethod[] = [
-            { methodName: "MessageCreated", method: __messageCreated }
+            { methodName: "OnExpeditionJoined", method: __onExpeditionJoined },
+            { methodName: "OnMessageSent", method: __onMessageSent }
         ]
 
         return new ReceiverMethodSubscription(connection, methodList);

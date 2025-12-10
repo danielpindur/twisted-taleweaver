@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using TwistedTaleweaver.Common.CommandHandlers;
 using TwistedTaleweaver.Common.DataAccess;
 using TwistedTaleweaver.Common.QueryHandlers;
+using TwistedTaleweaver.Integration.OpenAi.Setup;
 
 namespace TwistedTaleweaver.Setup;
 
@@ -14,6 +15,8 @@ public static class ApplicationBuilderExtensions
     {
         var assembly = Assembly.GetExecutingAssembly();
 
+        builder.AddOpenAiChatClient();
+        
         return builder.Services
             .AddDataAccess()
             .AddCommandHandlers(assembly)

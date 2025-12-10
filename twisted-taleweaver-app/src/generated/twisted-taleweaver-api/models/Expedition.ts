@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { ExpeditionDifficulty } from './ExpeditionDifficulty';
 import type { ExpeditionOutcome } from './ExpeditionOutcome';
-import type { ExpeditionParticipant } from './ExpeditionParticipant';
 import type { ExpeditionStatus } from './ExpeditionStatus';
 export type Expedition = {
     expeditionId: string;
@@ -13,11 +12,7 @@ export type Expedition = {
     status: ExpeditionStatus;
     difficulty: ExpeditionDifficulty;
     maxParticipants: number;
+    currentParticipants: number;
     outcome?: (null | ExpeditionOutcome);
-    participants: Array<ExpeditionParticipant>;
-    createdAt: string;
-    updatedAt: string;
-    startedAt?: string | null;
-    completedAt?: string | null;
 };
 

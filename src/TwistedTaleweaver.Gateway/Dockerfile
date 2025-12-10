@@ -12,14 +12,18 @@ WORKDIR /build
 
 # Copy only the project files and restore dependencies
 COPY src/TwistedTaleweaver.Gateway/*.csproj src/TwistedTaleweaver.Gateway/
+COPY src/TwistedTaleweaver.Domain/*.csproj src/TwistedTaleweaver.Domain/
 COPY src/TwistedTaleweaver.Integration.Clerk/*.csproj src/TwistedTaleweaver.Integration.Clerk/
+COPY src/TwistedTaleweaver.Integration.OpenAi/*.csproj src/TwistedTaleweaver.Integration.OpenAi/
 COPY src/TwistedTaleweaver/*.csproj src/TwistedTaleweaver/
 
 RUN dotnet restore src/TwistedTaleweaver.Gateway/TwistedTaleweaver.Gateway.csproj
 
 # Copy the rest of the source code
 COPY src/TwistedTaleweaver.Gateway/. src/TwistedTaleweaver.Gateway/
+COPY src/TwistedTaleweaver.Domain/. src/TwistedTaleweaver.Domain/
 COPY src/TwistedTaleweaver.Integration.Clerk/. src/TwistedTaleweaver.Integration.Clerk/
+COPY src/TwistedTaleweaver.Integration.OpenAi/. src/TwistedTaleweaver.Integration.OpenAi/
 COPY src/TwistedTaleweaver/. src/TwistedTaleweaver/
 
 # Build and publish in one step

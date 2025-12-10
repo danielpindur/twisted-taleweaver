@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Landing from "@/pages/Landing";
 import NotFound from "@/pages/NotFound";
 import Dashboard from "@/pages/Dashboard";
+import Expedition from "@/pages/Expedition";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
@@ -35,15 +36,15 @@ function App() {
 									</SignedOut>
 								</>} />
 
-							{/* Protected routes 
+							{/* Protected routes */}
 							<Route 
-                path="/rooms" 
+                path="/expedition/:expeditionId" 
                 element={
                   <ProtectedRoute>
-                    <Rooms />
+                    <Expedition />
                   </ProtectedRoute>
                 } 
-              />*/}
+              />
 
 							{/* 404 route */}
 							<Route path="*" element={<NotFound />} />
