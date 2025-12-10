@@ -1,6 +1,6 @@
-using TwistedTaleweaver.Common.Pagination.QueryHandlers;
+using TwistedTaleweaver.DataAccess.Common.Pagination.Queries;
 
-namespace TwistedTaleweaver.Common.Pagination.Entities;
+namespace TwistedTaleweaver.DataAccess.Common.Pagination.Entities;
 
 public class PaginatedResult<T>
 {

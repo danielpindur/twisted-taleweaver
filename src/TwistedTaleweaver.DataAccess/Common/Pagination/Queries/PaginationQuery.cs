@@ -1,4 +1,4 @@
-namespace TwistedTaleweaver.Common.Pagination.QueryHandlers;
+namespace TwistedTaleweaver.DataAccess.Common.Pagination.Queries;
 
 public abstract class PaginationQuery
 {

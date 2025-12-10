@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 
-namespace TwistedTaleweaver.Common.DataAccess;
+namespace TwistedTaleweaver.DataAccess.Common.Transactions;
 
 internal interface IDbConnectionFactory
 {

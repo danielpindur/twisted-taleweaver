@@ -1,6 +1,6 @@
 using Npgsql;
 
-namespace TwistedTaleweaver.Common.DataAccess;
+namespace TwistedTaleweaver.DataAccess.Common.Transactions;
 
 internal interface IUnitOfWork : IAsyncDisposable
 {

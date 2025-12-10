@@ -1,6 +1,6 @@
 using Npgsql;
 
-namespace TwistedTaleweaver.Common.DataAccess.Extensions;
+namespace TwistedTaleweaver.DataAccess.Common.Transactions.Extensions;
 
 internal static class DbConnectionFactoryExtensions
 {
