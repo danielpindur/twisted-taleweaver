@@ -1,4 +1,4 @@
-using TwistedTaleweaver.Core.Database.UnitOfWork;
+using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Pagination;
 using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Expeditions.Dtos;

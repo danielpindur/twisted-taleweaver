@@ -1,4 +1,4 @@
-namespace TwistedTaleweaver.Core.Database.UnitOfWork.Enums;
+namespace TwistedTaleweaver.Core.Database.Enums;
 
 public enum ConnectionMode
 {

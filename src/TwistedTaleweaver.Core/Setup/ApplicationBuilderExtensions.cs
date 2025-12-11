@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TwistedTaleweaver.Core.Commands;
 using TwistedTaleweaver.Core.Database;
-using TwistedTaleweaver.Core.Database.UnitOfWork;
 using TwistedTaleweaver.Core.Queries;
 
 namespace TwistedTaleweaver.Core.Setup;

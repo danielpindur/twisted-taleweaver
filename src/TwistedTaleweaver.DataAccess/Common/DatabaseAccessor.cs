@@ -1,8 +1,7 @@
 using Dapper;
 using Npgsql;
 using TwistedTaleweaver.Core.Database;
-using TwistedTaleweaver.Core.Database.UnitOfWork;
-using TwistedTaleweaver.Core.Database.UnitOfWork.Enums;
+using TwistedTaleweaver.Core.Database.Enums;
 
 namespace TwistedTaleweaver.DataAccess.Common;
 

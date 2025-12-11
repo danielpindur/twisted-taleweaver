@@ -1,7 +1,7 @@
-using TwistedTaleweaver.Core.Database.UnitOfWork.Enums;
+using TwistedTaleweaver.Core.Database.Enums;
 using TwistedTaleweaver.Core.DependencyInjection;
 
-namespace TwistedTaleweaver.Core.Database.UnitOfWork;
+namespace TwistedTaleweaver.Core.Database;
 
 public class UnitOfWorkScope : IAsyncDisposable
 {

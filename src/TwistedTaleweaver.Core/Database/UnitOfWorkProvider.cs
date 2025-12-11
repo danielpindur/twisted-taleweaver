@@ -1,6 +1,6 @@
-using TwistedTaleweaver.Core.Database.UnitOfWork.Enums;
+using TwistedTaleweaver.Core.Database.Enums;
 
-namespace TwistedTaleweaver.Core.Database.UnitOfWork;
+namespace TwistedTaleweaver.Core.Database;
 
 internal interface IUnitOfWorkProvider
 {

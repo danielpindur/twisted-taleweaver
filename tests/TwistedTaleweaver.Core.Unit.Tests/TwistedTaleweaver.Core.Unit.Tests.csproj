@@ -20,4 +20,8 @@
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\TwistedTaleweaver.Core\TwistedTaleweaver.Core.csproj" />
+    </ItemGroup>
+
 </Project>

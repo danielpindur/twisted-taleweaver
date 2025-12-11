@@ -1,5 +1,5 @@
 using TwistedTaleweaver.Api.Expeditions.Commands;
-using TwistedTaleweaver.Core.Database.UnitOfWork;
+using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
 using TwistedTaleweaver.Integration.OpenAi.Adapters;
 
