@@ -16,6 +16,9 @@ COPY src/TwistedTaleweaver.Domain/*.csproj src/TwistedTaleweaver.Domain/
 COPY src/TwistedTaleweaver.Integration.Clerk/*.csproj src/TwistedTaleweaver.Integration.Clerk/
 COPY src/TwistedTaleweaver.Integration.OpenAi/*.csproj src/TwistedTaleweaver.Integration.OpenAi/
 COPY src/TwistedTaleweaver/*.csproj src/TwistedTaleweaver/
+COPY src/TwistedTaleweaver.Api/*.csproj src/TwistedTaleweaver.Api/
+COPY src/TwistedTaleweaver.Core/*.csproj src/TwistedTaleweaver.Core/
+COPY src/TwistedTaleweaver.DataAccess/*.csproj src/TwistedTaleweaver.DataAccess/
 
 RUN dotnet restore src/TwistedTaleweaver.Gateway/TwistedTaleweaver.Gateway.csproj
 
@@ -25,6 +28,9 @@ COPY src/TwistedTaleweaver.Domain/. src/TwistedTaleweaver.Domain/
 COPY src/TwistedTaleweaver.Integration.Clerk/. src/TwistedTaleweaver.Integration.Clerk/
 COPY src/TwistedTaleweaver.Integration.OpenAi/. src/TwistedTaleweaver.Integration.OpenAi/
 COPY src/TwistedTaleweaver/. src/TwistedTaleweaver/
+COPY src/TwistedTaleweaver.Api/. src/TwistedTaleweaver.Api/
+COPY src/TwistedTaleweaver.Core/. src/TwistedTaleweaver.Core/
+COPY src/TwistedTaleweaver.DataAccess/. src/TwistedTaleweaver.DataAccess/
 
 # Build and publish in one step
 RUN dotnet publish "src/TwistedTaleweaver.Gateway/TwistedTaleweaver.Gateway.csproj" \

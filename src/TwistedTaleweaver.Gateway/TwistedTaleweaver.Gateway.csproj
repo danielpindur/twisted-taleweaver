@@ -29,7 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TwistedTaleweaver.Integration.Clerk\TwistedTaleweaver.Integration.Clerk.csproj" />
+      <ProjectReference Include="..\TwistedTaleweaver.Api\TwistedTaleweaver.Api.csproj" />
       <ProjectReference Include="..\TwistedTaleweaver\TwistedTaleweaver.csproj" />
     </ItemGroup>
 

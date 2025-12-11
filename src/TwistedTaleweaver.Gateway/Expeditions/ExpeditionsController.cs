@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwistedTaleweaver.Api.Expeditions.Commands;
+using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.Domain.Expeditions;
-using TwistedTaleweaver.Expeditions.CommandHandlers;
-using TwistedTaleweaver.Expeditions.QueryHandlers;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
 using TwistedTaleweaver.Gateway.Common.Pagination.Mappers;
 using TwistedTaleweaver.Gateway.Expeditions.Contracts;
-using ExpeditionSearchQuery = TwistedTaleweaver.Expeditions.QueryHandlers.ExpeditionSearchQuery;
+using ExpeditionSearchQuery = TwistedTaleweaver.Api.Expeditions.Queries.ExpeditionSearchQuery;
 using ExpeditionSearchQueryContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionSearchQuery;
 
 namespace TwistedTaleweaver.Gateway.Expeditions;
@@ -29,7 +29,7 @@ public sealed class ExpeditionsController(
     [HttpPost]
     public async Task<ActionResult<ExpeditionSlim>> CreateExpedition([FromBody] ExpeditionRequest request)
     {
-        var user = await userProvider.GetUserAsync();
+        var userId = await userProvider.GetUserIdAsync();
         
         var result = await createExpeditionCommandHandler.Value.ExecuteAsync(new CreateExpeditionCommand()
         {
@@ -37,7 +37,7 @@ public sealed class ExpeditionsController(
             Description = request.Description,
             Difficulty = request.Difficulty,
             MaxParticipants = request.MaxParticipants,
-            UserId = user.UserId
+            UserId = userId
         });
 
         var expedition = await expeditionByIdQueryHandler.Value.ExecuteAsync(new ExpeditionByIdQuery()
@@ -69,12 +69,12 @@ public sealed class ExpeditionsController(
     [HttpGet]
     public async Task<ActionResult<PaginatedResponse<ExpeditionSlim>>> SearchExpeditions([FromQuery]ExpeditionSearchQueryContract query)
     {
-        var user = await userProvider.GetUserAsync();
+        var userId = await userProvider.GetUserIdAsync();
         
         var paginatedExpeditions = await expeditionSearchQueryHandler.Value
             .ExecuteAsync(new ExpeditionSearchQuery()
             {
-                UserId = user.UserId
+                UserId = userId
             }.WithPagination(query));
         
         return Ok(paginatedExpeditions.ToContract());
@@ -86,12 +86,12 @@ public sealed class ExpeditionsController(
     [HttpPost("{expeditionId:guid}/join")]
     public async Task<ActionResult> JoinExpedition([FromRoute] Guid expeditionId)
     {
-        var user = await userProvider.GetUserAsync();
+        var userId = await userProvider.GetUserIdAsync();
 
         await joinExpeditionCommandHandler.Value.ExecuteAsync(new JoinExpeditionCommand()
         {
             ExpeditionId = expeditionId,
-            UserId = user.UserId
+            UserId = userId
         });
 
         var expeditionParticipants = (await expeditionParticipantsQueryHandler.Value

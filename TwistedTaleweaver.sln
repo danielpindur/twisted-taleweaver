@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{4F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwistedTaleweaver.DataAccess", "src\TwistedTaleweaver.DataAccess\TwistedTaleweaver.DataAccess.csproj", "{6425B38B-4B9A-49A6-A996-6CBEA83982B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwistedTaleweaver.Core", "src\TwistedTaleweaver.Core\TwistedTaleweaver.Core.csproj", "{65BECB0F-B4F3-4117-BFA9-9FDDB58D9832}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwistedTaleweaver.Api", "src\TwistedTaleweaver.Api\TwistedTaleweaver.Api.csproj", "{9672A875-03E5-43C4-A21B-2A01D01988BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +56,14 @@ Global
 		{6425B38B-4B9A-49A6-A996-6CBEA83982B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6425B38B-4B9A-49A6-A996-6CBEA83982B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6425B38B-4B9A-49A6-A996-6CBEA83982B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65BECB0F-B4F3-4117-BFA9-9FDDB58D9832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65BECB0F-B4F3-4117-BFA9-9FDDB58D9832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65BECB0F-B4F3-4117-BFA9-9FDDB58D9832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65BECB0F-B4F3-4117-BFA9-9FDDB58D9832}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9672A875-03E5-43C4-A21B-2A01D01988BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9672A875-03E5-43C4-A21B-2A01D01988BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9672A875-03E5-43C4-A21B-2A01D01988BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9672A875-03E5-43C4-A21B-2A01D01988BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E648E1A5-099C-4056-BF5A-E025DB079166} = {DA7835D2-5336-4DC5-B357-A9BA06577B61}

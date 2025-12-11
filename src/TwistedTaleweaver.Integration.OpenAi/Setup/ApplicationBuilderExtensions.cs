@@ -8,7 +8,7 @@ namespace TwistedTaleweaver.Integration.OpenAi.Setup;
 
 public static class ApplicationBuilderExtensions
 {
-    public static IServiceCollection AddOpenAiChatClient(this IHostApplicationBuilder builder)
+    public static IServiceCollection AddOpenAiIntegration(this IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton<OpenAIResponseClient>(_ =>
         {

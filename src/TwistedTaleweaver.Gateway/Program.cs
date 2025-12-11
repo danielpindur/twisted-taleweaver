@@ -9,6 +9,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Formatting.Compact;
+using TwistedTaleweaver.Core.Setup;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.ExceptionHandlers;
 using TwistedTaleweaver.Gateway.Expeditions.Hubs;
@@ -133,7 +134,7 @@ builder.Services.AddRequestTimeouts(options =>
 builder.Services.AddSignalR();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUserProvider, UserProvider>();
+builder.Services.AddScoped<IUserProvider, UserIdProvider>();
 builder.Services
     .AddControllers(options =>
     {
@@ -143,8 +144,9 @@ builder.Services
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
+builder.AddCore();
 builder.AddTwistedTaleweaver();
-builder.AddClerkIntegration();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<UnauthorizedAccessExceptionHandler>();
@@ -152,6 +154,8 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
+app.ConfigureCore();
 
 app.UseExceptionHandler();
 

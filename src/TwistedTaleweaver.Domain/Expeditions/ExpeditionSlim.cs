@@ -52,7 +52,7 @@ public class ExpeditionSlim
     /// </summary>
     [Range(0, 10)]
     [Required]
-    public byte CurrentParticipants { get; set; }
+    public int CurrentParticipants { get; set; }
 
     /// <summary>
     /// Outcome of the expedition, if completed

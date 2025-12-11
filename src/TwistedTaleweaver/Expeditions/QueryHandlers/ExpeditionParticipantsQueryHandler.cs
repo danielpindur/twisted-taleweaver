@@ -1,69 +1,43 @@
-using Dapper;
-using TwistedTaleweaver.Common.DataAccess;
-using TwistedTaleweaver.Common.DataAccess.Extensions;
-using TwistedTaleweaver.Common.QueryHandlers;
+using TwistedTaleweaver.Api.Expeditions.Queries;
+using TwistedTaleweaver.DataAccess.Expeditions.Readers;
 using TwistedTaleweaver.Domain.Expeditions;
+using TwistedTaleweaver.Integration.Clerk.Users;
 
 namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 
-public class ExpeditionParticipantsQuery
-{
-    public Guid ExpeditionId { get; set; }
-}
-
-public class ExpeditionsParticipantsQuery
-{
-    public required List<Guid> ExpeditionIds { get; set; }
-}
-
-public interface IExpeditionParticipantsQueryHandler
-    : IQueryHandler<ExpeditionsParticipantsQuery, Dictionary<Guid, List<ExpeditionParticipant>>>,
-        IQueryHandler<ExpeditionParticipantsQuery, List<ExpeditionParticipant>>
-{
-}
-
-internal class ExpeditionParticipantsQueryHandler(IDbConnectionFactory connectionFactory) : IExpeditionParticipantsQueryHandler
+internal class ExpeditionParticipantsQueryHandler(
+    IExpeditionParticipantsReader expeditionParticipantsReader,
+    IUsersAdapter usersAdapter) : IExpeditionParticipantsQueryHandler
 {
     public async Task<List<ExpeditionParticipant>> ExecuteAsync(ExpeditionParticipantsQuery query)
     {
-        var participantsByExpeditionId = await ExecuteAsync(new ExpeditionsParticipantsQuery
-        {
-            ExpeditionIds = [query.ExpeditionId]
-        });
+        var participants = (await expeditionParticipantsReader.GetByExpeditionAsync(query.ExpeditionId)).ToList();
         
-        return participantsByExpeditionId.TryGetValue(query.ExpeditionId, out var expeditionParticipants)
-            ? expeditionParticipants
-            : new List<ExpeditionParticipant>();
+        var externalUserIds = participants.Select(x => x.ExternalUserId);
+        var clerkUsers = await usersAdapter.GetUsersAsync(externalUserIds);
+        
+        return participants.Select(x => new ExpeditionParticipant()
+        {
+            UserId = x.UserId,
+            Name = clerkUsers[x.ExternalUserId].Username!
+        }).ToList();
     }
     
     public async Task<Dictionary<Guid, List<ExpeditionParticipant>>> ExecuteAsync(ExpeditionsParticipantsQuery query)
     {
-        var participants = await connectionFactory.ExecuteAsync(async (connection, tx) =>
-        {
-            const string sql = @"
-                SELECT 
-                    ep.expedition_id,
-                    ep.user_id,
-                    u.external_user_id
-                FROM expedition_participants ep
-                JOIN users u ON u.user_id = ep.user_id
-                WHERE ep.expedition_id = ANY(@ExpeditionIds)";
+        var participants = (await expeditionParticipantsReader.GetByExpeditionsAsync(query.ExpeditionIds)).ToList();
 
-            return await connection.QueryAsync<ExpeditionParticipantDto>(sql, new
-            { 
-                query.ExpeditionIds
-            }, tx);
-        });
+        var externalUserIds = participants.Select(x => x.ExternalUserId).Distinct();
+        var clerkUsers = await usersAdapter.GetUsersAsync(externalUserIds);
         
         return participants
             .GroupBy(x => x.ExpeditionId)
             .ToDictionary(
-                x => x.Key, 
-                x => x.Select(y => y as ExpeditionParticipant).ToList());
-    }
-    
-    private class ExpeditionParticipantDto : ExpeditionParticipant
-    {
-        public Guid ExpeditionId { get; set; }
+                x => x.Key,
+                x => x.Select(y => new ExpeditionParticipant()
+                {
+                    UserId = y.UserId,
+                    Name = clerkUsers[y.ExternalUserId].Username!
+                }).ToList());
     }
 }

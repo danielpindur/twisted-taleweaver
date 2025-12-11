@@ -9,16 +9,13 @@
 
     <ItemGroup>
       <PackageReference Include="FluentValidation" Version="11.11.0" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
-      <PackageReference Include="Scrutor" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\TwistedTaleweaver.Api\TwistedTaleweaver.Api.csproj" />
+      <ProjectReference Include="..\TwistedTaleweaver.DataAccess\TwistedTaleweaver.DataAccess.csproj" />
+      <ProjectReference Include="..\TwistedTaleweaver.Integration.Clerk\TwistedTaleweaver.Integration.Clerk.csproj" />
       <ProjectReference Include="..\TwistedTaleweaver.Integration.OpenAi\TwistedTaleweaver.Integration.OpenAi.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Common\DataAccess\" />
     </ItemGroup>
 
 </Project>

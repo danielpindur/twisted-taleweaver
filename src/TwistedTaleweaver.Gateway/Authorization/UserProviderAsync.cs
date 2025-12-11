@@ -1,15 +1,14 @@
 using System.Security.Claims;
-using TwistedTaleweaver.Users.CommandHandlers;
-using TwistedTaleweaver.Users.Entities;
+using TwistedTaleweaver.Api.Users.Commands;
 
 namespace TwistedTaleweaver.Gateway.Authorization;
 
 public interface IUserProvider
 {
-    Task<User> GetUserAsync();
+    Task<Guid> GetUserIdAsync();
 }
 
-internal class UserProvider(
+internal class UserIdProvider(
     IHttpContextAccessor httpContextAccessor,
     Lazy<IGetOrCreateUserCommandHandler> getOrCreateUserCommandHandler) : IUserProvider
 {
@@ -44,7 +43,7 @@ internal class UserProvider(
         }
     }
     
-    public async Task<User> GetUserAsync()
+    public async Task<Guid> GetUserIdAsync()
     {
         return await getOrCreateUserCommandHandler.Value
             .ExecuteAsync(new GetOrCreateUserCommand() { ExternalUserId = ExternalUserId });

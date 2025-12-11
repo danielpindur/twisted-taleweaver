@@ -1,10 +1,9 @@
 using System.Reflection;
-using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TwistedTaleweaver.Common.CommandHandlers;
-using TwistedTaleweaver.Common.DataAccess;
-using TwistedTaleweaver.Common.QueryHandlers;
+using TwistedTaleweaver.Core.Setup;
+using TwistedTaleweaver.DataAccess.Setup;
+using TwistedTaleweaver.Integration.Clerk.Setup;
 using TwistedTaleweaver.Integration.OpenAi.Setup;
 
 namespace TwistedTaleweaver.Setup;
@@ -14,59 +13,13 @@ public static class ApplicationBuilderExtensions
     public static IServiceCollection AddTwistedTaleweaver(this IHostApplicationBuilder builder)
     {
         var assembly = Assembly.GetExecutingAssembly();
-
-        builder.AddOpenAiChatClient();
         
+        builder.AddOpenAiIntegration();
+        builder.AddClerkIntegration();
+        builder.AddDataAccess();
+
         return builder.Services
-            .AddDataAccess()
             .AddCommandHandlers(assembly)
-            .AddQueryHandlers(assembly)
-            .AddLazyResolution();
-    }
-
-    extension(IServiceCollection services)
-    {
-        private IServiceCollection AddCommandHandlers(Assembly assembly)
-        {
-            services.Scan(scan => scan
-                .FromAssemblies(assembly)
-                    .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), false)
-                        .AsImplementedInterfaces(x => !x.IsGenericType)
-                        .WithTransientLifetime()
-                    .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), false)
-                        .AsImplementedInterfaces(x => !x.IsGenericType)
-                        .WithTransientLifetime());
-
-            return services;
-        }
-
-        private IServiceCollection AddQueryHandlers(Assembly assembly)
-        {
-            services.Scan(scan => scan
-                .FromAssemblies(assembly)
-                    .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), false)
-                        .AsImplementedInterfaces(x => !x.IsGenericType)
-                        .WithTransientLifetime());
-
-            return services;
-        }
-
-        private IServiceCollection AddDataAccess()
-        {
-            DefaultTypeMap.MatchNamesWithUnderscores = true;
-
-            services
-                .AddSingleton<IDbConnectionFactory, DbConnectionFactory>()
-                .AddTransient<Func<IUnitOfWork>>(provider =>
-                    () => new UnitOfWork(provider.GetRequiredService<IDbConnectionFactory>()));
-
-            return services;
-        }
-        
-        private IServiceCollection AddLazyResolution()
-        {
-            services.AddTransient(typeof(Lazy<>), typeof(LazyFactory<>));
-            return services;
-        }
+            .AddQueryHandlers(assembly);
     }
 }

@@ -1,6 +1,6 @@
-using TwistedTaleweaver.Common.Pagination.Entities;
+using TwistedTaleweaver.Core.Pagination;
 using TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
-using PaginationQuery = TwistedTaleweaver.Common.Pagination.QueryHandlers.PaginationQuery;
+using PaginationQuery = TwistedTaleweaver.Core.Pagination.Queries.PaginationQuery;
 using PaginationQueryContract = TwistedTaleweaver.Gateway.Common.Pagination.Contracts.PaginationQuery;
 
 namespace TwistedTaleweaver.Gateway.Common.Pagination.Mappers;
