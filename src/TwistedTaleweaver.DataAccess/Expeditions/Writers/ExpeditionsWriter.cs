@@ -11,6 +11,7 @@ public interface IExpeditionsWriter
         string name,
         string description,
         ExpeditionDifficulty difficulty,
+        int minParticipants,
         int maxParticipants);
 }
 
@@ -22,13 +23,14 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider unitOfWorkProvider) :
         string name,
         string description,
         ExpeditionDifficulty difficulty,
+        int minParticipants,
         int maxParticipants)
     {
         const string sql = @"
             INSERT INTO expeditions 
-            (expedition_name, description, difficulty_id, max_participants, created_by_user_id)
+            (expedition_name, description, difficulty_id, min_participants, max_participants, created_by_user_id)
             VALUES 
-            (@Name, @Description, @Difficulty, @MaxParticipants, @UserId)
+            (@Name, @Description, @Difficulty, @MinParticipants, @MaxParticipants, @UserId)
             RETURNING expedition_id";
 
         return await QuerySingleAsync<Guid>(sql, new
@@ -36,6 +38,7 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider unitOfWorkProvider) :
             Name = name,
             Description = description,
             Difficulty = difficulty,
+            MinParticipants = minParticipants,
             MaxParticipants = maxParticipants,
             UserId = userId
         });

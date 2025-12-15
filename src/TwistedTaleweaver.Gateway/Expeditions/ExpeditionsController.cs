@@ -36,6 +36,7 @@ public sealed class ExpeditionsController(
             Name = request.Name,
             Description = request.Description,
             Difficulty = request.Difficulty,
+            MinParticipants = request.MinParticipants,
             MaxParticipants = request.MaxParticipants,
             UserId = userId
         });
@@ -52,8 +53,14 @@ public sealed class ExpeditionsController(
     [HttpGet("{expeditionId:guid}")]
     public async Task<ActionResult<Expedition>> GetExpeditionById([FromRoute] Guid expeditionId)
     {
-        var expedition = await expeditionByIdQueryHandler.Value.ExecuteAsync(new ExpeditionByIdQuery()
-            { ExpeditionId = expeditionId });
+        var userId = await userProvider.GetUserIdAsync();
+        
+        var expedition = await expeditionByIdQueryHandler.Value.ExecuteAsync(
+            new ExpeditionByIdQuery()
+            {
+                ExpeditionId = expeditionId,
+                UserId = userId
+            });
 
         if (expedition == null)
         {

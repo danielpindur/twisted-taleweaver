@@ -5,6 +5,8 @@ namespace TwistedTaleweaver.Api.Expeditions.Queries;
 
 public class ExpeditionByIdQuery
 {
+    public Guid UserId { get; set; }
+    
     public Guid ExpeditionId { get; set; }
 }
 

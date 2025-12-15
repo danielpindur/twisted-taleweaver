@@ -2,23 +2,22 @@ using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Pagination;
 using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Expeditions.Dtos;
-using TwistedTaleweaver.Domain.Expeditions;
 
 namespace TwistedTaleweaver.DataAccess.Expeditions.Readers;
 
 public interface IExpeditionsReader
 {
-    Task<Expedition?> GetByIdAsync(Guid expeditionId);
+    Task<ExpeditionDto?> GetByIdAsync(Guid expeditionId, Guid userId);
     
     Task<bool> ExistsAsync(Guid expeditionId);
 
-    Task<IEnumerable<ExpeditionSlimWithCountDto>> GetPageAsync(Guid userId, int pageNumber, int pageSize);
+    Task<IEnumerable<ExpeditionDtoWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize);
 }
 
 internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) : 
     DatabaseAccessor(unitOfWorkProvider), IExpeditionsReader
 {
-    public async Task<Expedition?> GetByIdAsync(Guid expeditionId)
+    public async Task<ExpeditionDto?> GetByIdAsync(Guid expeditionId, Guid userId)
     {
         const string sql = @"
             SELECT 
@@ -27,14 +26,21 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
                 e.description,
                 e.status_id AS status,
                 e.difficulty_id AS difficulty,
+                e.min_participants,
                 e.max_participants,
-                e.outcome_id AS outcome
+                (SELECT COUNT (*) FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id) AS current_participants,
+                e.outcome_id AS outcome,
+                u.user_id AS created_by_user_id,
+                u.external_user_id AS created_by_external_user_id
             FROM expeditions e
-            WHERE e.expedition_id = @ExpeditionId";
+            INNER JOIN users u ON e.created_by_user_id = u.user_id
+            WHERE e.expedition_id = @ExpeditionId 
+                AND (e.created_by_user_id = @UserId OR EXISTS(SELECT 1 FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id AND ep.user_id = @UserId))";
 
-        return await QuerySingleOrDefaultAsync<Expedition>(sql, new
+        return await QuerySingleOrDefaultAsync<ExpeditionDto>(sql, new
         {
-            ExpeditionId = expeditionId
+            ExpeditionId = expeditionId,
+            UserId = userId
         });
     }
 
@@ -52,7 +58,7 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
         });
     }
 
-    public async Task<IEnumerable<ExpeditionSlimWithCountDto>> GetPageAsync(Guid userId, int pageNumber, int pageSize)
+    public async Task<IEnumerable<ExpeditionDtoWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize)
     {
         const string sql = @"
             SELECT 
@@ -61,20 +67,20 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
                 e.description,
                 e.status_id AS status,
                 e.difficulty_id AS difficulty,
+                e.min_participants,
                 e.max_participants,
+                (SELECT COUNT (*) FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id) AS current_participants,
                 e.outcome_id AS outcome,
-                e.created_by_user_id,
-                e.created_at,
-                e.started_at,
-                e.completed_at,
-                e.updated_at,
+                u.user_id AS created_by_user_id,
+                u.external_user_id AS created_by_external_user_id,
                 COUNT(*) OVER() AS total_count
             FROM expeditions e
-            WHERE e.created_by_user_id = @UserId
+            INNER JOIN users u ON e.created_by_user_id = u.user_id
+            WHERE e.created_by_user_id = @UserId OR EXISTS(SELECT 1 FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id AND ep.user_id = @UserId)
             ORDER BY e.created_at DESC
             LIMIT @PageSize OFFSET @Offset";
 
-        return await QueryAsync<ExpeditionSlimWithCountDto>(sql, new
+        return await QueryAsync<ExpeditionDtoWithCount>(sql, new
         {
             UserId = userId,
             PageSize = pageSize,

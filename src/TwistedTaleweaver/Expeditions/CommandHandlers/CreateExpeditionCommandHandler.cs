@@ -21,6 +21,7 @@ internal class CreateExpeditionCommandHandler(
             generatedExpedition.Name,
             generatedExpedition.Description,
             command.Difficulty,
+            command.MinParticipants,
             command.MaxParticipants);
             
         await expeditionParticipantsWriter.AddAsync(expeditionId, command.UserId);

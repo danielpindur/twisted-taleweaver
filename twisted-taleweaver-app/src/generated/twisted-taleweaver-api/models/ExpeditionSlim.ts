@@ -11,6 +11,7 @@ export type ExpeditionSlim = {
     description: string;
     status: ExpeditionStatus;
     difficulty: ExpeditionDifficulty;
+    minParticipants: number;
     maxParticipants: number;
     currentParticipants: number;
     outcome?: (null | ExpeditionOutcome);

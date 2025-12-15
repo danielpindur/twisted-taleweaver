@@ -7,6 +7,7 @@ export type ExpeditionRequest = {
     name?: string | null;
     description?: string | null;
     difficulty: ExpeditionDifficulty;
+    minParticipants: number;
     maxParticipants: number;
 };
 

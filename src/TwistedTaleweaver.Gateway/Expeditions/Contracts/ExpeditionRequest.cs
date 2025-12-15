@@ -27,9 +27,16 @@ public class ExpeditionRequest
     public ExpeditionDifficulty Difficulty { get; set; }
     
     /// <summary>
+    /// Minimum number of participants required to start the expedition
+    /// </summary>
+    [Range(1, 10)]
+    [Required]
+    public int MinParticipants { get; set; }
+    
+    /// <summary>
     /// Maximum number of participants allowed in the expedition
     /// </summary>
     [Range(1, 10)]
     [Required]
-    public byte MaxParticipants { get; set; }
+    public int MaxParticipants { get; set; }
 }

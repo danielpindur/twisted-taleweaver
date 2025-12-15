@@ -3,31 +3,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, Crown, Play, Clock, Loader2 } from "lucide-react";
-import type { PendingExpedition } from "@/interfaces/PendingExpedition";
 import type { Character } from "@/interfaces/Character";
 import { getClassIcon } from "@/utils/CharacterUtils";
+import { ExpeditionStatus, type Expedition, type User } from "@/generated/twisted-taleweaver-api";
+import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
+import type { UserResource } from "@clerk/types";
 
 interface PreExpeditionPanelProps {
-  expedition: PendingExpedition;
-  currentUser: Character;
+  expedition: Expedition;
+  user: UserResource;
   onStartExpedition?: () => void;
-  characters?: Character[];
 }
 
-export const PreExpeditionPanel = ({ expedition, currentUser, onStartExpedition, characters = [] }: PreExpeditionPanelProps) => {
+export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreExpeditionPanelProps) => {
+  
   const [isStarting, setIsStarting] = useState(false);
-  const isOwner = expedition.ownerId === currentUser.id;
-  const isReady = expedition.status === "ready";
-  const waitingCount = expedition.maxPlayers - expedition.currentPlayers;
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy": return "bg-health text-background";
-      case "medium": return "bg-warning text-background";
-      case "hard": return "bg-accent text-accent-foreground";
-      case "nightmare": return "bg-destructive text-destructive-foreground";
-    }
-  };
+  const isOwner = expedition.createdByUser.externalUserId === user.id;
+  const isReady = expedition.currentParticipants >= expedition.minParticipants;
+  const waitingCount = expedition.minParticipants - expedition.currentParticipants;
 
   const handleStartExpedition = async () => {
     if (!onStartExpedition) return;
@@ -68,16 +61,16 @@ export const PreExpeditionPanel = ({ expedition, currentUser, onStartExpedition,
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span className="font-crimson text-sm">
-                {expedition.currentPlayers}/{expedition.maxPlayers} adventurers
+                {expedition.currentParticipants}/{expedition.maxParticipants} adventurers
               </span>
             </div>
-            {expedition.status === "gathering" && waitingCount > 0 && (
+            {expedition.status === ExpeditionStatus.CREATED && waitingCount > 0 && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 Waiting for {waitingCount} more
               </Badge>
             )}
-            {expedition.status === "ready" && (
+            {isReady && (
               <Badge className="bg-player text-background">
                 Ready to Begin!
               </Badge>
@@ -89,18 +82,18 @@ export const PreExpeditionPanel = ({ expedition, currentUser, onStartExpedition,
             <h4 className="font-crimson text-sm font-semibold">Brave Souls:</h4>
             <div className="grid grid-cols-2 gap-2">
               {expedition.participants.map((participant) => {
-                const character = characters.find(c => c.id === participant.characterId);
+                const character = participant.character;
                 const ClassIcon = character ? getClassIcon(character.class) : Users;
                 
                 return (
                   <div 
-                    key={participant.characterId}
+                    key={participant.user.userId}
                     className="flex items-center gap-2 p-2 bg-muted/30 rounded text-sm"
                   >
                     <ClassIcon className="w-3 h-3 text-primary" />
                     <span className="font-crimson">
-                      {participant.characterName}
-                      {participant.characterId === expedition.ownerId && " (Leader)"}
+                      {participant.user.name}
+                      {participant.user.userId === expedition.createdByUser.userId && " (Leader)"}
                     </span>
                   </div>
                 );
@@ -141,7 +134,7 @@ export const PreExpeditionPanel = ({ expedition, currentUser, onStartExpedition,
           {!isOwner && isReady && (
             <div className="pt-2 border-t border-border">
               <p className="text-sm text-center text-muted-foreground font-crimson">
-                Waiting for <span className="text-primary font-semibold">{expedition.ownerName}</span> to begin the expedition...
+                Waiting for <span className="text-primary font-semibold">{expedition.createdByUser.name}</span> to begin the expedition...
               </p>
             </div>
           )}

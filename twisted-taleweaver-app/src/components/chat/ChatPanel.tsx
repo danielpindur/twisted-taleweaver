@@ -4,7 +4,6 @@ import { CombatEncounterTopPanel } from "./CombatEncounterTopPanel";
 import { PreExpeditionPanel } from "./PreExpeditionPanel";
 import type { Monster } from "@/interfaces/Monster";
 import type { ChatMessage } from "@/interfaces/ChatMessage";
-import type { Character } from "@/interfaces/Character";
 import type { PendingExpedition } from "@/interfaces/PendingExpedition";
 import { TurnIndicator } from "./TurnIndicator";
 import { ChatInput } from "./ChatInput";
@@ -13,6 +12,7 @@ import { Sword, Shield, Eye, Sparkles, MessageSquare, Map, Backpack } from "luci
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { canUserAct, getCurrentTurnCharacter } from "@/utils/TurnUtils";
 import type { UserResource } from "@clerk/types";
+import { ExpeditionStatus, type Expedition, type ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
 
 // TODO: Replace with actual API data
 import { mockMonsters } from "@/mock/MockMonsters";
@@ -20,19 +20,17 @@ import { mockMessages } from "@/mock/MockChatMessages";
 import { mockPendingExpedition, mockPreExpeditionMessages } from "@/mock/MockPendingExpeditions";
 
 export interface ChatPanelProps {
-  characters: Character[],
+  expedition: Expedition,
   partyPanelCollapsed: boolean,
   characterPanelCollapsed: boolean,
-  user: UserResource,
-  expeditionStatus?: "pre-expedition" | "active" | "completed"
+  user: UserResource
 }
 
-export const ChatPanel = ({characters, partyPanelCollapsed, characterPanelCollapsed, user, expeditionStatus = "active"}: ChatPanelProps) => {
-  const [isInCombat] = useState(expeditionStatus === "active"); // TODO: Get from game state
+export const ChatPanel = ({ expedition, partyPanelCollapsed, characterPanelCollapsed, user }: ChatPanelProps) => {
+  const [isInCombat] = useState(expedition.status === ExpeditionStatus.STARTED); // TODO: Get from game state
   const [combatMonsters] = useState<Monster[]>(mockMonsters); // TODO: Get from combat state
-  const [expedition] = useState<PendingExpedition>(mockPendingExpedition); // TODO: Get from API
   const [messages, setMessages] = useState<ChatMessage[]>(
-    expeditionStatus === "pre-expedition" ? mockPreExpeditionMessages : mockMessages
+    expedition.status === ExpeditionStatus.CREATED ? mockPreExpeditionMessages : mockMessages
   );
  
   // TODO: Implement actual message sending API call
@@ -44,7 +42,7 @@ export const ChatPanel = ({characters, partyPanelCollapsed, characterPanelCollap
         characterName: user.username!,
         content: messageToSend,
         timestamp: new Date(),
-        type: expeditionStatus === "pre-expedition" ? "dialogue" : "action"
+        type: expedition.status === ExpeditionStatus.CREATED ? "dialogue" : "action"
       };
       
       setMessages(prev => [...prev, message]);
@@ -55,7 +53,7 @@ export const ChatPanel = ({characters, partyPanelCollapsed, characterPanelCollap
 
   // TODO: Implement actual expedition start API call
   const handleStartExpedition = () => {
-    console.log("Starting expedition:", expedition.id);
+    console.log("Starting expedition:", expedition.expeditionId);
     
     // Add system message for expedition start
     const startMessage: ChatMessage = {
@@ -148,178 +146,177 @@ export const ChatPanel = ({characters, partyPanelCollapsed, characterPanelCollap
   };
   
   // Find current user based on username
-  const currentUser = characters.find(char => char.name === user.username!) || characters[0];
+  const currentUser = expedition.participants.find(p => p.user.externalUserId === user.id!);
   
   // Turn-based logic
-  const isUserTurn = canUserAct(characters, user.username!);
-  const currentTurnCharacter = getCurrentTurnCharacter(characters);
+  //const isUserTurn = canUserAct(characters, user.username!);
+  //const currentTurnCharacter = getCurrentTurnCharacter(characters);
 
   return (
     <div className="flex-1 flex flex-col min-w-0" style={{ minWidth: '200px' }}>
-      {expeditionStatus === "pre-expedition" ? (
+      {expedition.status === ExpeditionStatus.CREATED ? (
         <PreExpeditionPanel 
           expedition={expedition} 
-          currentUser={currentUser}
+          user={user}
           onStartExpedition={handleStartExpedition}
-          characters={characters}
         />
-      ) : (
-        <>
-          <CombatEncounterTopPanel isInCombat={isInCombat} combatMonsters={combatMonsters} />
-          <ChatMessages messages={messages} characters={characters} onLoadMoreMessages={handleLoadMoreMessages} />
-          <TurnIndicator characters={characters} />
+      ) : ( <></>
+        // <>
+        //   <CombatEncounterTopPanel isInCombat={isInCombat} combatMonsters={combatMonsters} />
+        //   <ChatMessages messages={messages} characters={characters} onLoadMoreMessages={handleLoadMoreMessages} />
+        //   <TurnIndicator characters={characters} />
 
-          {/* Message Input */}
-          <div className="bg-card border-t border-border p-4 space-y-3">
-            <ChatInput 
-              handleSendMessage={handleSendMessage} 
-              disabled={!isUserTurn}
-              currentTurnCharacter={currentTurnCharacter}
-            />
+        //   {/* Message Input */}
+        //   <div className="bg-card border-t border-border p-4 space-y-3">
+        //     <ChatInput 
+        //       handleSendMessage={handleSendMessage} 
+        //       disabled={!isUserTurn}
+        //       currentTurnCharacter={currentTurnCharacter}
+        //     />
             
-            <div className={`flex gap-2 justify-center ${
-              partyPanelCollapsed || characterPanelCollapsed 
-                ? 'gap-3' 
-                : 'gap-2'
-            }`}>
-            {isInCombat ? (
-            // Combat Actions
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    disabled={!isUserTurn}
-                  >
-                    <Sword className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isUserTurn ? "Attack" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
-                </TooltipContent>
-              </Tooltip>
+        //     <div className={`flex gap-2 justify-center ${
+        //       partyPanelCollapsed || characterPanelCollapsed 
+        //         ? 'gap-3' 
+        //         : 'gap-2'
+        //     }`}>
+        //     {isInCombat ? (
+        //     // Combat Actions
+        //     <>
+        //       <Tooltip>
+        //         <TooltipTrigger asChild>
+        //           <Button 
+        //             variant="outline" 
+        //             size="icon" 
+        //             className="h-8 w-8" 
+        //             disabled={!isUserTurn}
+        //           >
+        //             <Sword className="h-4 w-4" />
+        //           </Button>
+        //         </TooltipTrigger>
+        //         <TooltipContent>
+        //           <p>{isUserTurn ? "Attack" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+        //         </TooltipContent>
+        //       </Tooltip>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    disabled={!isUserTurn}
-                  >
-                    <Shield className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isUserTurn ? "Defend" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
-                </TooltipContent>
-              </Tooltip>
+        //       <Tooltip>
+        //         <TooltipTrigger asChild>
+        //           <Button 
+        //             variant="outline" 
+        //             size="icon" 
+        //             className="h-8 w-8" 
+        //             disabled={!isUserTurn}
+        //           >
+        //             <Shield className="h-4 w-4" />
+        //           </Button>
+        //         </TooltipTrigger>
+        //         <TooltipContent>
+        //           <p>{isUserTurn ? "Defend" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+        //         </TooltipContent>
+        //       </Tooltip>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    disabled={!isUserTurn}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isUserTurn ? "Cast Spell" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
-                </TooltipContent>
-              </Tooltip>
+        //       <Tooltip>
+        //         <TooltipTrigger asChild>
+        //           <Button 
+        //             variant="outline" 
+        //             size="icon" 
+        //             className="h-8 w-8" 
+        //             disabled={!isUserTurn}
+        //           >
+        //             <Sparkles className="h-4 w-4" />
+        //           </Button>
+        //         </TooltipTrigger>
+        //         <TooltipContent>
+        //           <p>{isUserTurn ? "Cast Spell" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+        //         </TooltipContent>
+        //       </Tooltip>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    disabled={!isUserTurn}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isUserTurn ? "Search" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
-                </TooltipContent>
-              </Tooltip>
-            </>
-          ) : (
-            // Non-Combat Actions
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    disabled={!isUserTurn}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isUserTurn ? "Talk" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
-                </TooltipContent>
-              </Tooltip>
+        //       <Tooltip>
+        //         <TooltipTrigger asChild>
+        //           <Button 
+        //             variant="outline" 
+        //             size="icon" 
+        //             className="h-8 w-8" 
+        //             disabled={!isUserTurn}
+        //           >
+        //             <Eye className="h-4 w-4" />
+        //           </Button>
+        //         </TooltipTrigger>
+        //         <TooltipContent>
+        //           <p>{isUserTurn ? "Search" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+        //         </TooltipContent>
+        //       </Tooltip>
+        //     </>
+        //   ) : (
+        //     // Non-Combat Actions
+        //     <>
+        //       <Tooltip>
+        //         <TooltipTrigger asChild>
+        //           <Button 
+        //             variant="outline" 
+        //             size="icon" 
+        //             className="h-8 w-8" 
+        //             disabled={!isUserTurn}
+        //           >
+        //             <MessageSquare className="h-4 w-4" />
+        //           </Button>
+        //         </TooltipTrigger>
+        //         <TooltipContent>
+        //           <p>{isUserTurn ? "Talk" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+        //         </TooltipContent>
+        //       </Tooltip>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    disabled={!isUserTurn}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isUserTurn ? "Investigate" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
-                </TooltipContent>
-              </Tooltip>
+        //       <Tooltip>
+        //         <TooltipTrigger asChild>
+        //           <Button 
+        //             variant="outline" 
+        //             size="icon" 
+        //             className="h-8 w-8" 
+        //             disabled={!isUserTurn}
+        //           >
+        //             <Eye className="h-4 w-4" />
+        //           </Button>
+        //         </TooltipTrigger>
+        //         <TooltipContent>
+        //           <p>{isUserTurn ? "Investigate" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+        //         </TooltipContent>
+        //       </Tooltip>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    disabled={!isUserTurn}
-                  >
-                    <Map className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isUserTurn ? "Travel" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
-                </TooltipContent>
-              </Tooltip>
+        //       <Tooltip>
+        //         <TooltipTrigger asChild>
+        //           <Button 
+        //             variant="outline" 
+        //             size="icon" 
+        //             className="h-8 w-8" 
+        //             disabled={!isUserTurn}
+        //           >
+        //             <Map className="h-4 w-4" />
+        //           </Button>
+        //         </TooltipTrigger>
+        //         <TooltipContent>
+        //           <p>{isUserTurn ? "Travel" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+        //         </TooltipContent>
+        //       </Tooltip>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    disabled={!isUserTurn}
-                  >
-                    <Backpack className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isUserTurn ? "Use Item" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
-                </TooltipContent>
-              </Tooltip>
-            </>
-            )}
-            </div>
-          </div>
-        </>
+        //       <Tooltip>
+        //         <TooltipTrigger asChild>
+        //           <Button 
+        //             variant="outline" 
+        //             size="icon" 
+        //             className="h-8 w-8" 
+        //             disabled={!isUserTurn}
+        //           >
+        //             <Backpack className="h-4 w-4" />
+        //           </Button>
+        //         </TooltipTrigger>
+        //         <TooltipContent>
+        //           <p>{isUserTurn ? "Use Item" : `Wait for ${currentTurnCharacter?.name}'s turn`}</p>
+        //         </TooltipContent>
+        //       </Tooltip>
+        //     </>
+        //     )}
+        //     </div>
+        //   </div>
+        // </>
       )}
     </div>
   );

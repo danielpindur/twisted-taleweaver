@@ -36,7 +36,8 @@ export const ExpeditionSelection = () => {
   const [newExpeditionName, setNewExpeditionName] = useState("");
   const [newExpeditionDescription, setNewExpeditionDescription] = useState("");
   const [newExpeditionDifficulty, setNewExpeditionDifficulty] = useState<ExpeditionDifficulty>(ExpeditionDifficulty.MEDIUM);
-  const [newMaxParticipants, setNewMaxParticipants] = useState("4");
+  const [newMinParticipants, setNewMinParticipants] = useState(4);
+  const [newMaxParticipants, setNewMaxParticipants] = useState(4);
   
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState("");
@@ -60,7 +61,8 @@ export const ExpeditionSelection = () => {
       setNewExpeditionName("");
       setNewExpeditionDescription("");
       setNewExpeditionDifficulty(ExpeditionDifficulty.MEDIUM);
-      setNewMaxParticipants("4");
+      setNewMinParticipants(4);
+      setNewMaxParticipants(4);
 
       navigateToExpedition(data.expeditionId);
     },
@@ -85,7 +87,8 @@ export const ExpeditionSelection = () => {
       name: newExpeditionName || undefined,
       description: newExpeditionDescription || undefined,
       difficulty: newExpeditionDifficulty,
-      maxParticipants: Number(newMaxParticipants),
+      minParticipants: newMinParticipants,
+      maxParticipants: newMaxParticipants,
     };
 
     createExpeditionMutation.mutate(request);
@@ -207,14 +210,26 @@ export const ExpeditionSelection = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
+                    <Label htmlFor="min-players" className="font-crimson">Minimum Souls</Label>
+                    <Input
+                      id="min-players"
+                      type="number"
+                      min="2"
+                      max="10"
+                      value={newMinParticipants}
+                      onChange={(e) => setNewMinParticipants(Number(e.target.value))}
+                      className="bg-input border-border"
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="max-players" className="font-crimson">Maximum Souls</Label>
                     <Input
                       id="max-players"
                       type="number"
                       min="2"
-                      max="8"
+                      max="10"
                       value={newMaxParticipants}
-                      onChange={(e) => setNewMaxParticipants(e.target.value)}
+                      onChange={(e) => setNewMaxParticipants(Number(e.target.value))}
                       className="bg-input border-border"
                     />
                   </div>

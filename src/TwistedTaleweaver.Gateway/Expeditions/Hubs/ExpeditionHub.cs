@@ -28,7 +28,7 @@ public sealed class ExpeditionHub : Hub<IExpeditionClient>, IExpeditionHub
     {
         await Clients.All.OnMessageSent(new Message()
         {
-            User = new User() { Name = "name" },
+            User = new User() { Name = "name", ExternalUserId = "externalId" },
             Text = message.Text
         });
     }

@@ -1,14 +1,13 @@
 import { Button } from "@/components/ui/button";
-import type { Character } from "@/interfaces/Character";
 import { ArrowLeft, Users } from "lucide-react";
 
 export interface ChatRoomHeaderProps {
   expeditionId: string;
   onLeaveRoom: () => void;
-  characters: Character[]
+  currentParticipants: number;
 };
 
-export const ChatRoomHeader = ({ expeditionId, onLeaveRoom, characters }: ChatRoomHeaderProps) => {
+export const ChatRoomHeader = ({ expeditionId, onLeaveRoom, currentParticipants }: ChatRoomHeaderProps) => {
 
   return (
     <div className="bg-card border-b border-border p-4 shadow-dark">
@@ -28,7 +27,7 @@ export const ChatRoomHeader = ({ expeditionId, onLeaveRoom, characters }: ChatRo
         </div>
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">{characters.length} adventurers</span>
+          <span className="text-sm text-muted-foreground">{currentParticipants} adventurers</span>
         </div>
       </div>
     </div>);

@@ -11,7 +11,9 @@ public class CreateExpeditionCommand
     
     public ExpeditionDifficulty Difficulty { get; set; }
     
-    public byte MaxParticipants { get; set; }
+    public int MinParticipants { get; set; }
+    
+    public int MaxParticipants { get; set; }
     
     public Guid UserId { get; set; }
 }

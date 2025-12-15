@@ -24,7 +24,7 @@ internal class ExpeditionParticipantsReader(IUnitOfWorkProvider unitOfWorkProvid
                 ep.user_id,
                 u.external_user_id
             FROM expedition_participants ep
-            JOIN users u ON u.user_id = ep.user_id
+            INNER JOIN users u ON u.user_id = ep.user_id
             WHERE ep.expedition_id = @ExpeditionId";
 
         return await QueryAsync<ExpeditionParticipantDto>(sql, new
@@ -41,7 +41,7 @@ internal class ExpeditionParticipantsReader(IUnitOfWorkProvider unitOfWorkProvid
                 ep.user_id,
                 u.external_user_id
             FROM expedition_participants ep
-            JOIN users u ON u.user_id = ep.user_id
+            INNER JOIN users u ON u.user_id = ep.user_id
             WHERE ep.expedition_id = ANY(@ExpeditionIds)";
 
         return await QueryAsync<ExpeditionParticipantDto>(sql, new

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TwistedTaleweaver.Domain.Creatures.Enums;
 
 namespace TwistedTaleweaver.Domain.Creatures;
@@ -10,6 +11,7 @@ public class Character : CombatCreature
     /// <summary>
     /// <inheritdoc cref="ClassType"/>
     /// </summary>
+    [Required]
     public ClassType Class { get; init; }
 
     /// <summary>
