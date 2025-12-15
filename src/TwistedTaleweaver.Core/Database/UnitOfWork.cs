@@ -13,7 +13,7 @@ public interface IUnitOfWork : IAsyncDisposable
     
     DbConnection Connection { get; }
 
-    DbTransaction? GetTransaction(ConnectionMode connectionMode);
+    DbTransaction? GetTransaction(TransactionMode mode);
 }
 
 internal class UnitOfWork : IUnitOfWork
@@ -22,11 +22,9 @@ internal class UnitOfWork : IUnitOfWork
     
     public UnitOfWork(
         IDbConnectionFactory connectionFactory,
-        ConnectionMode connectionMode,
         UnitOfWorkScopeOption scopeOption)
     {
         ScopeOption = scopeOption;
-        _connectionMode = connectionMode;
         
         Connection = connectionFactory.CreateConnection();
         Connection.Open();
@@ -34,34 +32,37 @@ internal class UnitOfWork : IUnitOfWork
 
     public DbConnection Connection { get; }
     
-    public DbTransaction? GetTransaction(ConnectionMode connectionMode)
+    public DbTransaction? GetTransaction(TransactionMode mode)
     {
         // We are suppressing the transaction itself
-        if (ScopeOption == UnitOfWorkScopeOption.Suppress)
+        if (ScopeOption == UnitOfWorkScopeOption.Suppressed)
         {
             return null;
         }
 
-        // ReadOnly connection requested and we are already in ReadOnly mode
-        if (_connectionMode == ConnectionMode.ReadOnly && connectionMode == ConnectionMode.ReadOnly)
+        if (mode == TransactionMode.ReadOnly)
         {
-            return null;
+            // If we are only reading and we don't have a transaction, no need to create one
+            return _transaction;
         }
 
         // We need a transaction, either get active one or create one
-        _connectionMode = ConnectionMode.ReadWrite;
         return _transaction ??= Connection.BeginTransaction();
     }
 
     public UnitOfWorkScopeOption ScopeOption { get; }
-
-    private ConnectionMode _connectionMode;
-
+    
     public async Task CommitAsync()
     {
+        if (ScopeOption == UnitOfWorkScopeOption.Suppressed)
+        {
+            throw new InvalidOperationException("Cannot commit transaction in suppressed scope");
+        }
+        
         if (_transaction is null)
         {
-            throw new InvalidOperationException("Cannot commit non-existing transaction");
+            // We are in a scope with transaction, but no write operations were performed
+            return;
         }
         
         await _transaction.CommitAsync();
@@ -71,9 +72,15 @@ internal class UnitOfWork : IUnitOfWork
 
     public async Task RollbackAsync()
     {
+        if (ScopeOption == UnitOfWorkScopeOption.Suppressed)
+        {
+            throw new InvalidOperationException("Cannot rollback transaction in suppressed scope");
+        }
+
         if (_transaction is null)
         {
-            throw new InvalidOperationException("Cannot rollback non-existing transaction");
+            // We are in a scope with transaction, but no write operations were performed
+            return;
         }
         
         await _transaction.RollbackAsync();

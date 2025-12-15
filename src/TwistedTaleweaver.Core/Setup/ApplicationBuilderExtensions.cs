@@ -63,11 +63,6 @@ public static class ApplicationBuilderExtensions
         private IServiceCollection AddUnitOfWork()
         {
             services.AddScoped<IUnitOfWorkProvider, UnitOfWorkProvider>();
-            services.AddTransient<IUnitOfWork>(serviceProvider =>
-            {
-                var unitOfWorkProvider = serviceProvider.GetRequiredService<IUnitOfWorkProvider>();
-                return unitOfWorkProvider.GetActiveUnitOfWork();
-            });
             
             return services;
         }

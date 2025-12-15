@@ -13,8 +13,8 @@ public interface IExpeditionParticipantsReader
     Task<bool> ExistsAsync(Guid expeditionId, Guid userId);
 }
 
-internal class ExpeditionParticipantsReader(IUnitOfWork unitOfWork)
-    : DatabaseAccessor(unitOfWork), IExpeditionParticipantsReader
+internal class ExpeditionParticipantsReader(IUnitOfWorkProvider unitOfWorkProvider)
+    : DatabaseAccessor(unitOfWorkProvider), IExpeditionParticipantsReader
 {
     public async Task<IEnumerable<ExpeditionParticipantDto>> GetByExpeditionAsync(Guid expeditionId)
     {

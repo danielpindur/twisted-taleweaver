@@ -14,7 +14,8 @@ public interface IExpeditionsWriter
         int maxParticipants);
 }
 
-internal class ExpeditionsWriter(IUnitOfWork unitOfWork) : DatabaseAccessor(unitOfWork), IExpeditionsWriter
+internal class ExpeditionsWriter(IUnitOfWorkProvider unitOfWorkProvider) : 
+    DatabaseAccessor(unitOfWorkProvider), IExpeditionsWriter
 {
     public async Task<Guid> CreateAsync(
         Guid userId,

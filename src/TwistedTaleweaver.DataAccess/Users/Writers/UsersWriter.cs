@@ -9,7 +9,8 @@ public interface IUsersWriter
     Task<UserDto> GetOrCreateAsync(string externalUserId);
 }
 
-internal class UsersWriter(IUnitOfWork unitOfWork) : DatabaseAccessor(unitOfWork), IUsersWriter
+internal class UsersWriter(IUnitOfWorkProvider unitOfWorkProvider) : 
+    DatabaseAccessor(unitOfWorkProvider), IUsersWriter
 {
     public async Task<UserDto> GetOrCreateAsync(string externalUserId)
     {

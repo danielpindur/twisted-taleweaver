@@ -8,7 +8,8 @@ public interface IExpeditionParticipantsWriter
     Task AddAsync(Guid expeditionId, Guid userId);
 }
 
-internal class ExpeditionParticipantsWriter(IUnitOfWork unitOfWork) : DatabaseAccessor(unitOfWork), IExpeditionParticipantsWriter
+internal class ExpeditionParticipantsWriter(IUnitOfWorkProvider unitOfWorkProvider) : 
+    DatabaseAccessor(unitOfWorkProvider), IExpeditionParticipantsWriter
 {
     public async Task AddAsync(Guid expeditionId, Guid userId)
     {

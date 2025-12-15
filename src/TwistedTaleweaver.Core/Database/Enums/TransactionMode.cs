@@ -1,6 +1,6 @@
 namespace TwistedTaleweaver.Core.Database.Enums;
 
-public enum ConnectionMode
+public enum TransactionMode
 {
     ReadOnly = 1,
     ReadWrite

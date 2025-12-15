@@ -5,17 +5,17 @@ using TwistedTaleweaver.Core.Database.Enums;
 
 namespace TwistedTaleweaver.DataAccess.Common;
 
-public abstract class DatabaseAccessor(IUnitOfWork unitOfWork) : IDatabaseAccessor
+public abstract class DatabaseAccessor(IUnitOfWorkProvider unitOfWorkProvider) : IDatabaseAccessor
 {
     private NpgsqlConnection GetConnection()
     {
-        return unitOfWork.Connection as NpgsqlConnection
-            ?? throw new InvalidOperationException("The database connection is not a valid NpgsqlConnection.");
+        return unitOfWorkProvider.GetActiveUnitOfWork().Connection as NpgsqlConnection
+               ?? throw new InvalidOperationException("The database connection is not a valid NpgsqlConnection.");
     }
 
-    private NpgsqlTransaction? GetTransaction(ConnectionMode connectionMode)
+    private NpgsqlTransaction? GetTransaction(TransactionMode mode)
     {
-        var transaction = unitOfWork.GetTransaction(connectionMode);
+        var transaction = unitOfWorkProvider.GetActiveUnitOfWork().GetTransaction(mode);
 
         if (transaction == null)
         {
@@ -29,30 +29,30 @@ public abstract class DatabaseAccessor(IUnitOfWork unitOfWork) : IDatabaseAccess
     public Task<T?> QuerySingleOrDefaultAsync<T>(string sql, object? param = null)
     {
         return GetConnection()
-            .QuerySingleOrDefaultAsync<T>(sql, param, GetTransaction(ConnectionMode.ReadOnly));
+            .QuerySingleOrDefaultAsync<T>(sql, param, GetTransaction(TransactionMode.ReadOnly));
     }
 
     public Task<T> QuerySingleAsync<T>(string sql, object? param = null)
     {
         return GetConnection()
-            .QuerySingleAsync<T>(sql, param, GetTransaction(ConnectionMode.ReadOnly));
+            .QuerySingleAsync<T>(sql, param, GetTransaction(TransactionMode.ReadOnly));
     }
 
     public Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null)
     {
         return GetConnection()
-            .QueryAsync<T>(sql, param, GetTransaction(ConnectionMode.ReadOnly));
+            .QueryAsync<T>(sql, param, GetTransaction(TransactionMode.ReadOnly));
     }
 
     public Task ExecuteAsync(string sql, object? param = null)
     {
         return GetConnection()
-            .ExecuteAsync(sql, param, GetTransaction(ConnectionMode.ReadWrite));
+            .ExecuteAsync(sql, param, GetTransaction(TransactionMode.ReadWrite));
     }
 
     public Task<T> ExecuteWithOutputAsync<T>(string sql, object? param = null)
     {
         return GetConnection()
-            .QuerySingleAsync<T>(sql, param, GetTransaction(ConnectionMode.ReadWrite));
+            .QuerySingleAsync<T>(sql, param, GetTransaction(TransactionMode.ReadWrite));
     }
 }

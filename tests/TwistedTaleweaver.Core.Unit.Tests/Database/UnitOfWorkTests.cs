@@ -15,160 +15,115 @@ public class UnitOfWorkTests
         _factory = new StubDbConnectionFactory();
     }
 
-    // ---------------------------------------------------------
-    // Construction
-    // ---------------------------------------------------------
-
+    #region Construction
+    
     [Test]
     public void Constructor_OpensConnection()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
         var connection = (StubDbConnection)uow.Connection;
 
-        Assert.That(connection.ConnectionOpen, Is.True, "Connection should be opened in constructor.");
+        Assert.That(connection.ConnectionOpen, Is.True);
     }
+    
+    #endregion
 
-    // ---------------------------------------------------------
-    // Read-only scenarios
-    // ---------------------------------------------------------
+    #region UnitOfWorkScopeOption.Suppress scenarios
 
     [Test]
     public void GetTransaction_ReadOnly_SuppressScope_ReturnsNull()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Suppress);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Suppressed);
 
-        var tx = uow.GetTransaction(ConnectionMode.ReadOnly);
+        var tx = uow.GetTransaction(TransactionMode.ReadOnly);
 
-        Assert.That(tx, Is.Null, "Suppress scope must return null for read-only transaction.");
+        Assert.That(tx, Is.Null);
     }
-
+    
     [Test]
-    public void GetTransaction_ReadOnly_RequiredScope_ReturnsNull_NoTransactionCreated()
+    public void GetTransaction_ReadWrite_SuppressScope_ReturnsNull()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Suppressed);
 
-        var tx = uow.GetTransaction(ConnectionMode.ReadOnly);
+        var tx = uow.GetTransaction(TransactionMode.ReadWrite);
 
         Assert.That(tx, Is.Null);
     }
 
-    // ---------------------------------------------------------
-    // Write scenarios
-    // ---------------------------------------------------------
+    #endregion
+
+    #region UnitOfWorkScopeOption.Required scenarios
 
     [Test]
-    public void GetTransaction_ReadWrite_FirstRequest_CreatesTransaction()
+    public void GetTransaction_FirstRequest_ReadOnly_DoesNotCreatesTransaction()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
-        var tx = uow.GetTransaction(ConnectionMode.ReadWrite);
+        var tx = uow.GetTransaction(TransactionMode.ReadOnly);
 
-        Assert.That(tx, Is.Not.Null, "Write request should create a transaction.");
+        Assert.That(tx, Is.Null);
+    }
+    
+    [Test]
+    public void GetTransaction_FirstRequest_ReadWrite_CreatesTransaction()
+    {
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
+
+        var tx = uow.GetTransaction(TransactionMode.ReadWrite);
+
+        Assert.That(tx, Is.Not.Null);
     }
 
     [Test]
-    public void GetTransaction_ReadWrite_SecondRequest_ReturnsSameTransaction()
+    public void GetTransaction_SecondRequest_ReadOnly_ReturnsSameTransaction()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
-        var first = uow.GetTransaction(ConnectionMode.ReadWrite);
-        var second = uow.GetTransaction(ConnectionMode.ReadWrite);
+        var first = uow.GetTransaction(TransactionMode.ReadWrite);
+        var second = uow.GetTransaction(TransactionMode.ReadOnly);
 
-        Assert.That(first, Is.SameAs(second), "Second write request must reuse the same transaction.");
+        Assert.That(first, Is.SameAs(second));
     }
-
+    
     [Test]
-    public void GetTransaction_ReadWrite_SuppressScope_ReturnsNull()
+    public void GetTransaction_SecondRequest_ReadWrite_ReturnsSameTransaction()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Suppress);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
-        var tx = uow.GetTransaction(ConnectionMode.ReadWrite);
+        var first = uow.GetTransaction(TransactionMode.ReadWrite);
+        var second = uow.GetTransaction(TransactionMode.ReadWrite);
 
-        Assert.That(tx, Is.Null, "Write request inside Suppress must return null.");
+        Assert.That(first, Is.SameAs(second));
     }
 
-    // ---------------------------------------------------------
-    // Mixed Escalation: Read → Write
-    // ---------------------------------------------------------
+    #endregion
 
-    [Test]
-    public void GetTransaction_ReadThenWrite_EscalatesToTransaction()
-    {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
-
-        var readTx = uow.GetTransaction(ConnectionMode.ReadOnly);
-        Assert.That(readTx, Is.Null, "Read-only should not create a transaction.");
-
-        var writeTx = uow.GetTransaction(ConnectionMode.ReadWrite);
-        Assert.That(writeTx, Is.Not.Null, "Write request must escalate and create a transaction.");
-    }
-
-    // ---------------------------------------------------------
-    // Mixed: Write → Read
-    // ---------------------------------------------------------
-
-    [Test]
-    public void GetTransaction_WriteThenRead_ReturnsSameTransaction()
-    {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
-
-        var writeTx = uow.GetTransaction(ConnectionMode.ReadWrite);
-        var readTx = uow.GetTransaction(ConnectionMode.ReadOnly);
-
-        Assert.That(writeTx, Is.SameAs(readTx), "Reads after writes must return active transaction.");
-    }
-
-    // ---------------------------------------------------------
-    // Commit tests
-    // ---------------------------------------------------------
+    #region Commit tests
 
     [Test]
     public async Task CommitAsync_ActiveTransaction_CommitsAndDisposesTransaction()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
-        var tx = (StubDbTransaction)uow.GetTransaction(ConnectionMode.ReadWrite)!;
+        var tx = (StubDbTransaction)uow.GetTransaction(TransactionMode.ReadWrite)!;
 
         await uow.CommitAsync();
 
-        Assert.That(tx.TransactionCommited, Is.True, "Transaction commit must be called.");
+        Assert.That(tx.TransactionCommited, Is.True);
+    }
+    
+    [Test]
+    public async Task CommitAsync_NoTransaction_DoesNotThrow()
+    {
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
+        await uow.CommitAsync();
     }
 
     [Test]
-    public void CommitAsync_NoTransaction_Throws()
+    public void CommitAsync_Suppressed_Throws()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Suppressed);
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
@@ -176,32 +131,33 @@ public class UnitOfWorkTests
         });
     }
 
-    // ---------------------------------------------------------
-    // Rollback tests
-    // ---------------------------------------------------------
+    #endregion
+
+    #region Rollback tests
 
     [Test]
     public async Task RollbackAsync_ActiveTransaction_RollsBackAndDisposes()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
-        var tx = (StubDbTransaction)uow.GetTransaction(ConnectionMode.ReadWrite)!;
+        var tx = (StubDbTransaction)uow.GetTransaction(TransactionMode.ReadWrite)!;
 
         await uow.RollbackAsync();
 
-        Assert.That(tx.TransactionRolledBack, Is.True, "Rollback must be invoked.");
+        Assert.That(tx.TransactionRolledBack, Is.True);
+    }
+    
+    [Test]
+    public async Task RollbackAsync_NoTransaction_DoesNotThrow()
+    {
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
+        await uow.RollbackAsync();
     }
 
     [Test]
-    public void RollbackAsync_NoTransaction_Throws()
+    public void RollbackAsync_Suppressed_Throws()
     {
-        var uow = new UnitOfWork(
-            _factory,
-            ConnectionMode.ReadOnly,
-            UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Suppressed);
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
@@ -209,34 +165,34 @@ public class UnitOfWorkTests
         });
     }
 
-    // ---------------------------------------------------------
-    // Dispose tests
-    // ---------------------------------------------------------
+    #endregion
+
+    #region Dispose tests
 
     [Test]
     public async Task DisposeAsync_NoActiveTransaction_DisposesConnection()
     {
-        var uow = new UnitOfWork(
-            _factory, ConnectionMode.ReadOnly, UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
         var connection = (StubDbConnection)uow.Connection;
 
         await uow.DisposeAsync();
 
-        Assert.That(connection.ConnectionOpen, Is.False, "Connection should be closed on dispose.");
+        Assert.That(connection.ConnectionOpen, Is.False);
     }
 
     [Test]
     public void DisposeAsync_ActiveTransaction_Throws()
     {
-        var uow = new UnitOfWork(
-            _factory, ConnectionMode.ReadOnly, UnitOfWorkScopeOption.Required);
+        var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
-        uow.GetTransaction(ConnectionMode.ReadWrite);
+        uow.GetTransaction(TransactionMode.ReadWrite);
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
             await uow.DisposeAsync();
         });
     }
+
+    #endregion
 }

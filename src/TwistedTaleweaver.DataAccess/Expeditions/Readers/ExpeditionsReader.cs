@@ -15,7 +15,8 @@ public interface IExpeditionsReader
     Task<IEnumerable<ExpeditionSlimWithCountDto>> GetPageAsync(Guid userId, int pageNumber, int pageSize);
 }
 
-internal class ExpeditionsReader(IUnitOfWork unitOfWork) : DatabaseAccessor(unitOfWork), IExpeditionsReader
+internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) : 
+    DatabaseAccessor(unitOfWorkProvider), IExpeditionsReader
 {
     public async Task<Expedition?> GetByIdAsync(Guid expeditionId)
     {

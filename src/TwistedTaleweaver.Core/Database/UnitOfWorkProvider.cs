@@ -2,7 +2,7 @@ using TwistedTaleweaver.Core.Database.Enums;
 
 namespace TwistedTaleweaver.Core.Database;
 
-internal interface IUnitOfWorkProvider
+public interface IUnitOfWorkProvider : IAsyncDisposable
 {
     IUnitOfWork CreateUnitOfWork(UnitOfWorkScopeOption scopeOption);
     
@@ -19,60 +19,80 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
 {
     private readonly Stack<UnitOfWorkStackEntry> _unitsOfWork = new();
 
+    /// <summary>
+    /// Called by UnitOfWorkScope on new scope creation
+    /// </summary>
     public IUnitOfWork CreateUnitOfWork(UnitOfWorkScopeOption scopeOption)
     {
         // We haven't connected to the database - create new one
         if (_unitsOfWork.Count == 0)
         {
-            _unitsOfWork.Push(new UnitOfWorkStackEntry(connectionFactory, ConnectionMode.ReadWrite, scopeOption));
-            return GetActiveUnitOfWork();
+            // Create new unit of work with a new connection
+            var unitOfWorkEntry = new UnitOfWorkStackEntry(connectionFactory, scopeOption);
+            _unitsOfWork.Push(unitOfWorkEntry);
+            
+            return unitOfWorkEntry.UnitOfWork;
         }
 
-        if (GetActiveUnitOfWork().ScopeOption == UnitOfWorkScopeOption.Suppress &&
+        // We have done either some writes / reads outside of transaction and now want a transaction
+        if (_unitsOfWork.Peek().UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Suppressed &&
             scopeOption == UnitOfWorkScopeOption.Required)
         {
-            // In theory, we might just need to create a new connection with a transaction,
-            // but seems really weird to do it in this order, so let's just throw for now
-            throw new InvalidOperationException("Cannot create a transactional unit of work within a suppressed scope.");
+            // Create new unit of work with a new connection
+            var unitOfWorkEntry = new UnitOfWorkStackEntry(connectionFactory, scopeOption);
+            _unitsOfWork.Push(unitOfWorkEntry);
+            
+            return unitOfWorkEntry.UnitOfWork;
         }
 
-        if (GetActiveUnitOfWork().ScopeOption == UnitOfWorkScopeOption.Required &&
-            scopeOption == UnitOfWorkScopeOption.Suppress)
+        // We are in a transaction and need to write to the database irrespective of the transaction
+        if (_unitsOfWork.Peek().UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Required &&
+            scopeOption == UnitOfWorkScopeOption.Suppressed)
         {
-            // We need to write to the database irrespective of the current transaction
-            // -> we need a new unit of work
-            _unitsOfWork.Push(new UnitOfWorkStackEntry(connectionFactory, ConnectionMode.ReadWrite, scopeOption));
-            return GetActiveUnitOfWork();
+            // Create new unit of work with a new connection
+            var unitOfWorkEntry = new UnitOfWorkStackEntry(connectionFactory, scopeOption);
+            _unitsOfWork.Push(unitOfWorkEntry);
+            
+            return unitOfWorkEntry.UnitOfWork;
         }
 
-        if (GetActiveUnitOfWork().ScopeOption == UnitOfWorkScopeOption.Required &&
+        // We are in transaction and inner transaction scope is being created
+        if (_unitsOfWork.Peek().UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Required &&
             scopeOption == UnitOfWorkScopeOption.Required)
         {
-            _unitsOfWork.Peek().Connect();
-            return GetActiveUnitOfWork();
+            var unitOfWorkEntry = _unitsOfWork.Peek();
+            unitOfWorkEntry.Connect();
+
+            return unitOfWorkEntry.UnitOfWork;
         }
         
-        if (GetActiveUnitOfWork().ScopeOption == UnitOfWorkScopeOption.Suppress &&
-            scopeOption == UnitOfWorkScopeOption.Suppress)
+        // We are outside of a transaction and new suppressed scope is being created
+        if (_unitsOfWork.Peek().UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Suppressed &&
+            scopeOption == UnitOfWorkScopeOption.Suppressed)
         {
-            _unitsOfWork.Peek().Connect();
-            return GetActiveUnitOfWork();
+            var unitOfWorkEntry = _unitsOfWork.Peek();
+            unitOfWorkEntry.Connect();
+
+            return unitOfWorkEntry.UnitOfWork;
         }
         
         throw new InvalidOperationException("Unhandled unit of work scope option combination.");
     }
 
+    /// <summary>
+    /// Called by DatabaseAccessor to resolve the unit of work to use
+    /// </summary>
     public IUnitOfWork GetActiveUnitOfWork()
     {
-        if (_unitsOfWork.TryPop(out var unitOfWork))
+        // If we have one, just return it
+        if (_unitsOfWork.TryPeek(out var unitOfWork))
         {
             return unitOfWork.UnitOfWork;
         }
         
-        var unitOfWorkEntry = new UnitOfWorkStackEntry(connectionFactory, ConnectionMode.ReadOnly, UnitOfWorkScopeOption.Required);
-        _unitsOfWork.Push(unitOfWorkEntry);
-        
-        return unitOfWorkEntry.UnitOfWork;
+        // If we have none -> we are not in a UnitOfWorkScope (as that creates the unit of work)
+        // -> get one with transaction suppression
+        return CreateUnitOfWork(UnitOfWorkScopeOption.Suppressed);
     }
 
     public async Task CloseUnitOfWorkAsync()
@@ -82,19 +102,19 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
         
         if (activeEntry.HasNoConnections)
         {
-            await GetActiveUnitOfWork().DisposeAsync();
+            _unitsOfWork.Pop();
+            await activeEntry.UnitOfWork.DisposeAsync();
         }
     }
 
     public async Task CommitUnitOfWorkAsync()
     {
         var activeEntry = _unitsOfWork.Peek();
-        activeEntry.Disconnect();
         
-        if (activeEntry.HasNoConnections && 
-            activeEntry.UnitOfWork.ScopeOption != UnitOfWorkScopeOption.Suppress)
+        if (activeEntry.IsRootConnection && 
+            activeEntry.UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Required)
         {
-            await GetActiveUnitOfWork().CommitAsync();
+            await activeEntry.UnitOfWork.CommitAsync();
         }
     }
     
@@ -104,19 +124,26 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
         activeEntry.Disconnect();
         
         if (activeEntry.HasNoConnections && 
-            activeEntry.UnitOfWork.ScopeOption != UnitOfWorkScopeOption.Suppress)
+            activeEntry.UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Required)
         {
-            await GetActiveUnitOfWork().RollbackAsync();
+            await activeEntry.UnitOfWork.RollbackAsync();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        while (_unitsOfWork.TryPop(out var unitOfWork))
+        {
+            await unitOfWork.UnitOfWork.DisposeAsync();
         }
     }
 
     private class UnitOfWorkStackEntry(
         IDbConnectionFactory connectionFactory,
-        ConnectionMode connectionMode,
         UnitOfWorkScopeOption scopeOption)
     {
         private int _connectionsCount = 1;
-        public IUnitOfWork UnitOfWork { get; } = new UnitOfWork(connectionFactory, connectionMode, scopeOption);
+        public IUnitOfWork UnitOfWork { get; } = new UnitOfWork(connectionFactory, scopeOption);
 
         public void Connect()
         {
@@ -129,5 +156,7 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
         }
         
         public bool HasNoConnections => _connectionsCount == 0;
+        
+        public bool IsRootConnection => _connectionsCount == 1;
     }
 }
