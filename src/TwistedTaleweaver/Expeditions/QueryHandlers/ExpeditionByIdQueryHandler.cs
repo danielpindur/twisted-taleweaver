@@ -10,17 +10,16 @@ internal class ExpeditionByIdQueryHandler(
 {
     public async Task<Expedition?> ExecuteAsync(ExpeditionByIdQuery query)
     {
-        var expeditionTask = expeditionsReader.GetByIdAsync(query.ExpeditionId);
-        var participantsTask = expeditionParticipantsReader.GetByExpeditionAsync(query.ExpeditionId);
-
-        var expedition = await expeditionTask;
-
+        var expedition = await expeditionsReader.GetByIdAsync(query.ExpeditionId);
+        
         if (expedition is null)
         {
             return null;
         }
+        
+        var participants = await expeditionParticipantsReader.GetByExpeditionAsync(query.ExpeditionId);
 
-        expedition.CurrentParticipants = (await participantsTask).Count();
+        expedition.CurrentParticipants = participants.Count();
         
         return expedition;
     }
