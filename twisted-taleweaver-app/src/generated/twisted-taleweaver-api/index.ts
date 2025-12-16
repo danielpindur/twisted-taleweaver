@@ -20,6 +20,7 @@ export type { ExpeditionParticipant } from './models/ExpeditionParticipant';
 export type { ExpeditionRequest } from './models/ExpeditionRequest';
 export type { ExpeditionSlim } from './models/ExpeditionSlim';
 export { ExpeditionStatus } from './models/ExpeditionStatus';
+export { Gender } from './models/Gender';
 export { NarrativeAlignment } from './models/NarrativeAlignment';
 export type { OptionalOfint } from './models/OptionalOfint';
 export type { OptionalOfstring } from './models/OptionalOfstring';

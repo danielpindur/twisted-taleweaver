@@ -18,7 +18,6 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Character } from "@/interfaces/Character";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
@@ -26,14 +25,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { getGenderSymbol, getStatusColor } from "@/utils/CharacterUtils";
 import { getHealthPercentage } from "@/utils/HealthUtils";
 import { formatModifier, getAttributeModifier } from "@/utils/AttributeUtils";
+import type { ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
 
 export interface PartySidePannelProps {
-  characters: Character[],
+  participants: ExpeditionParticipant[],
   panelCollapsed: boolean,
   setPanelCollapsed: (collapsed: boolean) => void;
 };
 
-export const PartySidePannel = ({characters, panelCollapsed, setPanelCollapsed}: PartySidePannelProps) => {
+export const PartySidePannel = ({ participants, panelCollapsed, setPanelCollapsed }: PartySidePannelProps) => {
   const [needsScrollPadding, setNeedsScrollPadding] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +48,7 @@ export const PartySidePannel = ({characters, panelCollapsed, setPanelCollapsed}:
     checkScrollNeed();
     window.addEventListener('resize', checkScrollNeed);
     return () => window.removeEventListener('resize', checkScrollNeed);
-  }, [characters, panelCollapsed]);
+  }, [participants, panelCollapsed]);
 
   return (
     <div className={`${panelCollapsed ? 'w-12' : 'w-56 md:w-72'} flex-shrink-0 bg-card border-r border-border transition-[width] duration-300 overflow-hidden`}>
@@ -76,8 +76,8 @@ export const PartySidePannel = ({characters, panelCollapsed, setPanelCollapsed}:
             </Button>
           </div>
       <div className="space-y-3">
-        {characters.map((player) => (
-          <Dialog key={player.id}>
+        {participants.map((participant) => (
+          <Dialog key={participant.user.userId}>
             <DialogTrigger asChild>
               <Card className={`bg-muted border cursor-pointer hover:bg-muted/80 transition-colors ${player.isCurrentTurn ? 'border-primary shadow-glow' : 'border-border'}`}>
                 <CardContent className="p-3">

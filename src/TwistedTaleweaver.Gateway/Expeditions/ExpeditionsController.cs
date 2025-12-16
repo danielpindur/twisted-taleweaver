@@ -101,8 +101,8 @@ public sealed class ExpeditionsController(
             UserId = userId
         });
 
-        var expeditionParticipants = (await expeditionParticipantsQueryHandler.Value
-            .ExecuteAsync(new ExpeditionParticipantsQuery() { ExpeditionId = expeditionId }));
+        var expeditionParticipants = await expeditionParticipantsQueryHandler.Value
+            .ExecuteAsync(new ExpeditionParticipantsQuery() { ExpeditionId = expeditionId });
 
         /*
         await expeditionHub.Value.Clients.Group(expeditionId.ToString())

@@ -33,6 +33,11 @@ public abstract class Creature
     [MaxLength(255)]
     [Required]
     public required string ContextKeywords { get; set; }
+
+    /// <summary>
+    /// <inheritdoc cref="Gender"/>
+    /// </summary>
+    public Gender Gender { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="CreatureType"/>

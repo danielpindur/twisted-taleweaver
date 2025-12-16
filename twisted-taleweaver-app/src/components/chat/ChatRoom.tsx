@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ChatRoomHeader} from "./ChatRoomHeader";
-import { ChatPanel } from "./ChatPanel";
+import { ChatRoomHeader} from "@/components/chat/ChatRoomHeader";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 import type { UserResource } from "@clerk/types";
 import { useQuery } from "@tanstack/react-query";
 import { useApiClient } from "@/hooks/useApiClient";
 import { ExpeditionsService } from "@/generated/twisted-taleweaver-api/services/ExpeditionsService";
 import { useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
+import { PartySidePannel } from "@/components/chat/PartySidePanel";
 
 export interface ChatRoomProps {
   expeditionId: string;
@@ -57,7 +58,7 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
         
 
   return (
-    <TooltipProvider>
+    //<TooltipProvider>
       <div className="h-screen bg-background flex flex-col">
         <ChatRoomHeader 
           expeditionId={expeditionId}
@@ -65,13 +66,12 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
           currentParticipants={data.currentParticipants} />
        
         <div className="flex-1 flex overflow-x-auto">
-          {/*}
+          {/*
           <PartySidePannel 
-            characters={mockCharacters}
+            participants={data.participants}
             panelCollapsed={partyPanelCollapsed}
             setPanelCollapsed={setPartyPanelCollapsed} />
           */}
-          
           <ChatPanel 
             expedition={data}
             partyPanelCollapsed={partyPanelCollapsed}
@@ -89,6 +89,6 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
           */}
         </div>
       </div>
-    </TooltipProvider>
+    //</TooltipProvider>
   );
 };
