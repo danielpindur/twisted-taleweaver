@@ -13,12 +13,12 @@ import { Users, Plus, Swords, KeyRound, Loader2, AlertCircle } from "lucide-reac
 import { useApiClient } from "@/hooks/useApiClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExpeditionsService } from "@/generated/twisted-taleweaver-api";
-import type { ExpeditionRequest } from "@/generated/twisted-taleweaver-api/models/ExpeditionRequest";
 import { ExpeditionStatus } from "@/generated/twisted-taleweaver-api/models/ExpeditionStatus";
 import { ExpeditionDifficulty } from "@/generated/twisted-taleweaver-api/models/ExpeditionDifficulty";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
 import { getStatusColor } from "@/utils/ExpeditionStatusUtils";
+import type { ExpeditionRequest } from "@/generated/twisted-taleweaver-api/models/ExpeditionRequest";
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
@@ -30,9 +30,7 @@ export const ExpeditionSelection = () => {
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
-  
-  const [isJoining, setIsJoining] = useState(false);
-  
+    
   const [newExpeditionName, setNewExpeditionName] = useState("");
   const [newExpeditionDescription, setNewExpeditionDescription] = useState("");
   const [newExpeditionDifficulty, setNewExpeditionDifficulty] = useState<ExpeditionDifficulty>(ExpeditionDifficulty.MEDIUM);
@@ -76,6 +74,35 @@ export const ExpeditionSelection = () => {
     },
   });
 
+  const joinExpeditionMutation = useMutation({
+    mutationFn: (expeditionId: string) => 
+      requestWithAuth(() => 
+      ExpeditionsService.postApiExpeditionsJoin(expeditionId)
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] });
+
+      toast({
+        title: "Expedition Joined!",
+        description: "Successfully joined expedition.",
+      });
+
+      navigateToExpedition(joinCode);
+      setIsJoinDialogOpen(false);
+      setJoinCode("");
+      setJoinError("");
+    },
+    onError: (err) => {
+      setJoinError(err.message);
+      
+      toast({
+        title: "Failed to Join",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  })
+
   const navigateToExpedition = (expeditionId: string) => {
     navigate("/expedition/" + expeditionId);
   };
@@ -94,56 +121,18 @@ export const ExpeditionSelection = () => {
     createExpeditionMutation.mutate(request);
   };
 
-  // TODO: Implement actual join by code API call
-  const handleJoinByCode = async () => {
-    if (!joinCode.trim()) return;
-    
-    setIsJoining(true);
-    setJoinError("");
-    
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Validate GUID format
-      const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-      if (!guidPattern.test(joinCode)) {
-        throw new Error("Invalid expedition code format. Expected GUID format.");
-      }
-      
-      // Mock check if expedition exists (simulate some GUIDs not existing)
-      const nonExistentCodes = [
-        "12345678-1234-1234-1234-123456789abc",
-        "00000000-0000-0000-0000-000000000000",
-        "ffffffff-ffff-ffff-ffff-ffffffffffff"
-      ];
-      if (nonExistentCodes.includes(joinCode)) {
-        throw new Error("Expedition not found. The code may be expired or invalid.");
-      }
-      
-      console.log("Joining expedition with code:", joinCode);
-      navigateToExpedition(joinCode);
-      setIsJoinDialogOpen(false);
-      setJoinCode("");
-      setJoinError("");
-      
-      toast({
-        title: "Expedition Joined!",
-        description: `Successfully joined expedition ${joinCode}`,
-      });
-      
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to join expedition";
-      setJoinError(errorMessage);
-      
-      toast({
-        title: "Failed to Join",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsJoining(false);
+  const handleJoinExpedition = () => {
+    if (!joinCode.trim()) {
+      return;
     }
+
+    const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!guidPattern.test(joinCode)) {
+      setJoinError("Invalid expedition code format. Expected GUID format.");
+      return;
+    }
+
+    joinExpeditionMutation.mutate(joinCode)
   };
 
   const { data, isLoading, isError } = useQuery({
@@ -296,7 +285,7 @@ export const ExpeditionSelection = () => {
                       if (joinError) setJoinError("");
                     }}
                     className={`bg-input border-border font-mono ${joinError ? "border-red-500" : ""}`}
-                    disabled={isJoining}
+                    disabled={joinExpeditionMutation.isPending}
                   />
                   {joinError && (
                     <div className="flex items-center gap-1 text-red-500 text-sm">
@@ -307,12 +296,12 @@ export const ExpeditionSelection = () => {
                 </div>
                 <div className="flex gap-2 pt-4">
                   <Button 
-                    onClick={handleJoinByCode} 
+                    onClick={handleJoinExpedition} 
                     className="flex-1" 
-                    disabled={!joinCode.trim() || isJoining}
+                    disabled={!joinCode.trim() || joinExpeditionMutation.isPending}
                   >
-                    {isJoining && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                    {isJoining ? "Entering..." : "Enter the Void"}
+                    {joinExpeditionMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {joinExpeditionMutation.isPending ? "Entering..." : "Enter the Void"}
                   </Button>
                   <Button 
                     variant="outline" 
@@ -322,7 +311,7 @@ export const ExpeditionSelection = () => {
                       setJoinCode("");
                     }}
                     className="flex-1"
-                    disabled={isJoining}
+                    disabled={joinExpeditionMutation.isPending}
                   >
                     Stay Safe
                   </Button>
