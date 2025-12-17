@@ -191,6 +191,7 @@ export const ExpeditionSelection = () => {
                     id="expedition-name"
                     placeholder="Leave empty for auto-generated name"
                     value={newExpeditionName}
+                    maxLength={100}
                     onChange={(e) => setNewExpeditionName(e.target.value)}
                     className="bg-input border-border"
                   />

@@ -10,6 +10,7 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 export type { Action } from './models/Action';
 export type { AttributeScores } from './models/AttributeScores';
 export type { Character } from './models/Character';
+export type { CharacterRequest } from './models/CharacterRequest';
 export { ClassType } from './models/ClassType';
 export { CreatureStatus } from './models/CreatureStatus';
 export { CreatureType } from './models/CreatureType';
@@ -33,4 +34,5 @@ export type { Trait } from './models/Trait';
 export type { User } from './models/User';
 export type { ValidationProblemDetails } from './models/ValidationProblemDetails';
 
+export { CharactersService } from './services/CharactersService';
 export { ExpeditionsService } from './services/ExpeditionsService';

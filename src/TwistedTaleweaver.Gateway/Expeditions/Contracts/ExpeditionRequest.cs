@@ -17,7 +17,7 @@ public class ExpeditionRequest
     /// <summary>
     /// Description of the expedition to drive the narrative - if empty a description will be generated
     /// </summary>
-    [Length(1, int.MaxValue)]
+    [MinLength(1)]
     public string? Description { get; set; }
     
     /// <summary>

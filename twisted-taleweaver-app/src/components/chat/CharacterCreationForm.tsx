@@ -4,16 +4,26 @@ import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dices, Sparkles, Plus, Minus } from "lucide-react";
+import { Dices, Sparkles, Plus, Minus, Loader2 } from "lucide-react";
 import { getClassIcon, getGenderSymbol } from "@/utils/CharacterUtils";
-import { ClassType, CreatureType, Gender, NarrativeAlignment } from "@/generated/twisted-taleweaver-api";
+import { CharactersService, ClassType, CreatureType, Gender, NarrativeAlignment, type CharacterRequest } from "@/generated/twisted-taleweaver-api";
 import { getRandomEnumValue, getEnumValues } from "@/utils/EnumUtils";
 import { getDisplayString } from "@/utils/NarrativeAlignmentUtils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { useToast } from "@/hooks/useToast";
+import { useApiClient } from "@/hooks/useApiClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const CharacterCreationForm = () => {
-  
+
+export interface CharacterCreationFormProps {
+  expeditionId: string;
+};
+
+export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps) => {
+  const queryClient = useQueryClient();
+  const { requestWithAuth } = useApiClient();
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(true);
 
   const totalStartingPoints = 75;
@@ -34,6 +44,45 @@ export const CharacterCreationForm = () => {
   const [characterWisdom, setCharacterWisdom] = useState(defaultAttributePoints);
   const [characterCharisma, setCharacterCharisma] = useState(defaultAttributePoints);
   const remainingPoints = totalStartingPoints - characterStrength - characterDexterity - characterConstitution - characterIntelligence - characterWisdom - characterCharisma;
+
+  const createCharacterMutation = useMutation({
+    mutationFn: (request: CharacterRequest) =>
+      requestWithAuth(() =>
+        CharactersService.postApiCharacters(request)
+      ),
+
+    onSuccess: (data, request) => {
+      queryClient.invalidateQueries({ queryKey: ["expedition", request.expeditionId] });
+
+      toast({
+        title: "Character Forged!",
+        description: "Another wanderer steps into the abyss...",
+      });
+
+      setIsDialogOpen(false);
+      
+      setName("");
+      setDescription("")
+      setCharacterClass(ClassType.BARBARIAN);
+      setCharacterGender(Gender.MALE);
+      setCreatureType(CreatureType.HUMANOID);
+      setNarrativeAlignment(NarrativeAlignment.UNKNOWN);
+      setCharacterStrength(defaultAttributePoints);
+      setCharacterDexterity(defaultAttributePoints);
+      setCharacterConstitution(defaultAttributePoints);
+      setCharacterIntelligence(defaultAttributePoints);
+      setCharacterWisdom(defaultAttributePoints);
+      setCharacterCharisma(defaultAttributePoints);
+    },
+
+    onError: (_) => {
+      toast({
+        title: "Creation Failed",
+        description: "Failed to create character. Try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const randomize = () => {
     setCharacterClass(getRandomEnumValue(ClassType));
@@ -101,22 +150,24 @@ export const CharacterCreationForm = () => {
   }
 
   const handleSubmit = () => {
-    /*
-    const finalName = name.trim() || RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
-    const finalDesc = description.trim() || RANDOM_DESCRIPTIONS[Math.floor(Math.random() * RANDOM_DESCRIPTIONS.length)];
-    const finalClass = characterClass || CHARACTER_CLASSES[Math.floor(Math.random() * CHARACTER_CLASSES.length)];
-    
-    setName(finalName);
-    setDescription(finalDesc);
-    setCharacterClass(finalClass);
-    setIsCreated(true);
-    
-    onCharacterCreated({
-      name: finalName,
-      description: finalDesc,
-      class: finalClass
-    });
-    */
+    const request: CharacterRequest = {
+      expeditionId: expeditionId,
+      name: name || undefined,
+      description: description || undefined,
+      class: characterClass,
+      gender: characterGender,
+      creatureType: creatureType,
+      alignment: narrativeAlignment,
+      attributeScores: {
+        strength: characterStrength,
+        dexterity: characterDexterity,
+        constitution: characterConstitution,
+        intelligence: characterIntelligence,
+        wisdom: characterWisdom,
+        charisma: characterCharisma
+      }
+    }
+    createCharacterMutation.mutate(request);
   };
 
   return (
@@ -143,6 +194,7 @@ export const CharacterCreationForm = () => {
                 placeholder="Leave blank for random..."
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                maxLength={50}
                 className="bg-input border-border"
               />
             </div>
@@ -423,10 +475,12 @@ export const CharacterCreationForm = () => {
             </div>
           </div>
 
-          <Button onClick={handleSubmit} className="w-full gap-2" size="sm">
-            <Sparkles className="h-3 w-3" />
-            Create Character
-          </Button>
+          <div className="flex gap-2 pt-4">
+            <Button onClick={handleSubmit} className="flex-1" size="sm" disabled={createCharacterMutation.isPending}>
+              {createCharacterMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-3 w-3" />}
+              {createCharacterMutation.isPending ? "Summoning Soul..." : "Forge the Character"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
