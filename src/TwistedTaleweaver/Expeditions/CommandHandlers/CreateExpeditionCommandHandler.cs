@@ -1,17 +1,23 @@
+using FluentValidation;
 using TwistedTaleweaver.Api.Expeditions.Commands;
 using TwistedTaleweaver.Core.Database;
+using TwistedTaleweaver.Core.Validation;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
 using TwistedTaleweaver.Integration.OpenAi.Adapters;
 
 namespace TwistedTaleweaver.Expeditions.CommandHandlers;
 
 internal class CreateExpeditionCommandHandler(
+    IValidator<CreateExpeditionCommand> createExpeditionCommandValidator,
     IGenerationAdapter generationAdapter,
     IExpeditionsWriter expeditionsWriter,
     IExpeditionParticipantsWriter expeditionParticipantsWriter) : ICreateExpeditionCommandHandler
 {
     public async Task<CreateExpeditionResult> ExecuteAsync(CreateExpeditionCommand command)
     {
+        var validationResult = await createExpeditionCommandValidator.ValidateAsync(command);
+        validationResult.ThrowIfInvalid();
+        
         var generatedExpedition = await generationAdapter.GenerateAsync(command.Difficulty, command.Name, command.Description);
 
         await using var scope = new UnitOfWorkScope();

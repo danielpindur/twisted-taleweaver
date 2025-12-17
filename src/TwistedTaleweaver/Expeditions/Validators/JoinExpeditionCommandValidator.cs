@@ -12,10 +12,12 @@ internal class JoinExpeditionCommandValidator : AbstractValidator<JoinExpedition
     private void InitialiseRules()
     {
         RuleFor(x => x.UserId)
-            .NotEmpty();
+            .NotEmpty()
+                .WithMessage("UserId is a required field");
         
         RuleFor(x => x.ExpeditionId)
-            .NotEmpty();
+            .NotEmpty()
+                .WithMessage("ExpeditionId is a required field"); ;
         
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
