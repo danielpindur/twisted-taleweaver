@@ -18,7 +18,10 @@ import { ExpeditionDifficulty } from "@/generated/twisted-taleweaver-api/models/
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
 import { getStatusColor } from "@/utils/ExpeditionStatusUtils";
+import { ApiError } from "@/generated/twisted-taleweaver-api/core/ApiError";
+import { normalizeValidationErrors } from "@/utils/ApiErrorUtils";
 import type { ExpeditionRequest } from "@/generated/twisted-taleweaver-api/models/ExpeditionRequest";
+import type { ValidationProblemDetails } from "@/generated/twisted-taleweaver-api/models/ValidationProblemDetails"; 
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
@@ -93,11 +96,19 @@ export const ExpeditionSelection = () => {
       setJoinError("");
     },
     onError: (err) => {
-      setJoinError(err.message);
-      
+      if (err instanceof ApiError && err.status === 400) {
+        const details = err.body as ValidationProblemDetails;
+        const normalizedErrorText = normalizeValidationErrors(details);
+        
+        setJoinError(normalizedErrorText);
+        return;
+      }
+
+      setJoinError("An unexpected error has occured.");
+
       toast({
         title: "Failed to Join",
-        description: err.message,
+        description: "Failed to join the expedition. Try again.",
         variant: "destructive",
       });
     }

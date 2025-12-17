@@ -6,7 +6,7 @@ using ClerkUser = Clerk.Net.Client.Models.User;
 
 namespace TwistedTaleweaver.Expeditions.Mappers;
 
-public static class ExpeditionsMapper
+internal static class ExpeditionsMapper
 {
     public static ExpeditionSlim ToExpeditionSlim(this ExpeditionDto source)
     {

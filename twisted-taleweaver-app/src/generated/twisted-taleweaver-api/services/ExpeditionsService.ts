@@ -12,7 +12,7 @@ import { request as __request } from '../core/request';
 export class ExpeditionsService {
     /**
      * @param requestBody
-     * @returns ExpeditionSlim OK
+     * @returns ExpeditionSlim Created
      * @throws ApiError
      */
     public static postApiExpeditions(
@@ -23,6 +23,10 @@ export class ExpeditionsService {
             url: '/api/expeditions',
             body: requestBody,
             mediaType: 'application/json',
+            errors: {
+                400: `Bad Request`,
+                403: `Forbidden`,
+            },
         });
     }
     /**
@@ -42,6 +46,9 @@ export class ExpeditionsService {
                 'PageNumber': pageNumber,
                 'PageSize': pageSize,
             },
+            errors: {
+                403: `Forbidden`,
+            },
         });
     }
     /**
@@ -58,6 +65,10 @@ export class ExpeditionsService {
             path: {
                 'expeditionId': expeditionId,
             },
+            errors: {
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
         });
     }
     /**
@@ -73,6 +84,10 @@ export class ExpeditionsService {
             url: '/api/expeditions/{expeditionId}/join',
             path: {
                 'expeditionId': expeditionId,
+            },
+            errors: {
+                400: `Bad Request`,
+                403: `Forbidden`,
             },
         });
     }

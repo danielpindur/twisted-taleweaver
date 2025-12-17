@@ -25,10 +25,12 @@ export { NarrativeAlignment } from './models/NarrativeAlignment';
 export type { OptionalOfint } from './models/OptionalOfint';
 export type { OptionalOfstring } from './models/OptionalOfstring';
 export type { PaginatedResponseOfExpeditionSlim } from './models/PaginatedResponseOfExpeditionSlim';
+export type { ProblemDetails } from './models/ProblemDetails';
 export type { Proficiency } from './models/Proficiency';
 export { ProficiencyType } from './models/ProficiencyType';
 export type { SpeedScores } from './models/SpeedScores';
 export type { Trait } from './models/Trait';
 export type { User } from './models/User';
+export type { ValidationProblemDetails } from './models/ValidationProblemDetails';
 
 export { ExpeditionsService } from './services/ExpeditionsService';

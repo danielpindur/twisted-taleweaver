@@ -1,4 +1,5 @@
 using System.Reflection;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TwistedTaleweaver.Core.Setup;
@@ -20,6 +21,7 @@ public static class ApplicationBuilderExtensions
 
         return builder.Services
             .AddCommandHandlers(assembly)
-            .AddQueryHandlers(assembly);
+            .AddQueryHandlers(assembly)
+            .AddFluentValidation(assembly);
     }
 }

@@ -11,7 +11,7 @@ using Serilog;
 using Serilog.Formatting.Compact;
 using TwistedTaleweaver.Core.Setup;
 using TwistedTaleweaver.Gateway.Authorization;
-using TwistedTaleweaver.Gateway.ExceptionHandlers;
+using TwistedTaleweaver.Gateway.Exceptions;
 using TwistedTaleweaver.Gateway.Expeditions.Hubs;
 using TwistedTaleweaver.Gateway.Transformers;
 using TwistedTaleweaver.Integration.Clerk.Setup;

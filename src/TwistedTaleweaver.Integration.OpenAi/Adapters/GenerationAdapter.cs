@@ -44,7 +44,7 @@ internal class GenerationAdapter(IEntityGenerator entityGenerator) : IGeneration
             generationString += $", setting:{randomExpeditionSetting.ToString()}, objective:{randomExpeditionObjective.ToString()}";
         }
         
-        generationString += ". The generated Name have less then 45 characters, the generated Description must have less then 400 characters. I will be very disappointed if you generate something longer.";
+        generationString += ". The generated Name must have less then 45 characters, the generated Description must have less then 350 characters. I will be very disappointed if you generate something longer.";
 
         var generatedExpedition = await entityGenerator.GenerateEntityAsync<GeneratedExpedition>(generationString);
 

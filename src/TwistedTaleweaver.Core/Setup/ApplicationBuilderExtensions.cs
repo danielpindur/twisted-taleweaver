@@ -1,4 +1,5 @@
 using System.Reflection;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TwistedTaleweaver.Core.Commands;
@@ -51,6 +52,17 @@ public static class ApplicationBuilderExtensions
                     .AsImplementedInterfaces(x => x != typeof(IDatabaseAccessor))
                     .WithTransientLifetime());
             
+            return services;
+        }
+        
+        public IServiceCollection AddFluentValidation(Assembly assembly)
+        {
+            services.Scan(scan => scan
+                .FromAssemblies(assembly)
+                    .AddClasses(classes => classes.AssignableTo(typeof(IValidator<>)), false)
+                    .AsImplementedInterfaces(x => x.IsGenericType)
+                    .WithTransientLifetime());
+        
             return services;
         }
         

@@ -27,6 +27,9 @@ public sealed class ExpeditionsController(
     /// Creates a new expedition
     /// </summary>
     [HttpPost]
+    [ProducesResponseType(typeof(ExpeditionSlim), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ExpeditionSlim>> CreateExpedition([FromBody] ExpeditionRequest request)
     {
         var userId = await userProvider.GetUserIdAsync();
@@ -42,7 +45,10 @@ public sealed class ExpeditionsController(
         });
 
         var expedition = await expeditionByIdQueryHandler.Value.ExecuteAsync(new ExpeditionByIdQuery()
-            { ExpeditionId = result.ExpeditionId });
+        {
+            ExpeditionId = result.ExpeditionId,
+            UserId = userId
+        });
         
         return Ok(expedition);
     }
@@ -51,6 +57,9 @@ public sealed class ExpeditionsController(
     /// Gets an expedition by its unique identifier
     /// </summary>
     [HttpGet("{expeditionId:guid}")]
+    [ProducesResponseType(typeof(Expedition), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<Expedition>> GetExpeditionById([FromRoute] Guid expeditionId)
     {
         var userId = await userProvider.GetUserIdAsync();
@@ -74,6 +83,8 @@ public sealed class ExpeditionsController(
     /// Searches expeditions based on provided criteria
     /// </summary>
     [HttpGet]
+    [ProducesResponseType(typeof(PaginatedResponse<ExpeditionSlim>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<PaginatedResponse<ExpeditionSlim>>> SearchExpeditions([FromQuery]ExpeditionSearchQueryContract query)
     {
         var userId = await userProvider.GetUserIdAsync();
@@ -91,6 +102,9 @@ public sealed class ExpeditionsController(
     /// Join an expedition
     /// </summary>
     [HttpPost("{expeditionId:guid}/join")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> JoinExpedition([FromRoute] Guid expeditionId)
     {
         var userId = await userProvider.GetUserIdAsync();
