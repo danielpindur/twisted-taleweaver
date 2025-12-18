@@ -9,15 +9,20 @@ namespace TwistedTaleweaver.Domain.Creatures;
 public class Character : CombatCreature
 {
     /// <summary>
+    /// Identifier of the character
+    /// </summary>
+    public Guid CharacterId { get; set; }
+    
+    /// <summary>
     /// <inheritdoc cref="ClassType"/>
     /// </summary>
     [Required]
-    public ClassType Class { get; init; }
+    public ClassType Class { get; set; }
 
     /// <summary>
     /// Abilities the entity can use for narrative purposes - eg. lockpicking
     /// </summary>
-    public required List<Action> NonCombatActions { get; init; }
+    public required List<CreatureAction> NonCombatActions { get; set; }
 
     /// <summary>
     /// The character's current level

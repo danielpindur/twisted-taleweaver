@@ -2,13 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { OptionalOfint } from './OptionalOfint';
 export type SpeedScores = {
     walking?: number;
-    flying: OptionalOfint;
-    swimming: OptionalOfint;
-    climbing: OptionalOfint;
-    burrowing: OptionalOfint;
-    teleportation: OptionalOfint;
+    flying?: number | null;
+    swimming?: number | null;
+    climbing?: number | null;
+    burrowing?: number | null;
+    teleportation?: number | null;
 };
 

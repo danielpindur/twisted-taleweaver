@@ -7,7 +7,7 @@ namespace TwistedTaleweaver.DataAccess.Expeditions.Readers;
 
 public interface IExpeditionsReader
 {
-    Task<ExpeditionDto?> GetByIdAsync(Guid expeditionId, Guid userId);
+    Task<ExpeditionDto?> GetByIdAsync(Guid expeditionId);
     
     Task<bool> ExistsAsync(Guid expeditionId);
 
@@ -17,7 +17,7 @@ public interface IExpeditionsReader
 internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) : 
     DatabaseAccessor(unitOfWorkProvider), IExpeditionsReader
 {
-    public async Task<ExpeditionDto?> GetByIdAsync(Guid expeditionId, Guid userId)
+    public Task<ExpeditionDto?> GetByIdAsync(Guid expeditionId)
     {
         const string sql = @"
             SELECT 
@@ -34,17 +34,15 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
                 u.external_user_id AS created_by_external_user_id
             FROM expeditions e
             INNER JOIN users u ON e.created_by_user_id = u.user_id
-            WHERE e.expedition_id = @ExpeditionId 
-                AND (e.created_by_user_id = @UserId OR EXISTS(SELECT 1 FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id AND ep.user_id = @UserId))";
+            WHERE e.expedition_id = @ExpeditionId";
 
-        return await QuerySingleOrDefaultAsync<ExpeditionDto>(sql, new
+        return QuerySingleOrDefaultAsync<ExpeditionDto>(sql, new
         {
-            ExpeditionId = expeditionId,
-            UserId = userId
+            ExpeditionId = expeditionId
         });
     }
 
-    public async Task<bool> ExistsAsync(Guid expeditionId)
+    public Task<bool> ExistsAsync(Guid expeditionId)
     {
         const string sql = @"
             SELECT EXISTS(
@@ -52,13 +50,13 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
                 FROM expeditions ep 
                 WHERE ep.expedition_id = @ExpeditionId)";
 
-        return await QuerySingleAsync<bool>(sql, new
+        return QuerySingleAsync<bool>(sql, new
         {
             ExpeditionId = expeditionId
         });
     }
 
-    public async Task<IEnumerable<ExpeditionDtoWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize)
+    public Task<IEnumerable<ExpeditionDtoWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize)
     {
         const string sql = @"
             SELECT 
@@ -80,7 +78,7 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
             ORDER BY e.created_at DESC
             LIMIT @PageSize OFFSET @Offset";
 
-        return await QueryAsync<ExpeditionDtoWithCount>(sql, new
+        return QueryAsync<ExpeditionDtoWithCount>(sql, new
         {
             UserId = userId,
             PageSize = pageSize,

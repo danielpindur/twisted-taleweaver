@@ -15,10 +15,9 @@ public interface IExpeditionsWriter
         int maxParticipants);
 }
 
-internal class ExpeditionsWriter(IUnitOfWorkProvider unitOfWorkProvider) : 
-    DatabaseAccessor(unitOfWorkProvider), IExpeditionsWriter
+internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IExpeditionsWriter
 {
-    public async Task<Guid> CreateAsync(
+    public Task<Guid> CreateAsync(
         Guid userId,
         string name,
         string description,
@@ -33,7 +32,7 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider unitOfWorkProvider) :
             (@Name, @Description, @Difficulty, @MinParticipants, @MaxParticipants, @UserId)
             RETURNING expedition_id";
 
-        return await QuerySingleAsync<Guid>(sql, new
+        return ExecuteWithOutputAsync<Guid>(sql, new
         { 
             Name = name,
             Description = description,

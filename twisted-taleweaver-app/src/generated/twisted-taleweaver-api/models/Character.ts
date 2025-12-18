@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Action } from './Action';
 import type { AttributeScores } from './AttributeScores';
 import type { ClassType } from './ClassType';
+import type { CreatureAction } from './CreatureAction';
 import type { CreatureStatus } from './CreatureStatus';
 import type { CreatureType } from './CreatureType';
 import type { Gender } from './Gender';
@@ -13,15 +13,16 @@ import type { Proficiency } from './Proficiency';
 import type { SpeedScores } from './SpeedScores';
 import type { Trait } from './Trait';
 export type Character = {
+    characterId?: string;
     class: ClassType;
-    nonCombatActions: Array<Action>;
+    nonCombatActions: Array<CreatureAction>;
     level?: number;
     proficiencyBonus?: number;
     maxHealth?: number;
     currentHealth?: number;
     armorClass?: number;
     speedScores: SpeedScores;
-    combatActions: Array<Action>;
+    combatActions: Array<CreatureAction>;
     name: string;
     status: CreatureStatus;
     attributeScores: AttributeScores;

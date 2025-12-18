@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwistedTaleweaver.Api.Creatures.Commands;
+using TwistedTaleweaver.Api.Creatures.Queries;
 using TwistedTaleweaver.Domain.Creatures;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.Characters.Contracts;
@@ -9,7 +11,10 @@ namespace TwistedTaleweaver.Gateway.Characters;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public sealed class CharactersController(IUserProvider userProvider) : ControllerBase
+public sealed class CharactersController(
+    IUserProvider userProvider,
+    Lazy<ICreateCharacterCommandHandler> createCharacterCommandHandler,
+    Lazy<ICharacterByIdQueryHandler> characterByIdQueryHandler) : ControllerBase
 {
     /// <summary>
     /// Creates a new character for an expedition participant
@@ -22,24 +27,25 @@ public sealed class CharactersController(IUserProvider userProvider) : Controlle
     {
         var userId = await userProvider.GetUserIdAsync();
         
-        /*
-        var result = await createExpeditionCommandHandler.Value.ExecuteAsync(new CreateExpeditionCommand()
+        var result = await createCharacterCommandHandler.Value.ExecuteAsync(new CreateCharacterCommand()
         {
+            UserId = userId,
+            ExpeditionId = request.ExpeditionId,
             Name = request.Name,
             Description = request.Description,
-            Difficulty = request.Difficulty,
-            MinParticipants = request.MinParticipants,
-            MaxParticipants = request.MaxParticipants,
-            UserId = userId
+            Class = request.Class,
+            Alignment = request.Alignment,
+            CreatureType = request.CreatureType,
+            Gender = request.Gender,
+            AttributeScores = request.AttributeScores,
         });
 
-        var character = await expeditionByIdQueryHandler.Value.ExecuteAsync(new ExpeditionByIdQuery()
-        {
-            ExpeditionId = result.ExpeditionId,
-            UserId = userId
-        });
-        */
         
-        return Ok(null);
+        var character = await characterByIdQueryHandler.Value.ExecuteAsync(new CharacterByIdQuery()
+        {
+            CharacterId = result.CharacterId
+        });
+        
+        return Ok(character);
     }
 }

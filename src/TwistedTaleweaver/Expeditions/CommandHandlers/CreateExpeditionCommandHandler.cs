@@ -18,7 +18,7 @@ internal class CreateExpeditionCommandHandler(
         var validationResult = await createExpeditionCommandValidator.ValidateAsync(command);
         validationResult.ThrowIfInvalid();
         
-        var generatedExpedition = await generationAdapter.GenerateAsync(command.Difficulty, command.Name, command.Description);
+        var generatedExpedition = await generationAdapter.GenerateExpeditionAsync(command.Difficulty, command.Name, command.Description);
 
         await using var scope = new UnitOfWorkScope();
         

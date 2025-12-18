@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using TwistedTaleweaver.Domain.Common;
 
 namespace TwistedTaleweaver.Domain.Creatures;
 
@@ -24,5 +23,5 @@ public class Trait
     /// Optional. Condition under which the trait is active or applies
     /// </summary>
     [MaxLength(255)] 
-    public required Optional<string> ConditionForPerform { get; init; }
+    public string? ConditionForPerform { get; init; }
 }

@@ -1,5 +1,7 @@
+using TwistedTaleweaver.Api.Creatures.Queries;
 using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
+using TwistedTaleweaver.Domain.Creatures;
 using TwistedTaleweaver.Domain.Expeditions;
 using TwistedTaleweaver.Expeditions.Mappers;
 using TwistedTaleweaver.Integration.Clerk.Users;
@@ -8,6 +10,7 @@ namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 
 internal class ExpeditionParticipantsQueryHandler(
     IExpeditionParticipantsReader expeditionParticipantsReader,
+    ICharacterByIdQueryHandler characterByIdQueryHandler,
     IUsersAdapter usersAdapter) : IExpeditionParticipantsQueryHandler
 {
     public async Task<List<ExpeditionParticipant>> ExecuteAsync(ExpeditionParticipantsQuery query)
@@ -17,20 +20,26 @@ internal class ExpeditionParticipantsQueryHandler(
         var externalUserIds = participants.Select(x => x.ExternalUserId);
         var userByExternalId = await usersAdapter.GetUsersAsync(externalUserIds);
         
-        return participants.ToExpeditionParticipants(userByExternalId);
-    }
-    
-    public async Task<Dictionary<Guid, List<ExpeditionParticipant>>> ExecuteAsync(ExpeditionsParticipantsQuery query)
-    {
-        var participants = (await expeditionParticipantsReader.GetByExpeditionsAsync(query.ExpeditionIds)).ToList();
+        var charactersById = new Dictionary<Guid, Character>();
 
-        var externalUserIds = participants.Select(x => x.ExternalUserId).Distinct();
-        var userByExternalId = await usersAdapter.GetUsersAsync(externalUserIds);
+        foreach (var participant in participants)
+        {
+            if (participant.CharacterId is null)
+            {
+                continue;
+            }
+
+            var character = await characterByIdQueryHandler.ExecuteAsync(
+                new CharacterByIdQuery() { CharacterId = participant.CharacterId.Value });
+
+            if (character is null)
+            {
+                continue;
+            }
+            
+            charactersById.Add(participant.CharacterId.Value, character);
+        }
         
-        return participants
-            .GroupBy(x => x.ExpeditionId)
-            .ToDictionary(
-                x => x.Key,
-                x => x.ToExpeditionParticipants(userByExternalId));
+        return participants.ToExpeditionParticipants(userByExternalId, charactersById);
     }
 }

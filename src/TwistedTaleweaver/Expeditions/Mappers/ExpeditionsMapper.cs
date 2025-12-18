@@ -1,4 +1,5 @@
 using TwistedTaleweaver.DataAccess.Expeditions.Dtos;
+using TwistedTaleweaver.Domain.Creatures;
 using TwistedTaleweaver.Domain.Expeditions;
 using TwistedTaleweaver.Domain.Users;
 using TwistedTaleweaver.Users.Mappers;
@@ -31,7 +32,7 @@ internal static class ExpeditionsMapper
     
     public static Expedition ToExpedition(
         this ExpeditionDto source, 
-        List<ExpeditionParticipantDto> participants,
+        List<ExpeditionParticipant> participants,
         Dictionary<string, ClerkUser> userByExternalId)
     {
         return new Expedition()
@@ -51,24 +52,30 @@ internal static class ExpeditionsMapper
                 ExternalUserId = source.CreatedByExternalUserId,
                 Name = userByExternalId[source.CreatedByExternalUserId].Username!
             },
-            Participants = participants.ToExpeditionParticipants(userByExternalId)
+            Participants = participants
         };
     }
 
     public static ExpeditionParticipant ToExpeditionParticipant(
         this ExpeditionParticipantDto source,
-        Dictionary<string, ClerkUser> userByExternalId)
+        Dictionary<string, ClerkUser> userByExternalId, 
+        Dictionary<Guid, Character> charactersById)
     {
         return new ExpeditionParticipant()
         {
-            User = source.ToUser(userByExternalId)
+            User = source.ToUser(userByExternalId),
+            Character = source.CharacterId.HasValue &&
+                        charactersById.TryGetValue(source.CharacterId.Value, out var character)
+                ? character
+                : null
         };
     }
 
     public static List<ExpeditionParticipant> ToExpeditionParticipants(
         this IEnumerable<ExpeditionParticipantDto> source,
-        Dictionary<string, ClerkUser> userByExternalId)
+        Dictionary<string, ClerkUser> userByExternalId,
+        Dictionary<Guid, Character> charactersById)
     {
-        return source.Select(x => ToExpeditionParticipant(x, userByExternalId)).ToList();
+        return source.Select(x => ToExpeditionParticipant(x, userByExternalId, charactersById)).ToList();
     }
 }

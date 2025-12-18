@@ -476,7 +476,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button onClick={handleSubmit} className="flex-1" size="sm" disabled={createCharacterMutation.isPending}>
+            <Button onClick={handleSubmit} className="flex-1" size="sm" disabled={createCharacterMutation.isPending || remainingPoints > 0}>
               {createCharacterMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-3 w-3" />}
               {createCharacterMutation.isPending ? "Summoning Soul..." : "Forge the Character"}
             </Button>

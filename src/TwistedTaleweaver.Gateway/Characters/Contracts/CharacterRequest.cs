@@ -31,7 +31,7 @@ public class CharacterRequest
     /// <inheritdoc cref="ClassType"/>
     /// </summary>
     [Required]
-    public ClassType Class { get; init; }
+    public ClassType Class { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="Gender"/>
@@ -43,13 +43,13 @@ public class CharacterRequest
     /// <inheritdoc cref="CreatureType"/>
     /// </summary>
     [Required]
-    public CreatureType CreatureType { get; init; }
+    public CreatureType CreatureType { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="NarrativeAlignment"/>
     /// </summary>
     [Required]
-    public NarrativeAlignment Alignment { get; init; }
+    public NarrativeAlignment Alignment { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="AttributeScores"/>

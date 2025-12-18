@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using TwistedTaleweaver.Domain.Common;
 
 namespace TwistedTaleweaver.Domain.Creatures;
 
@@ -18,29 +17,29 @@ public class SpeedScores
     /// Optional. Represents the creature's speed while flying, if applicable
     /// </summary>
     [Range(0, 120)]
-    public required Optional<int> Flying { get; init; }
+    public int? Flying { get; init; }
     
     /// <summary>
     /// Optional. Represents the creature's speed while swimming, if applicable
     /// </summary>
     [Range(0, 120)]
-    public required Optional<int> Swimming { get; init; }
+    public int? Swimming { get; init; }
     
     /// <summary>
     /// Optional. Represents the creature's speed while climbing, if applicable
     /// </summary>
     [Range(0, 120)]
-    public required Optional<int> Climbing { get; init; }
+    public int? Climbing { get; init; }
    
     /// <summary>
     /// Optional. Represents the creature's speed while burrowing, if applicable
     /// </summary>
     [Range(0, 120)]
-    public required Optional<int> Burrowing { get; init; }
+    public int? Burrowing { get; init; }
 
     /// <summary>
     /// Optional. Represents the creature's speed while teleporting, if applicable
     /// </summary>
     [Range(0, 120)]
-    public required Optional<int> Teleportation { get; init; }
+    public int? Teleportation { get; init; }
 }

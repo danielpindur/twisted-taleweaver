@@ -46,8 +46,7 @@ public sealed class ExpeditionsController(
 
         var expedition = await expeditionByIdQueryHandler.Value.ExecuteAsync(new ExpeditionByIdQuery()
         {
-            ExpeditionId = result.ExpeditionId,
-            UserId = userId
+            ExpeditionId = result.ExpeditionId
         });
         
         return Ok(expedition);
@@ -62,13 +61,10 @@ public sealed class ExpeditionsController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<Expedition>> GetExpeditionById([FromRoute] Guid expeditionId)
     {
-        var userId = await userProvider.GetUserIdAsync();
-        
         var expedition = await expeditionByIdQueryHandler.Value.ExecuteAsync(
             new ExpeditionByIdQuery()
             {
-                ExpeditionId = expeditionId,
-                UserId = userId
+                ExpeditionId = expeditionId
             });
 
         if (expedition == null)

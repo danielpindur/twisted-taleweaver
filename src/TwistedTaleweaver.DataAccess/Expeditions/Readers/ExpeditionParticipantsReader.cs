@@ -8,49 +8,30 @@ public interface IExpeditionParticipantsReader
 {
     Task<IEnumerable<ExpeditionParticipantDto>> GetByExpeditionAsync(Guid expeditionId);
     
-    Task<IEnumerable<ExpeditionParticipantDto>> GetByExpeditionsAsync(List<Guid> expeditionIds);
-    
     Task<bool> ExistsAsync(Guid expeditionId, Guid userId);
 }
 
-internal class ExpeditionParticipantsReader(IUnitOfWorkProvider unitOfWorkProvider)
-    : DatabaseAccessor(unitOfWorkProvider), IExpeditionParticipantsReader
+internal class ExpeditionParticipantsReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IExpeditionParticipantsReader
 {
-    public async Task<IEnumerable<ExpeditionParticipantDto>> GetByExpeditionAsync(Guid expeditionId)
+    public Task<IEnumerable<ExpeditionParticipantDto>> GetByExpeditionAsync(Guid expeditionId)
     {
         const string sql = @"
             SELECT 
                 ep.expedition_id,
+                ep.character_id,
                 ep.user_id,
                 u.external_user_id
             FROM expedition_participants ep
             INNER JOIN users u ON u.user_id = ep.user_id
             WHERE ep.expedition_id = @ExpeditionId";
 
-        return await QueryAsync<ExpeditionParticipantDto>(sql, new
+        return QueryAsync<ExpeditionParticipantDto>(sql, new
         {
             ExpeditionId = expeditionId
         });
     }
-    
-    public async Task<IEnumerable<ExpeditionParticipantDto>> GetByExpeditionsAsync(List<Guid> expeditionIds)
-    {
-        const string sql = @"
-            SELECT 
-                ep.expedition_id,
-                ep.user_id,
-                u.external_user_id
-            FROM expedition_participants ep
-            INNER JOIN users u ON u.user_id = ep.user_id
-            WHERE ep.expedition_id = ANY(@ExpeditionIds)";
 
-        return await QueryAsync<ExpeditionParticipantDto>(sql, new
-        {
-            ExpeditionIds = expeditionIds
-        });
-    }
-
-    public async Task<bool> ExistsAsync(Guid expeditionId, Guid userId)
+    public Task<bool> ExistsAsync(Guid expeditionId, Guid userId)
     {
         const string sql = @"
             SELECT EXISTS(
@@ -59,7 +40,7 @@ internal class ExpeditionParticipantsReader(IUnitOfWorkProvider unitOfWorkProvid
                 WHERE ep.expedition_id = @ExpeditionId 
                   AND ep.user_id = @UserId)";
 
-        return await QuerySingleAsync<bool>(sql, new
+        return QuerySingleAsync<bool>(sql, new
         { 
             ExpeditionId = expeditionId,
             UserId = userId

@@ -82,7 +82,7 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
 
           {/* Character Creation Form */}
           {!hasCharacter && (
-            <CharacterCreationForm />
+            <CharacterCreationForm expeditionId={expedition.expeditionId} />
           )}
 
           {/* Participants List */}

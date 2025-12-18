@@ -17,7 +17,6 @@ public abstract class CombatCreature : Creature
     /// <summary>
     /// Remaining hit points
     /// </summary>
-    // TODO: Should probably be = MaxHealth for character generation
     [Range(1, 1000)]
     public int CurrentHealth { get; set; }
 
@@ -25,17 +24,17 @@ public abstract class CombatCreature : Creature
     /// Determines how well-protected the entity is against standard attacks
     /// </summary>
     [Range(1, 30)]
-    public int ArmorClass { get; init; }
+    public int ArmorClass { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="SpeedScores"/>
     /// </summary>
-    public required SpeedScores SpeedScores  { get; init; }
+    public required SpeedScores SpeedScores  { get; set; }
     
     /// <summary>
     /// Abilities the entity can use on its turn during combat
     /// </summary>
-    public required List<Action> CombatActions { get; init; }
+    public required List<CreatureAction> CombatActions { get; set; }
 
     /// <summary>
     /// Represents the proficiency bonus for the character, which is added to attack rolls and saving throws if applicable.

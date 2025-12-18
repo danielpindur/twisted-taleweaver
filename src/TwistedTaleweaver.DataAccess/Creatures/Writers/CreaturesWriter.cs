@@ -1,0 +1,136 @@
+using TwistedTaleweaver.Core.Database;
+using TwistedTaleweaver.DataAccess.Common;
+using TwistedTaleweaver.DataAccess.Creatures.Dtos;
+using TwistedTaleweaver.Domain.Creatures;
+using TwistedTaleweaver.Domain.Creatures.Enums;
+
+namespace TwistedTaleweaver.DataAccess.Creatures.Writers;
+
+public interface ICreaturesWriter
+{
+    Task<Guid> CreateAsync(
+        string name,
+        string contextKeywords,
+        CreatureStatus status,
+        CreatureType type,
+        NarrativeAlignment narrativeAlignment,
+        Gender gender,
+        AttributeScores attributeScores);
+    
+    Task SaveCombatDetailsAsync(
+        Guid creatureId,
+        int maxHealth,
+        int currentHealth,
+        int armorClass,
+        SpeedScores speedScores);
+
+    Task SaveActionsAsync(List<CreatureActionDto> actions);
+    
+    Task SaveProficienciesAsync(List<CreatureProficiencyDto> proficiencies);
+    
+    Task SaveTraitsAsync(List<CreatureTraitDto> traits);
+
+    Task SaveCharacterDetailsAsync(Guid creatureId, ClassType classType);
+}
+
+internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesWriter
+{
+    public Task<Guid> CreateAsync(string name, string contextKeywords, CreatureStatus status, CreatureType type,
+        NarrativeAlignment narrativeAlignment, Gender gender, AttributeScores attributeScores)
+    {
+        const string sql = @"
+            INSERT INTO creatures 
+            (name, context_keywords, status_id, type_id, alignment_id, strength, dexterity, constitution, intelligence, wisdom, charisma, gender_id)
+            VALUES 
+            (@Name, @ContextKeywords, @Status, @Type, @NarrativeAlignment, @Strength, @Dexterity, @Constitution, @Intelligence, @Wisdom, @Charisma, @Gender)
+            RETURNING creature_id";
+
+        return ExecuteWithOutputAsync<Guid>(sql, new
+        { 
+            Name = name,
+            ContextKeywords = contextKeywords,
+            Status = status,
+            Type = type,
+            NarrativeAlignment = narrativeAlignment,
+            Gender = gender,
+            attributeScores.Strength,
+            attributeScores.Charisma,
+            attributeScores.Intelligence,
+            attributeScores.Wisdom,
+            attributeScores.Constitution,
+            attributeScores.Dexterity
+        });
+    }
+
+    public Task SaveCombatDetailsAsync(Guid creatureId, int maxHealth, int currentHealth, int armorClass,
+        SpeedScores speedScores)
+    {
+        const string sql = @"
+            INSERT INTO combat_creatures 
+            (creature_id, max_health, current_health, armor_class, walking_speed, flying_speed, swimming_speed, climbing_speed, burrowing_speed, teleportation_speed)
+            VALUES 
+            (@CreatureId, @MaxHealth, @CurrentHealth, @ArmorClass, @WalkingSpeed, @FlyingSpeed, @SwimmingSpeed, @ClimbingSpeed, @BurrowingSpeed, @TeleportationSpeed)";
+
+        return ExecuteAsync(sql, new
+        { 
+            CreatureId = creatureId,
+            MaxHealth = maxHealth,
+            CurrentHealth = currentHealth,
+            ArmorClass = armorClass,
+            WalkingSpeed = speedScores.Walking,
+            FlyingSpeed = speedScores.Flying,
+            SwimmingSpeed = speedScores.Swimming,
+            ClimbingSpeed = speedScores.Climbing,
+            BurrowingSpeed = speedScores.Burrowing,
+            TeleportationSpeed = speedScores.Teleportation
+        });
+    }
+
+    public Task SaveActionsAsync(List<CreatureActionDto> actions)
+    {
+        const string sql = @"
+            INSERT INTO creature_actions 
+            (creature_id, action_name, description, cost, recharge, range)
+            VALUES 
+            (@CreatureId, @ActionName, @Description, @Cost, @Recharge, @Range)";
+
+        return ExecuteAsync(sql, actions);
+    }
+
+    public Task SaveProficienciesAsync(List<CreatureProficiencyDto> proficiencies)
+    {
+        const string sql = @"
+            INSERT INTO creature_proficiencies 
+            (creature_id, type_id, target)
+            VALUES 
+            (@CreatureId, @Type, @Target)";
+
+        return ExecuteAsync(sql, proficiencies);
+    }
+
+    public Task SaveTraitsAsync(List<CreatureTraitDto> traits)
+    {
+        const string sql = @"
+            INSERT INTO creature_traits 
+            (creature_id, trait_name, effect, condition_description)
+            VALUES 
+            (@CreatureId, @TraitName, @Effect, @ConditionDescription)";
+
+        return ExecuteAsync(sql, traits);
+    }
+
+    public Task SaveCharacterDetailsAsync(Guid creatureId, ClassType classType)
+    {
+        const string sql = @"
+            INSERT INTO characters 
+            (creature_id, character_class_type_id)
+            VALUES 
+            (@CreatureId, @ClassType)";
+
+        return ExecuteAsync(sql, new
+        { 
+            CreatureId = creatureId,
+            ClassType = classType
+        });
+    }
+}

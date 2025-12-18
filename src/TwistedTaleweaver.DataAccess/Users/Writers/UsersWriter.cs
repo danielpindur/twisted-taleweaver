@@ -9,10 +9,9 @@ public interface IUsersWriter
     Task<UserDto> GetOrCreateAsync(string externalUserId);
 }
 
-internal class UsersWriter(IUnitOfWorkProvider unitOfWorkProvider) : 
-    DatabaseAccessor(unitOfWorkProvider), IUsersWriter
+internal class UsersWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IUsersWriter
 {
-    public async Task<UserDto> GetOrCreateAsync(string externalUserId)
+    public Task<UserDto> GetOrCreateAsync(string externalUserId)
     {
         const string sql = @"
             INSERT INTO users (external_user_id)
@@ -21,7 +20,7 @@ internal class UsersWriter(IUnitOfWorkProvider unitOfWorkProvider) :
                 SET external_user_id = EXCLUDED.external_user_id
             RETURNING user_id, external_user_id";
 
-        return await ExecuteWithOutputAsync<UserDto>(sql, new
+        return ExecuteWithOutputAsync<UserDto>(sql, new
         { 
             ExternalUserId = externalUserId
         });

@@ -13,7 +13,7 @@ public abstract class Creature
     /// </summary>
     [MaxLength(50)]
     [Required]
-    public required string Name { get; init; }
+    public required string Name { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="CreatureStatus"/>
@@ -43,23 +43,23 @@ public abstract class Creature
     /// <inheritdoc cref="CreatureType"/>
     /// </summary>
     [Required]
-    public CreatureType CreatureType { get; init; }
+    public CreatureType CreatureType { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="NarrativeAlignment"/>
     /// </summary>
     [Required]
-    public NarrativeAlignment Alignment { get; init; }
+    public NarrativeAlignment Alignment { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="Trait"/>
     /// </summary>
     [Required]
-    public required List<Trait> Traits { get; init; }
+    public required List<Trait> Traits { get; set; }
     
     /// <summary>
     /// <inheritdoc cref="Proficiency"/>
     /// </summary>
     [Required]
-    public required List<Proficiency> Proficiencies { get; init; }
+    public required List<Proficiency> Proficiencies { get; set; }
 }
