@@ -51,7 +51,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
         CharactersService.postApiCharacters(request)
       ),
 
-    onSuccess: (data, request) => {
+    onSuccess: (_, request) => {
       queryClient.invalidateQueries({ queryKey: ["expedition", request.expeditionId] });
 
       toast({

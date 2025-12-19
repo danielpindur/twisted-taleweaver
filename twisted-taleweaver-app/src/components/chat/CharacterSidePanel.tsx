@@ -17,23 +17,22 @@ import {
   Sparkles,
   Zap,
   Eye} from "lucide-react";
-import type { Character } from "@/interfaces/Character";
 import { getGenderSymbol } from "@/utils/CharacterUtils";
 import { getHealthColor, getHealthPercentage } from "@/utils/HealthUtils";
 import { formatModifier, getAttributeModifier } from "@/utils/AttributeUtils";
 import { canUserAct } from "@/utils/TurnUtils";
 import type { UserResource } from "@clerk/types";
+import type { ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
 
 export interface CharacterSidePanelProps {
-  character: Character,
+  user: UserResource,
   panelCollapsed: boolean,
   setPanelCollapsed: (collapsed: boolean) => void,
-  user: UserResource,
   isInCombat: boolean,
-  characters: Character[]
+  participants: ExpeditionParticipant[]
 };
 
-export const CharacterSidePanel = ({ character, panelCollapsed, setPanelCollapsed, user, isInCombat, characters }: CharacterSidePanelProps) => {
+export const CharacterSidePanel = ({ user, panelCollapsed, setPanelCollapsed, isInCombat, participants }: CharacterSidePanelProps) => {
   const [needsScrollPadding, setNeedsScrollPadding] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
