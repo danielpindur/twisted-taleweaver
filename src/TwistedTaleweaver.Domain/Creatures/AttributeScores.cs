@@ -50,16 +50,4 @@ public class AttributeScores
     [Range(1, 20)]
     [Required]
     public int Charisma { get; set; }
-
-    [JsonIgnore]
-    [field: JsonIgnore]
-    public Dictionary<AttributeType, int> Bonuses => field ??= new()
-    {
-        [AttributeType.Strength] = (Strength - 10) / 2,
-        [AttributeType.Dexterity] = (Dexterity - 10) / 2,
-        [AttributeType.Constitution] = (Constitution - 10) / 2,
-        [AttributeType.Intelligence] = (Intelligence - 10) / 2,
-        [AttributeType.Wisdom] = (Wisdom - 10) / 2,
-        [AttributeType.Charisma] = (Charisma - 10) / 2
-    };
 }

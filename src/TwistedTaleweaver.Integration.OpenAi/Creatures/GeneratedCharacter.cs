@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using TwistedTaleweaver.Domain.Creatures;
 namespace TwistedTaleweaver.Integration.OpenAi.Creatures;
 
 /// <summary>
@@ -24,13 +23,7 @@ public class GeneratedCharacter
     /// </summary>
     [Length(0, 4)]
     public required List<GeneratedTrait> Traits { get; set; }
-    
-    /// <summary>
-    /// <inheritdoc cref="Proficiency"/>
-    /// </summary>
-    [Length(0, 4)]
-    public required List<Proficiency> Proficiencies { get; set; }
-    
+
     /// <summary>
     /// Determines how well-protected the entity is against standard attacks
     /// </summary>
@@ -41,16 +34,4 @@ public class GeneratedCharacter
     /// <inheritdoc cref="GeneratedSpeedScores"/>
     /// </summary>
     public required GeneratedSpeedScores SpeedScores  { get; set; }
-    
-    /// <summary>
-    /// Abilities the entity can use on its turn during combat
-    /// </summary>
-    [Length(0, 4)]
-    public required List<GeneratedCreatureAction> CombatActions { get; set; }
-    
-    /// <summary>
-    /// Abilities the entity can use for narrative purposes - eg. lockpicking
-    /// </summary>
-    [Length(0, 4)]
-    public required List<GeneratedCreatureAction> NonCombatActions { get; set; }
 }

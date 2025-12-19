@@ -24,10 +24,6 @@ public interface ICreaturesWriter
         int armorClass,
         SpeedScores speedScores);
 
-    Task SaveActionsAsync(List<CreatureActionDto> actions);
-    
-    Task SaveProficienciesAsync(List<CreatureProficiencyDto> proficiencies);
-    
     Task SaveTraitsAsync(List<CreatureTraitDto> traits);
 
     Task SaveCharacterDetailsAsync(Guid creatureId, ClassType classType);
@@ -84,28 +80,6 @@ internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(
             BurrowingSpeed = speedScores.Burrowing,
             TeleportationSpeed = speedScores.Teleportation
         });
-    }
-
-    public Task SaveActionsAsync(List<CreatureActionDto> actions)
-    {
-        const string sql = @"
-            INSERT INTO creature_actions 
-            (creature_id, action_name, description, cost, recharge, range)
-            VALUES 
-            (@CreatureId, @ActionName, @Description, @Cost, @Recharge, @Range)";
-
-        return ExecuteAsync(sql, actions);
-    }
-
-    public Task SaveProficienciesAsync(List<CreatureProficiencyDto> proficiencies)
-    {
-        const string sql = @"
-            INSERT INTO creature_proficiencies 
-            (creature_id, type_id, target)
-            VALUES 
-            (@CreatureId, @Type, @Target)";
-
-        return ExecuteAsync(sql, proficiencies);
     }
 
     public Task SaveTraitsAsync(List<CreatureTraitDto> traits)

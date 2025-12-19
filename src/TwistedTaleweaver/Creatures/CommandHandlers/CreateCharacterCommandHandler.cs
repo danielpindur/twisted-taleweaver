@@ -46,40 +46,6 @@ internal class CreateCharacterCommandHandler(
             generatedCharacter.ArmorClass,
             ToEntity(generatedCharacter.SpeedScores));
 
-        var nonCombatActions = generatedCharacter.NonCombatActions
-            .Select(x =>
-                new CreatureActionDto()
-                {
-                    CreatureId = creatureId,
-                    ActionName = x.Name,
-                    Description = x.Description,
-                    Cost = x.Cost,
-                    Range = x.Range.HasValue ? x.Range.ActualValue : null,
-                    Recharge = x.Recharge.HasValue ? x.Recharge.ActualValue : null,
-                });
-
-        var combatActions = generatedCharacter.CombatActions
-            .Select(x => new CreatureActionDto()
-            {
-                CreatureId = creatureId,
-                ActionName = x.Name,
-                Description = x.Description,
-                IsCombatAction = true,
-                Cost = x.Cost,
-                Range = x.Range.HasValue ? x.Range.ActualValue : null,
-                Recharge = x.Recharge.HasValue ? x.Recharge.ActualValue : null,
-            });
-
-        await creaturesWriter.SaveActionsAsync(nonCombatActions.Concat(combatActions).ToList());
-
-        await creaturesWriter.SaveProficienciesAsync(generatedCharacter.Proficiencies
-            .Select(x => new CreatureProficiencyDto()
-            {
-                CreatureId = creatureId,
-                Type = x.Type,
-                Target = x.Target,
-            }).ToList());
-
         await creaturesWriter.SaveTraitsAsync(generatedCharacter.Traits
             .Select(x => new CreatureTraitDto()
             {

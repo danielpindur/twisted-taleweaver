@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type SpeedScores = {
-    walking?: number;
+    walking: number;
     flying?: number | null;
     swimming?: number | null;
     climbing?: number | null;

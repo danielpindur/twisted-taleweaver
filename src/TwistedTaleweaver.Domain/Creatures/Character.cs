@@ -18,16 +18,4 @@ public class Character : CombatCreature
     /// </summary>
     [Required]
     public ClassType Class { get; set; }
-
-    /// <summary>
-    /// Abilities the entity can use for narrative purposes - eg. lockpicking
-    /// </summary>
-    public required List<CreatureAction> NonCombatActions { get; set; }
-
-    /// <summary>
-    /// The character's current level
-    /// </summary>
-    public int Level { get; set; } = 1;
-    
-    public override int ProficiencyBonus => 2 + (Level - 1) / 4;
 }

@@ -37,6 +37,7 @@ public abstract class Creature
     /// <summary>
     /// <inheritdoc cref="Gender"/>
     /// </summary>
+    [Required]
     public Gender Gender { get; set; }
     
     /// <summary>
@@ -56,10 +57,4 @@ public abstract class Creature
     /// </summary>
     [Required]
     public required List<Trait> Traits { get; set; }
-    
-    /// <summary>
-    /// <inheritdoc cref="Proficiency"/>
-    /// </summary>
-    [Required]
-    public required List<Proficiency> Proficiencies { get; set; }
 }

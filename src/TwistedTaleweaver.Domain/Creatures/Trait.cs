@@ -11,12 +11,14 @@ public class Trait
     /// Name of the trait
     /// </summary>
     [MaxLength(50)]
+    [Required]
     public required string Name { get; init; }
     
     /// <summary>
     /// Description of the trait's effect or purpose
     /// </summary>
     [MaxLength(255)]
+    [Required]
     public required string Effect { get; init; }
     
     /// <summary>

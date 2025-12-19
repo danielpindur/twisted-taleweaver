@@ -16,8 +16,6 @@ internal class CharacterByIdQueryHandler(
             return null;
         }
 
-        var actions = await creaturesReader.GetActionsAsync(query.CharacterId);
-        var proficiencies = await creaturesReader.GetProficienciesAsync(query.CharacterId);
         var traits = await creaturesReader.GetTraitsAsync(query.CharacterId);
 
         var character = new Character()
@@ -34,11 +32,6 @@ internal class CharacterByIdQueryHandler(
                 Name = x.TraitName,
                 Effect = x.Effect,
                 ConditionForPerform = x.ConditionDescription
-            }).ToList(),
-            Proficiencies = proficiencies.Select(x => new Proficiency()
-            {
-                Type = x.Type,
-                Target = x.Target
             }).ToList(),
             AttributeScores = new AttributeScores()
             {
@@ -61,32 +54,9 @@ internal class CharacterByIdQueryHandler(
                 Flying = dto.FlyingSpeed,
                 Teleportation = dto.TeleportationSpeed
             },
-            CombatActions = new List<CreatureAction>(),
             Class = dto.Class,
-            NonCombatActions = new List<CreatureAction>()
         };
-
-        foreach (var action in actions)
-        {
-            var creatureAction = new CreatureAction()
-            {
-                Name = action.ActionName,
-                Description = action.Description,
-                Cost = action.Cost,
-                Range = action.Range,
-                Recharge = action.Recharge
-            };
-            
-            if (action.IsCombatAction)
-            {
-                character.CombatActions.Add(creatureAction);
-            }
-            else
-            {
-                character.NonCombatActions.Add(creatureAction);
-            }
-        }
-
+        
         return character;
     }
 }

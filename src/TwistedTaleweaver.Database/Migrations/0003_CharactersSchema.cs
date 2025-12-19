@@ -63,6 +63,21 @@ public class CharactersSchema : Migration
             .Row(new { type_id = 23, type_name = "Tidehunter" })
             .Row(new { type_id = 24, type_name = "Starforged" });
 
+        Create.Table("creature_genders")
+            .WithColumn("gender_id")
+                .AsByte()
+                .PrimaryKey()
+            .WithColumn("gender_name")
+                .AsString(20)
+                .NotNullable()
+                .Unique();
+        
+        Insert.IntoTable("creature_genders")
+            .Row(new { gender_id = 1, gender_name = "Male" })
+            .Row(new { gender_id = 2, gender_name = "Female" })
+            .Row(new { gender_id = 3, gender_name = "NonBinary" })
+            .Row(new { gender_id = 4, gender_name = "Other" });
+        
         Create.Table("narrative_alignments")
             .WithColumn("alignment_id")
                 .AsByte()
@@ -105,6 +120,10 @@ public class CharactersSchema : Migration
                 .AsByte()
                 .NotNullable()
                 .ForeignKey("creature_types", "type_id")
+            .WithColumn("gender_id")
+                .AsByte()
+                .Nullable()
+                .ForeignKey("creature_genders", "gender_id")
             .WithColumn("alignment_id")
                 .AsByte()
                 .NotNullable()
@@ -146,54 +165,10 @@ public class CharactersSchema : Migration
                 .NotNullable()
             .WithColumn("effect")
                 .AsString(255)
-                .NotNullable();
-
-        Create.Table("creature_trait_conditions")
-            .WithColumn("condition_id")
-                .AsGuid()
-                .PrimaryKey()
-                .WithDefault(SystemMethods.NewGuid)
-            .WithColumn("trait_id")
-                .AsGuid()
                 .NotNullable()
-                .ForeignKey("creature_traits", "trait_id")
             .WithColumn("condition_description")
                 .AsString(255)
-                .NotNullable();
-
-        Create.Table("proficiency_types")
-            .WithColumn("type_id")
-                .AsByte()
-                .PrimaryKey()
-            .WithColumn("_name")
-                .AsString(20)
-                .NotNullable()
-                .Unique();
-
-        Insert.IntoTable("proficiency_types")
-            .Row(new { type_id = 1, _name = "Skill" })
-            .Row(new { type_id = 2, _name = "Weapon" })
-            .Row(new { type_id = 3, _name = "SavingThrow" })
-            .Row(new { type_id = 4, _name = "Tool" })
-            .Row(new { type_id = 5, _name = "Armor" })
-            .Row(new { type_id = 6, _name = "Other" });
-
-        Create.Table("creature_proficiencies")
-            .WithColumn("proficiency_id")
-                .AsGuid()
-                .PrimaryKey()
-                .WithDefault(SystemMethods.NewGuid)
-            .WithColumn("creature_id")
-                .AsGuid()
-                .NotNullable()
-                .ForeignKey("creatures", "creature_id")
-            .WithColumn("type_id")
-                .AsByte()
-                .NotNullable()
-                .ForeignKey("proficiency_types", "type_id")
-            .WithColumn("target")
-                .AsString(50)
-                .NotNullable();
+                .Nullable();;
 
         Create.Table("combat_creatures")
             .WithColumn("creature_id")
@@ -227,39 +202,6 @@ public class CharactersSchema : Migration
             .WithColumn("teleportation_speed")
                 .AsByte()
                 .Nullable();  
-
-        Create.Table("creature_actions")
-            .WithColumn("action_id")
-                .AsGuid()
-                .PrimaryKey()
-                .WithDefault(SystemMethods.NewGuid)
-            .WithColumn("creature_id")
-                .AsGuid()
-                .NotNullable()
-                .ForeignKey("creatures", "creature_id")
-            .WithColumn("action_name")
-                .AsString(50)
-                .NotNullable()
-            .WithColumn("description")
-                .AsString(255)
-                .NotNullable()
-            .WithColumn("is_combat_action")
-                .AsBoolean()
-                .WithDefaultValue(true)
-                .NotNullable()
-            .WithColumn("is_legendary_action")
-                .AsBoolean()
-                .WithDefaultValue(false)
-                .NotNullable()
-            .WithColumn("cost")
-                .AsByte()
-                .NotNullable()
-            .WithColumn("recharge")
-                .AsByte()
-                .Nullable()
-            .WithColumn("range")
-                .AsByte()
-                .Nullable();
 
         Create.Table("character_class_types")
             .WithColumn("type_id")
@@ -306,24 +248,7 @@ public class CharactersSchema : Migration
                 .AsByte()
                 .NotNullable()
                 .ForeignKey("character_class_types", "type_id");
-
-        Create.Table("character_experience_gains")
-            .WithColumn("experience_gain_id")
-                .AsGuid()
-                .PrimaryKey()
-                .WithDefault(SystemMethods.NewGuid)
-            .WithColumn("character_id")
-                .AsGuid()
-                .NotNullable()
-                .ForeignKey("characters", "creature_id")
-            .WithColumn("experience_points")
-                .AsInt32()
-                .NotNullable()
-            .WithColumn("gained_at")
-                .AsDateTimeOffset()
-                .NotNullable()
-                .WithDefault(SystemMethods.CurrentDateTimeOffset);
-
+        
         Alter.Table("expedition_participants")
             .AddColumn("character_id")
                 .AsGuid()
@@ -335,17 +260,13 @@ public class CharactersSchema : Migration
     {
         Delete.Column("character_id").FromTable("expedition_participants");
 
-        Delete.Table("character_experience_gains");
         Delete.Table("characters");
         Delete.Table("character_class_types");
-        Delete.Table("creature_actions");
         Delete.Table("combat_creatures");
-        Delete.Table("creature_proficiencies");
-        Delete.Table("proficiency_types");
-        Delete.Table("creature_trait_conditions");
         Delete.Table("creature_traits");
         Delete.Table("creatures");
         Delete.Table("narrative_alignments");
+        Delete.Table("creature_genders");
         Delete.Table("creature_types");
         Delete.Table("creature_statuses");
     }
