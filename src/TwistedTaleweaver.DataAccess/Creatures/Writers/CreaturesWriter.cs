@@ -20,7 +20,6 @@ public interface ICreaturesWriter
     Task SaveCombatDetailsAsync(
         Guid creatureId,
         int maxHealth,
-        int currentHealth,
         int armorClass,
         SpeedScores speedScores);
 
@@ -58,20 +57,19 @@ internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(
         });
     }
 
-    public Task SaveCombatDetailsAsync(Guid creatureId, int maxHealth, int currentHealth, int armorClass,
+    public Task SaveCombatDetailsAsync(Guid creatureId, int maxHealth, int armorClass,
         SpeedScores speedScores)
     {
         const string sql = @"
             INSERT INTO combat_creatures 
-            (creature_id, max_health, current_health, armor_class, walking_speed, flying_speed, swimming_speed, climbing_speed, burrowing_speed, teleportation_speed)
+            (creature_id, max_health, armor_class, walking_speed, flying_speed, swimming_speed, climbing_speed, burrowing_speed, teleportation_speed)
             VALUES 
-            (@CreatureId, @MaxHealth, @CurrentHealth, @ArmorClass, @WalkingSpeed, @FlyingSpeed, @SwimmingSpeed, @ClimbingSpeed, @BurrowingSpeed, @TeleportationSpeed)";
+            (@CreatureId, @MaxHealth, @ArmorClass, @WalkingSpeed, @FlyingSpeed, @SwimmingSpeed, @ClimbingSpeed, @BurrowingSpeed, @TeleportationSpeed)";
 
         return ExecuteAsync(sql, new
         { 
             CreatureId = creatureId,
             MaxHealth = maxHealth,
-            CurrentHealth = currentHealth,
             ArmorClass = armorClass,
             WalkingSpeed = speedScores.Walking,
             FlyingSpeed = speedScores.Flying,

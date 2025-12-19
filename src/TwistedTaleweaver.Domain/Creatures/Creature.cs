@@ -14,12 +14,6 @@ public abstract class Creature
     [MaxLength(50)]
     [Required]
     public required string Name { get; set; }
-    
-    /// <summary>
-    /// <inheritdoc cref="CreatureStatus"/>
-    /// </summary>
-    [Required]
-    public CreatureStatus Status { get; set; } = CreatureStatus.Alive;
 
     /// <summary>
     /// <inheritdoc cref="AttributeScores"/>

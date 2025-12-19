@@ -57,8 +57,8 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
           {expedition.description}
         </p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="flex-1 flex flex-col">
+        <div className="space-y-4 flex-1">
           {/* Expedition Status */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
                 {expedition.currentParticipants}/{expedition.maxParticipants} adventurers
               </span>
             </div>
-            {expedition.status === ExpeditionStatus.CREATED && waitingCount > 0 && (
+            {expedition.state.status === ExpeditionStatus.CREATED && waitingCount > 0 && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 Waiting for {waitingCount} more
@@ -136,47 +136,47 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
               </div>
             </div>
           </div>
-
-          {/* Owner Actions */}
-          {isOwner && isReady && onStartExpedition && (
-            <div className="pt-2 border-t border-border">
-              <Button 
-                onClick={handleStartExpedition}
-                className="w-full gap-2"
-                variant="default"
-                disabled={isStarting || !allHaveCharacters}
-              >
-                {isStarting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Weaving the Tale...
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-4 w-4" />
-                    Begin the Expedition
-                  </>
-                )}
-              </Button>
-              <p className="text-xs text-muted-foreground font-crimson text-center mt-2">
-                {isStarting 
-                  ? "Preparing the realm for your adventure..."
-                  : !allHaveCharacters
-                    ? "Waiting for all adventurers to create their characters..." 
-                    : "All adventurers have joined. You may now begin the tale..."
-                }
-              </p>
-            </div>
-          )}
-
-          {!isOwner && isReady && (
-            <div className="pt-2 border-t border-border">
-              <p className="text-sm text-center text-muted-foreground font-crimson">
-                Waiting for <span className="text-primary font-semibold">{expedition.createdByUser.name}</span> to begin the expedition...
-              </p>
-            </div>
-          )}
         </div>
+
+        {/* Owner Actions */}
+        {isOwner && isReady && onStartExpedition && (
+          <div className="pt-4 mt-4 border-t border-border">
+            <Button 
+              onClick={handleStartExpedition}
+              className="w-full gap-2"
+              variant="default"
+              disabled={isStarting || !allHaveCharacters}
+            >
+              {isStarting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Weaving the Tale...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4" />
+                  Begin the Expedition
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-muted-foreground font-crimson text-center mt-2">
+              {isStarting 
+                ? "Preparing the realm for your adventure..."
+                : !allHaveCharacters
+                  ? "Waiting for all adventurers to create their characters..." 
+                  : "All adventurers have joined. You may now begin the tale..."
+              }
+            </p>
+          </div>
+        )}
+
+        {!isOwner && isReady && (
+          <div className="pt-4 mt-4 border-t border-border">
+            <p className="text-sm text-center text-muted-foreground font-crimson">
+              Waiting for <span className="text-primary font-semibold">{expedition.createdByUser.name}</span> to begin the expedition...
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

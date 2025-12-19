@@ -1,23 +1,19 @@
-import type { Character } from "@/interfaces/Character";
+import type { ExpeditionParticipant, User } from "@/generated/twisted-taleweaver-api";
 
 /**
  * Checks if the current user can act (if it's their character's turn)
  */
-export const canUserAct = (characters: Character[], username: string): boolean => {
-  const activeCharacter = characters.find(char => char.isCurrentTurn);
-  return activeCharacter?.name === username;
+export const canParticipantAct = (participant: ExpeditionParticipant, activeUser?: (User | null)): boolean => {
+  return activeUser !== null && participant?.user.userId === activeUser?.userId;
 };
 
 /**
- * Gets the character whose turn it is
+ * Gets the participant whose turn it is
  */
-export const getCurrentTurnCharacter = (characters: Character[]): Character | undefined => {
-  return characters.find(char => char.isCurrentTurn);
-};
+export const getCurrentTurnParticipant = (participants: ExpeditionParticipant[], activeUser?: (User | null)): (ExpeditionParticipant | undefined) => {
+  if (activeUser === null) {
+    return undefined;
+  }
 
-/**
- * Gets the user's character by username
- */
-export const getUserCharacter = (characters: Character[], username: string): Character | undefined => {
-  return characters.find(char => char.name === username);
+  return participants.find(p => p.user.userId === activeUser?.userId);
 };

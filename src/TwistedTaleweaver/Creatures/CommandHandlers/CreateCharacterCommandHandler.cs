@@ -42,7 +42,7 @@ internal class CreateCharacterCommandHandler(
         
         await creaturesWriter.SaveCombatDetailsAsync(
             creatureId,
-            tempHeath, tempHeath,
+            tempHeath,
             generatedCharacter.ArmorClass,
             ToEntity(generatedCharacter.SpeedScores));
 

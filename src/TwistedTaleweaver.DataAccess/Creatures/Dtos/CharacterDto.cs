@@ -10,8 +10,6 @@ public class CharacterDto
     
     public required string ContextKeywords { get; set; }
     
-    public CreatureStatus Status { get; set; }
-
     public CreatureType CreatureType { get; set; }
     
     public NarrativeAlignment Alignment { get; set; }
@@ -31,9 +29,7 @@ public class CharacterDto
     public int Charisma { get; set; }
     
     public int MaxHealth { get; set; }
-
-    public int CurrentHealth { get; set; }
-
+    
     public int ArmorClass { get; set; }
     
     public int WalkingSpeed { get; init; }

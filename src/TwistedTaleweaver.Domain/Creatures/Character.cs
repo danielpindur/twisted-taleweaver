@@ -11,6 +11,7 @@ public class Character : CombatCreature
     /// <summary>
     /// Identifier of the character
     /// </summary>
+    [Required]
     public Guid CharacterId { get; set; }
     
     /// <summary>

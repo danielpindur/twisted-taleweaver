@@ -23,7 +23,6 @@ internal class CharacterByIdQueryHandler(
             CharacterId = dto.CreatureId,
             Name = dto.Name,
             ContextKeywords = dto.ContextKeywords,
-            Status = dto.Status,
             Gender = dto.Gender,
             CreatureType = dto.CreatureType,
             Alignment = dto.Alignment,
@@ -43,7 +42,6 @@ internal class CharacterByIdQueryHandler(
                 Charisma = dto.Charisma,
             },
             MaxHealth = dto.MaxHealth,
-            CurrentHealth = dto.CurrentHealth,
             ArmorClass = dto.ArmorClass,
             SpeedScores = new SpeedScores()
             {

@@ -28,6 +28,8 @@ import type { LucideIcon } from "lucide-react";
 import { CreatureStatus } from "@/generated/twisted-taleweaver-api/models/CreatureStatus";
 import { ClassType } from "@/generated/twisted-taleweaver-api/models/ClassType";
 import { Gender } from "@/generated/twisted-taleweaver-api/models/Gender";
+import type { Character, Expedition, ExpeditionParticipant, ExpeditionState } from "@/generated/twisted-taleweaver-api";
+import type { UserResource } from "@clerk/types";
 
 export const getGenderSymbol = (gender: Gender) => {
   switch (gender) {
@@ -85,4 +87,23 @@ export const getClassIcon = (className: ClassType) => {
   };
   
   return classIconMap[className] ?? Swords;
+};
+
+/**
+ * Gets the user's participant
+ */
+export const getUserParticipant = (participants: ExpeditionParticipant[], user: UserResource): ExpeditionParticipant | undefined => {
+  return participants.find(p => p.user.externalUserId === user.id);
+};
+
+export const getCreatureStatus = (character: Character, expeditionState: ExpeditionState) => {
+  const participantState = expeditionState.participants.find(p => p.creatureId === character.characterId)!;
+
+  return participantState.status;
+};
+
+export const getCreatureCurrentHealth = (character: Character, expeditionState: ExpeditionState) => {
+  const participantState = expeditionState.participants.find(p => p.creatureId === character.characterId)!;
+
+  return participantState.currentHealth;
 };

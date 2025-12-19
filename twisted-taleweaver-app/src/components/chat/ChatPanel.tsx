@@ -10,7 +10,7 @@ import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
 import { Sword, Shield, Eye, Sparkles, MessageSquare, Map, Backpack } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { canUserAct, getCurrentTurnCharacter } from "@/utils/TurnUtils";
+import { canParticipantAct, getCurrentTurnParticipant } from "@/utils/TurnUtils";
 import type { UserResource } from "@clerk/types";
 import { ExpeditionStatus, type Expedition, type ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
 
@@ -27,10 +27,10 @@ export interface ChatPanelProps {
 }
 
 export const ChatPanel = ({ expedition, partyPanelCollapsed, characterPanelCollapsed, user }: ChatPanelProps) => {
-  const [isInCombat] = useState(expedition.status === ExpeditionStatus.STARTED); // TODO: Get from game state
+  const [isInCombat] = useState(expedition.state.status === ExpeditionStatus.STARTED); // TODO: Get from game state
   const [combatMonsters] = useState<Monster[]>(mockMonsters); // TODO: Get from combat state
   const [messages, setMessages] = useState<ChatMessage[]>(
-    expedition.status === ExpeditionStatus.CREATED ? mockPreExpeditionMessages : mockMessages
+    expedition.state.status === ExpeditionStatus.CREATED ? mockPreExpeditionMessages : mockMessages
   );
  
   // TODO: Implement actual message sending API call
@@ -42,7 +42,7 @@ export const ChatPanel = ({ expedition, partyPanelCollapsed, characterPanelColla
         characterName: user.username!,
         content: messageToSend,
         timestamp: new Date(),
-        type: expedition.status === ExpeditionStatus.CREATED ? "dialogue" : "action"
+        type: expedition.state.status === ExpeditionStatus.CREATED ? "dialogue" : "action"
       };
       
       setMessages(prev => [...prev, message]);
@@ -154,7 +154,7 @@ export const ChatPanel = ({ expedition, partyPanelCollapsed, characterPanelColla
 
   return (
     <div className="flex-1 flex flex-col min-w-0" style={{ minWidth: '200px' }}>
-      {expedition.status === ExpeditionStatus.CREATED ? (
+      {expedition.state.status === ExpeditionStatus.CREATED ? (
         <PreExpeditionPanel 
           expedition={expedition} 
           user={user}

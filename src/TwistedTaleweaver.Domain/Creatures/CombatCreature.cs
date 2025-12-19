@@ -16,13 +16,6 @@ public abstract class CombatCreature : Creature
     public int MaxHealth { get; set; }
 
     /// <summary>
-    /// Remaining hit points
-    /// </summary>
-    [Range(1, 1000)]
-    [Required]
-    public int CurrentHealth { get; set; }
-
-    /// <summary>
     /// Determines how well-protected the entity is against standard attacks
     /// </summary>
     [Range(1, 30)]

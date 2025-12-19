@@ -1,5 +1,6 @@
 using TwistedTaleweaver.DataAccess.Expeditions.Dtos;
 using TwistedTaleweaver.Domain.Creatures;
+using TwistedTaleweaver.Domain.Creatures.Enums;
 using TwistedTaleweaver.Domain.Expeditions;
 using TwistedTaleweaver.Domain.Users;
 using TwistedTaleweaver.Users.Mappers;
@@ -40,7 +41,6 @@ internal static class ExpeditionsMapper
             ExpeditionId = source.ExpeditionId,
             Name = source.Name,
             Description = source.Description,
-            Status = source.Status,
             Difficulty = source.Difficulty,
             MinParticipants = source.MinParticipants,
             MaxParticipants = source.MaxParticipants,
@@ -52,7 +52,19 @@ internal static class ExpeditionsMapper
                 ExternalUserId = source.CreatedByExternalUserId,
                 Name = userByExternalId[source.CreatedByExternalUserId].Username!
             },
-            Participants = participants
+            Participants = participants,
+            State = new ExpeditionState()
+            {
+                Status = source.Status,
+                Participants = participants
+                    .Where(x => x.Character is not null)
+                    .Select(x => new CombatCreatureState()
+                    {
+                        CreatureId = x.Character!.CharacterId,
+                        Status = CreatureStatus.Alive,
+                        CurrentHealth = x.Character!.MaxHealth
+                    }).ToList()
+            }
         };
     }
 

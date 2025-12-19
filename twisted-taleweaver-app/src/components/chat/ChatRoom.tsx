@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { ChatRoomHeader} from "@/components/chat/ChatRoomHeader";
 import { ChatPanel } from "@/components/chat/ChatPanel";
-import type { UserResource } from "@clerk/types";
 import { useQuery } from "@tanstack/react-query";
 import { useApiClient } from "@/hooks/useApiClient";
 import { ExpeditionsService } from "@/generated/twisted-taleweaver-api/services/ExpeditionsService";
 import { useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
-import { PartySidePannel } from "@/components/chat/PartySidePanel";
+import { getUserParticipant } from "@/utils/CharacterUtils"
+import { CharacterSidePanel } from "@/components/chat/CharacterSidePanel";
+import { PartySidePanel } from "@/components/chat/PartySidePanel";
+import type { UserResource } from "@clerk/types";
 
 export interface ChatRoomProps {
   expeditionId: string;
@@ -58,7 +59,6 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
         
 
   return (
-    //<TooltipProvider>
       <div className="h-screen bg-background flex flex-col">
         <ChatRoomHeader 
           expeditionId={expeditionId}
@@ -66,29 +66,26 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
           currentParticipants={data.currentParticipants} />
        
         <div className="flex-1 flex overflow-x-auto">
-          {/*
-          <PartySidePannel 
+          <PartySidePanel 
             participants={data.participants}
+            expeditionOwner={data.createdByUser}
+            expeditionState={data.state}
             panelCollapsed={partyPanelCollapsed}
-            setPanelCollapsed={setPartyPanelCollapsed} />
-          */}
+            setPanelCollapsed={setPartyPanelCollapsed}
+            activeUser={data.state.activeUser} />
+          
           <ChatPanel 
             expedition={data}
             partyPanelCollapsed={partyPanelCollapsed}
             characterPanelCollapsed={characterPanelCollapsed}
             user={user} />
           
-          {/* 
           <CharacterSidePanel 
-            character={currentUser}
             panelCollapsed={characterPanelCollapsed}
             setPanelCollapsed={setCharacterPanelCollapsed}
-            user={user}
-            isInCombat={isInCombat}
-            characters={mockCharacters} />
-          */}
+            expeditionState={data.state}
+            participant={getUserParticipant(data.participants, user)!} />
         </div>
       </div>
-    //</TooltipProvider>
   );
 };
