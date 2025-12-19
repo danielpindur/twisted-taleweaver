@@ -15,12 +15,12 @@ export class ExpeditionsService {
      * @returns ExpeditionSlim Created
      * @throws ApiError
      */
-    public static postApiExpeditions(
+    public static postApiV1Expeditions(
         requestBody: ExpeditionRequest,
     ): CancelablePromise<ExpeditionSlim> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/expeditions',
+            url: '/api/v1/expeditions',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -35,13 +35,13 @@ export class ExpeditionsService {
      * @returns PaginatedResponseOfExpeditionSlim OK
      * @throws ApiError
      */
-    public static getApiExpeditions(
+    public static getApiV1Expeditions(
         pageNumber?: number,
         pageSize?: number,
     ): CancelablePromise<PaginatedResponseOfExpeditionSlim> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/expeditions',
+            url: '/api/v1/expeditions',
             query: {
                 'PageNumber': pageNumber,
                 'PageSize': pageSize,
@@ -56,12 +56,12 @@ export class ExpeditionsService {
      * @returns Expedition OK
      * @throws ApiError
      */
-    public static getApiExpeditions1(
+    public static getApiV1Expeditions1(
         expeditionId: string,
     ): CancelablePromise<Expedition> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/expeditions/{expeditionId}',
+            url: '/api/v1/expeditions/{expeditionId}',
             path: {
                 'expeditionId': expeditionId,
             },
@@ -76,12 +76,12 @@ export class ExpeditionsService {
      * @returns void
      * @throws ApiError
      */
-    public static postApiExpeditionsJoin(
+    public static postApiV1ExpeditionsJoin(
         expeditionId: string,
     ): CancelablePromise<void> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/expeditions/{expeditionId}/join',
+            url: '/api/v1/expeditions/{expeditionId}/join',
             path: {
                 'expeditionId': expeditionId,
             },
@@ -96,12 +96,12 @@ export class ExpeditionsService {
      * @returns void
      * @throws ApiError
      */
-    public static postApiExpeditionsBegin(
+    public static postApiV1ExpeditionsBegin(
         expeditionId: string,
     ): CancelablePromise<void> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/expeditions/{expeditionId}/begin',
+            url: '/api/v1/expeditions/{expeditionId}/begin',
             path: {
                 'expeditionId': expeditionId,
             },

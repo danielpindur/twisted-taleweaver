@@ -1,19 +1,17 @@
 import { useRef, useEffect, useState, useCallback } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Eye, Skull, BookOpen, ChevronDown } from "lucide-react";
-import type { ChatMessage } from "@/interfaces/ChatMessage";
 import { formatTime } from "@/utils/TimeUtils";
-import { getClassIcon } from "@/utils/CharacterUtils";
-import type { Character } from "@/interfaces/Character";
+import type { ChatMessage } from "@/interfaces/ChatMessage";
+import type { ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
 
 export interface ChatMessagesProps {
-    messages: ChatMessage[],
-    characters: Character[],
-    onLoadMoreMessages?: () => void,
+  messages: ChatMessage[],
+  participants: ExpeditionParticipant[],
+  onLoadMoreMessages?: () => void,
 };
 
-export const ChatMessages = ({messages, characters, onLoadMoreMessages}: ChatMessagesProps) => {
+export const ChatMessages = ({ messages, participants, onLoadMoreMessages }: ChatMessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [displayedMessages, setDisplayedMessages] = useState<ChatMessage[]>([]);
@@ -120,11 +118,11 @@ export const ChatMessages = ({messages, characters, onLoadMoreMessages}: ChatMes
               {message.sender === "character" && (
                 <div className="bg-Character/10 p-3 rounded-lg border border-Character/20">
                   <div className="flex items-center gap-2 mb-1">
-                    {(() => {
-                      const Character = characters.find(p => p.name === message.characterName);
-                      const IconComponent = getClassIcon(Character?.class || '');
+                    {/*(() => {
+                      const participant = participants.find(p => p.character?.characterId === message.characterId);
+                      const IconComponent = getClassIcon(participant!.character!.class);
                       return <IconComponent className="h-4 w-4 text-Character" />;
-                    })()}
+                    })()*/}
                     <span className="font-crimson font-medium text-Character">
                       {message.characterName}
                     </span>

@@ -47,7 +47,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
   const createCharacterMutation = useMutation({
     mutationFn: (request: CharacterRequest) =>
       requestWithAuth(() =>
-        CharactersService.postApiCharacters(request)
+        CharactersService.postApiV1Characters(request)
       ),
 
     onSuccess: (_, request) => {

@@ -25,7 +25,7 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
     queryKey: ["expedition", expeditionId],
     queryFn: () => {
       return requestWithAuth(() =>
-        ExpeditionsService.getApiExpeditions1(expeditionId)
+        ExpeditionsService.getApiV1Expeditions1(expeditionId)
       );
     },
   });

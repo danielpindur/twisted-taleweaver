@@ -1,4 +1,5 @@
 using TwistedTaleweaver.Api.Expeditions.Queries;
+using TwistedTaleweaver.Api.Messages.Queries;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
 using TwistedTaleweaver.Domain.Expeditions;
 using TwistedTaleweaver.Expeditions.Mappers;
@@ -9,7 +10,8 @@ namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 internal class ExpeditionByIdQueryHandler(
     IExpeditionsReader expeditionsReader,
     IUsersAdapter usersAdapter,
-    IExpeditionParticipantsQueryHandler expeditionParticipantsQueryHandler) : IExpeditionByIdQueryHandler
+    IExpeditionParticipantsQueryHandler expeditionParticipantsQueryHandler,
+    IExpeditionMessagesSearchQueryHandler expeditionMessagesSearchQueryHandler) : IExpeditionByIdQueryHandler
 {
     public async Task<Expedition?> ExecuteAsync(ExpeditionByIdQuery query)
     {
@@ -23,9 +25,12 @@ internal class ExpeditionByIdQueryHandler(
         var participants = await expeditionParticipantsQueryHandler.ExecuteAsync(
             new ExpeditionParticipantsQuery() { ExpeditionId = query.ExpeditionId });
 
-        var userByExternalId = await usersAdapter
+        var userByExternalIdTask = usersAdapter
             .GetUsersAsync(new List<string>() { dto.CreatedByExternalUserId });
         
-        return dto.ToExpedition(participants, userByExternalId);
+        var messages = await expeditionMessagesSearchQueryHandler.ExecuteAsync(
+            new ExpeditionMessagesSearchQuery() { ExpeditionId = query.ExpeditionId });
+        
+        return dto.ToExpedition(participants, messages, await userByExternalIdTask);
     }
 }

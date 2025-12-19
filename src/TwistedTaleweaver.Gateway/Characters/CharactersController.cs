@@ -5,11 +5,12 @@ using TwistedTaleweaver.Api.Creatures.Queries;
 using TwistedTaleweaver.Domain.Creatures;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.Characters.Contracts;
+using TwistedTaleweaver.Gateway.Common;
 
 namespace TwistedTaleweaver.Gateway.Characters;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route($"{ApiConstants.UriPrefix}/[controller]")]
 [Authorize]
 public sealed class CharactersController(
     IUserProvider userProvider,

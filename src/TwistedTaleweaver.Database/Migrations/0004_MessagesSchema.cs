@@ -19,33 +19,35 @@ public class MessagesSchema : Migration
         Insert.IntoTable("message_types")
             .Row(new { type_id = 1, type_name = "Narrative" })
             .Row(new { type_id = 2, type_name = "Action" })
-            .Row(new { type_id = 3, type_name = "Dialogue" })
-            .Row(new { type_id = 4, type_name = "System" });
+            .Row(new { type_id = 3, type_name = "System" });
 
         Create.Table("messages")
-            .WithColumn("message_id")
-                .AsGuid()
-                .PrimaryKey()
-                .WithDefault(SystemMethods.NewGuid)
             .WithColumn("expedition_id")
                 .AsGuid()
                 .NotNullable()
                 .ForeignKey("expeditions", "expedition_id")
-            .WithColumn("sender_creature_id")
+            .WithColumn("expedition_message_id")
+                .AsInt32()
+                .Identity()
+            .WithColumn("sender_character_id")
                 .AsGuid()
                 .Nullable()
-                .ForeignKey("creatures", "creature_id")
+                .ForeignKey("characters", "creature_id")
             .WithColumn("type_id")
                 .AsByte()
                 .NotNullable()
                 .ForeignKey("message_types", "type_id")
             .WithColumn("content")
-                .AsString(int.MaxValue)
+                .AsString()
                 .NotNullable()
             .WithColumn("created_at")
                 .AsDateTimeOffset()
                 .NotNullable()
                 .WithDefault(SystemMethods.CurrentDateTimeOffset);
+
+        Create.PrimaryKey("PK_messages")
+            .OnTable("messages")
+            .Columns("expedition_id", "expedition_message_id");
     }
 
     public override void Down()

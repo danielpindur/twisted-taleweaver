@@ -32,7 +32,7 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
   const startExpeditionMutation = useMutation({
     mutationFn: (expeditionId: string) =>
       requestWithAuth(() =>
-        ExpeditionsService.postApiExpeditionsBegin(expeditionId)
+        ExpeditionsService.postApiV1ExpeditionsBegin(expeditionId)
       ),
 
     onSuccess: (_, expeditionId) => {

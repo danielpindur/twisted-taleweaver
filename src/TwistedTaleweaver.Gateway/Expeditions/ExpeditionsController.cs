@@ -4,6 +4,7 @@ using TwistedTaleweaver.Api.Expeditions.Commands;
 using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.Domain.Expeditions;
 using TwistedTaleweaver.Gateway.Authorization;
+using TwistedTaleweaver.Gateway.Common;
 using TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
 using TwistedTaleweaver.Gateway.Common.Pagination.Mappers;
 using TwistedTaleweaver.Gateway.Expeditions.Contracts;
@@ -13,7 +14,7 @@ using ExpeditionSearchQueryContract = TwistedTaleweaver.Gateway.Expeditions.Cont
 namespace TwistedTaleweaver.Gateway.Expeditions;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route($"{ApiConstants.UriPrefix}/[controller]")]
 [Authorize]
 public sealed class ExpeditionsController(
     IUserProvider userProvider, 

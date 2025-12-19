@@ -2,5 +2,5 @@ namespace TwistedTaleweaver.Gateway.Common;
 
 public static class ApiConstants
 {
-    public const string UrlPrefix = "api/v1/";
+    public const string UriPrefix = "api/v1";
 }

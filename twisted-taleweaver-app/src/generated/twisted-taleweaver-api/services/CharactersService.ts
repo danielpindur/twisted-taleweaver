@@ -13,12 +13,12 @@ export class CharactersService {
      * @returns Character Created
      * @throws ApiError
      */
-    public static postApiCharacters(
+    public static postApiV1Characters(
         requestBody: CharacterRequest,
     ): CancelablePromise<Character> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/characters',
+            url: '/api/v1/characters',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

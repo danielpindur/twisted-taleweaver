@@ -2,15 +2,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
-import type { Character } from "@/interfaces/Character";
+import type { ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
 
 export interface ChatInputProps {
   handleSendMessage: (message: string) => void;
-  disabled?: boolean;
-  currentTurnCharacter?: Character;
+  disabled: boolean;
+  currentTurnParticipant?: ExpeditionParticipant;
 };
 
-export const ChatInput = ({handleSendMessage, disabled = false, currentTurnCharacter}: ChatInputProps) => {
+export const ChatInput = ({ handleSendMessage, disabled, currentTurnParticipant }: ChatInputProps) => {
   const [newMessage, setNewMessage] = useState("");
   
   const sendButtonClicked = () => {
@@ -23,8 +23,8 @@ export const ChatInput = ({handleSendMessage, disabled = false, currentTurnChara
   return (
     <div className="flex gap-2">
       <Input
-        placeholder={disabled && currentTurnCharacter 
-          ? `Waiting for ${currentTurnCharacter.name}'s turn...` 
+        placeholder={disabled && currentTurnParticipant 
+          ? `Waiting for ${currentTurnParticipant.character!.name}'s turn...` 
           : "Describe your action... or final words..."
         }
         value={newMessage}

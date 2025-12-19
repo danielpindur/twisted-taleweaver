@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using TwistedTaleweaver.Domain.Expeditions.Enums;
+using TwistedTaleweaver.Domain.Messages;
 using TwistedTaleweaver.Domain.Users;
 
 namespace TwistedTaleweaver.Domain.Expeditions;
@@ -78,4 +79,10 @@ public class Expedition
     /// </summary>
     [Required]
     public required ExpeditionState State { get; set; }
+    
+    /// <summary>
+    /// Most recent chat messages sent in the expedition
+    /// </summary>
+    [Required]
+    public required List<ChatMessage> Messages { get; set; }
 }

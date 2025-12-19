@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ChatMessage } from './ChatMessage';
 import type { ExpeditionDifficulty } from './ExpeditionDifficulty';
 import type { ExpeditionOutcome } from './ExpeditionOutcome';
 import type { ExpeditionParticipant } from './ExpeditionParticipant';
@@ -19,5 +20,6 @@ export type Expedition = {
     createdByUser: User;
     participants: Array<ExpeditionParticipant>;
     state: ExpeditionState;
+    messages: Array<ChatMessage>;
 };
 

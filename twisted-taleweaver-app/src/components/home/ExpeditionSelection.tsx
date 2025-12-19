@@ -46,7 +46,7 @@ export const ExpeditionSelection = () => {
   const createExpeditionMutation = useMutation({
     mutationFn: (request: ExpeditionRequest) =>
       requestWithAuth(() =>
-        ExpeditionsService.postApiExpeditions(request)
+        ExpeditionsService.postApiV1Expeditions(request)
       ),
 
     onSuccess: (data) => {
@@ -80,7 +80,7 @@ export const ExpeditionSelection = () => {
   const joinExpeditionMutation = useMutation({
     mutationFn: (expeditionId: string) => 
       requestWithAuth(() => 
-      ExpeditionsService.postApiExpeditionsJoin(expeditionId)
+      ExpeditionsService.postApiV1ExpeditionsJoin(expeditionId)
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expeditions"] });
@@ -150,7 +150,7 @@ export const ExpeditionSelection = () => {
     queryKey: ["expeditions", currentPage, pageSize],
     queryFn: () => {
       return requestWithAuth(() =>
-        ExpeditionsService.getApiExpeditions(currentPage, pageSize)
+        ExpeditionsService.getApiV1Expeditions(currentPage, pageSize)
       );
     },
   });

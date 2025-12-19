@@ -2,6 +2,7 @@ using TwistedTaleweaver.DataAccess.Expeditions.Dtos;
 using TwistedTaleweaver.Domain.Creatures;
 using TwistedTaleweaver.Domain.Creatures.Enums;
 using TwistedTaleweaver.Domain.Expeditions;
+using TwistedTaleweaver.Domain.Messages;
 using TwistedTaleweaver.Domain.Users;
 using TwistedTaleweaver.Users.Mappers;
 using ClerkUser = Clerk.Net.Client.Models.User;
@@ -34,6 +35,7 @@ internal static class ExpeditionsMapper
     public static Expedition ToExpedition(
         this ExpeditionDto source, 
         List<ExpeditionParticipant> participants,
+        List<ChatMessage> messages,
         Dictionary<string, ClerkUser> userByExternalId)
     {
         return new Expedition()
@@ -64,7 +66,8 @@ internal static class ExpeditionsMapper
                         Status = CreatureStatus.Alive,
                         CurrentHealth = x.Character!.MaxHealth
                     }).ToList()
-            }
+            },
+            Messages = messages
         };
     }
 
