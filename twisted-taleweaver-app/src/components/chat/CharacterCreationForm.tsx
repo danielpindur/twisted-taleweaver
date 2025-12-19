@@ -15,7 +15,6 @@ import { useToast } from "@/hooks/useToast";
 import { useApiClient } from "@/hooks/useApiClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-
 export interface CharacterCreationFormProps {
   expeditionId: string;
 };

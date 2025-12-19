@@ -1,12 +1,14 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Users, Crown, Play, Clock, Loader2 } from "lucide-react";
 import { CharacterCreationForm } from "@/components/chat/CharacterCreationForm";
 import { getClassIcon } from "@/utils/CharacterUtils";
-import { ExpeditionStatus, type Expedition } from "@/generated/twisted-taleweaver-api";
+import { ExpeditionsService, ExpeditionStatus, type Expedition } from "@/generated/twisted-taleweaver-api";
 import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
+import { useApiClient } from "@/hooks/useApiClient";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/useToast";
 import type { UserResource } from "@clerk/types";
 
 interface PreExpeditionPanelProps {
@@ -16,9 +18,10 @@ interface PreExpeditionPanelProps {
 }
 
 export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreExpeditionPanelProps) => {
-  
-  const [isStarting, setIsStarting] = useState(false);
-  
+  const queryClient = useQueryClient();
+  const { requestWithAuth } = useApiClient();
+  const { toast } = useToast();
+
   const isOwner = expedition.createdByUser.externalUserId === user.id;
   const isReady = expedition.currentParticipants >= expedition.minParticipants;
   const waitingCount = expedition.minParticipants - expedition.currentParticipants;
@@ -26,20 +29,27 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
   const hasCharacter = currentParticipant && currentParticipant.character;
   const allHaveCharacters = expedition.participants.every(p => p.character);
 
-  const handleStartExpedition = async () => {
-    if (!onStartExpedition) return;
-    
-    setIsStarting(true);
-    
-    try {
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      onStartExpedition();
-    } catch (error) {
-      console.error("Failed to start expedition:", error);
-    } finally {
-      setIsStarting(false);
-    }
+  const startExpeditionMutation = useMutation({
+    mutationFn: (expeditionId: string) =>
+      requestWithAuth(() =>
+        ExpeditionsService.postApiExpeditionsBegin(expeditionId)
+      ),
+
+    onSuccess: (_, expeditionId) => {
+      queryClient.invalidateQueries({ queryKey: ["expedition", expeditionId] });
+    },
+
+    onError: (_) => {
+      toast({
+        title: "Expedition failed to start",
+        description: "Failed to start the expedtion. Try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleStartExpedition = () => {
+    startExpeditionMutation.mutate(expedition.expeditionId);
   };
 
   return (
@@ -145,9 +155,9 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
               onClick={handleStartExpedition}
               className="w-full gap-2"
               variant="default"
-              disabled={isStarting || !allHaveCharacters}
+              disabled={startExpeditionMutation.isPending || startExpeditionMutation.isSuccess || !allHaveCharacters}
             >
-              {isStarting ? (
+              {startExpeditionMutation.isPending || startExpeditionMutation.isSuccess ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Weaving the Tale...
@@ -160,7 +170,7 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
               )}
             </Button>
             <p className="text-xs text-muted-foreground font-crimson text-center mt-2">
-              {isStarting 
+              { startExpeditionMutation.isPending || startExpeditionMutation.isSuccess 
                 ? "Preparing the realm for your adventure..."
                 : !allHaveCharacters
                   ? "Waiting for all adventurers to create their characters..." 

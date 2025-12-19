@@ -73,15 +73,35 @@ export class ExpeditionsService {
     }
     /**
      * @param expeditionId
-     * @returns any OK
+     * @returns void
      * @throws ApiError
      */
     public static postApiExpeditionsJoin(
         expeditionId: string,
-    ): CancelablePromise<any> {
+    ): CancelablePromise<void> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/expeditions/{expeditionId}/join',
+            path: {
+                'expeditionId': expeditionId,
+            },
+            errors: {
+                400: `Bad Request`,
+                403: `Forbidden`,
+            },
+        });
+    }
+    /**
+     * @param expeditionId
+     * @returns void
+     * @throws ApiError
+     */
+    public static postApiExpeditionsBegin(
+        expeditionId: string,
+    ): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/expeditions/{expeditionId}/begin',
             path: {
                 'expeditionId': expeditionId,
             },

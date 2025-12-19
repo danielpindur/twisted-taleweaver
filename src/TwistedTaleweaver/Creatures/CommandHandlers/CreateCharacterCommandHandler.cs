@@ -19,6 +19,8 @@ internal class CreateCharacterCommandHandler(
 {
     public async Task<CreateCharacterResult> ExecuteAsync(CreateCharacterCommand command)
     {
+        // TODO: Validation
+        
         var expedition = await expeditionsReader.GetByIdAsync(command.ExpeditionId);
 
         var generatedCharacter = await generationAdapter.GenerateCharacterAsync(

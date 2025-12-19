@@ -21,7 +21,8 @@ public sealed class ExpeditionsController(
     Lazy<IExpeditionByIdQueryHandler> expeditionByIdQueryHandler,
     Lazy<IExpeditionSearchQueryHandler> expeditionSearchQueryHandler,
     Lazy<IJoinExpeditionCommandHandler> joinExpeditionCommandHandler,
-    Lazy<IExpeditionParticipantsQueryHandler> expeditionParticipantsQueryHandler) : ControllerBase
+    Lazy<IExpeditionParticipantsQueryHandler> expeditionParticipantsQueryHandler,
+    Lazy<IBeginExpeditionCommandHandler> beginExpeditionCommandHandler) : ControllerBase
 {
     /// <summary>
     /// Creates a new expedition
@@ -98,7 +99,7 @@ public sealed class ExpeditionsController(
     /// Join an expedition
     /// </summary>
     [HttpPost("{expeditionId:guid}/join")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> JoinExpedition([FromRoute] Guid expeditionId)
@@ -119,6 +120,26 @@ public sealed class ExpeditionsController(
             .ParticipantsUpdated(expeditionParticipants.ToContract());
         */
         
-        return Ok();
+        return NoContent();
+    }
+    
+    /// <summary>
+    /// Begin an expedition
+    /// </summary>
+    [HttpPost("{expeditionId:guid}/begin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult> BeginExpedition([FromRoute] Guid expeditionId)
+    {
+        var userId = await userProvider.GetUserIdAsync();
+
+        await beginExpeditionCommandHandler.Value.ExecuteAsync(new BeginExpeditionCommand()
+        {
+            ExpeditionId = expeditionId,
+            UserId = userId
+        });
+        
+        return NoContent();
     }
 }

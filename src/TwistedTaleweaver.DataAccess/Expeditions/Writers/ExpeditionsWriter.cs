@@ -13,6 +13,8 @@ public interface IExpeditionsWriter
         ExpeditionDifficulty difficulty,
         int minParticipants,
         int maxParticipants);
+
+    Task StartAsync(Guid expeditionId);
 }
 
 internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IExpeditionsWriter
@@ -40,6 +42,20 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccesso
             MinParticipants = minParticipants,
             MaxParticipants = maxParticipants,
             UserId = userId
+        });
+    }
+
+    public Task StartAsync(Guid expeditionId)
+    {
+        const string sql = @"
+            UPDATE expeditions 
+            SET status_id = @Status, started_at = CURRENT_TIMESTAMP
+            WHERE expedition_id = @ExpeditionId";
+
+        return ExecuteAsync(sql, new
+        { 
+            ExpeditionId = expeditionId,
+            Status = ExpeditionStatus.Started
         });
     }
 }
