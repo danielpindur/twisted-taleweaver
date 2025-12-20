@@ -30,7 +30,7 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
     queryKey: ["expedition", expedition.expeditionId, "messages"],
     initialPageParam: null as number | null,
     queryFn: ({ pageParam }) =>
-      MessagesService.getApiV1Messages(expedition.expeditionId, pageParam ?? undefined, undefined),
+      MessagesService.getApiV1Messages(expedition.expeditionId, pageParam ?? undefined),
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length === 0) {
         return undefined;

@@ -22,13 +22,14 @@ public class MessagesSchema : Migration
             .Row(new { type_id = 3, type_name = "System" });
 
         Create.Table("messages")
+            .WithColumn("message_id")
+                .AsInt64()
+                .Identity()
+                .PrimaryKey()
             .WithColumn("expedition_id")
                 .AsGuid()
                 .NotNullable()
                 .ForeignKey("expeditions", "expedition_id")
-            .WithColumn("expedition_message_id")
-                .AsInt32()
-                .Identity()
             .WithColumn("sender_character_id")
                 .AsGuid()
                 .Nullable()
@@ -44,10 +45,6 @@ public class MessagesSchema : Migration
                 .AsDateTimeOffset()
                 .NotNullable()
                 .WithDefault(SystemMethods.CurrentDateTimeOffset);
-
-        Create.PrimaryKey("PK_messages")
-            .OnTable("messages")
-            .Columns("expedition_id", "expedition_message_id");
     }
 
     public override void Down()

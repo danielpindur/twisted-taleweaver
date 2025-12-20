@@ -3,9 +3,8 @@
 /* tslint:disable */
 // @ts-nocheck
 import type { HubConnection, IStreamResult, Subject } from '@microsoft/signalr';
-import type { IExpeditionHub, IExpeditionClient } from './TwistedTaleweaver.Gateway.Expeditions.Hubs';
-import type { MessageRequest, Message } from '../TwistedTaleweaver.Gateway.Messages.Contracts';
-import type { ExpeditionParticipant } from '../TwistedTaleweaver.Gateway.Expeditions.Contracts';
+import type { IExpeditionHub, IExpeditionClient } from './TwistedTaleweaver.Hub.Expeditions';
+import type { MessageRequest, MessageReceivedEvent } from '../TwistedTaleweaver.Hub.Expeditions.Contracts';
 
 
 // components
@@ -81,12 +80,8 @@ class IExpeditionHub_HubProxy implements IExpeditionHub {
     public constructor(private connection: HubConnection) {
     }
 
-    public readonly joinExpedition = async (expeditionId: string): Promise<void> => {
-        return await this.connection.invoke("JoinExpedition", expeditionId);
-    }
-
-    public readonly sendMessage = async (message: MessageRequest): Promise<void> => {
-        return await this.connection.invoke("SendMessage", message);
+    public readonly sendMessage = async (expeditionId: string, message: MessageRequest): Promise<void> => {
+        return await this.connection.invoke("SendMessage", expeditionId, message);
     }
 }
 
@@ -102,15 +97,12 @@ class IExpeditionClient_Binder implements ReceiverRegister<IExpeditionClient> {
 
     public readonly register = (connection: HubConnection, receiver: IExpeditionClient): Disposable => {
 
-        const __onExpeditionJoined = (...args: [ExpeditionParticipant]) => receiver.onExpeditionJoined(...args);
-        const __onMessageSent = (...args: [Message]) => receiver.onMessageSent(...args);
+        const __messageReceived = (...args: [MessageReceivedEvent]) => receiver.messageReceived(...args);
 
-        connection.on("OnExpeditionJoined", __onExpeditionJoined);
-        connection.on("OnMessageSent", __onMessageSent);
+        connection.on("MessageReceived", __messageReceived);
 
         const methodList: ReceiverMethod[] = [
-            { methodName: "OnExpeditionJoined", method: __onExpeditionJoined },
-            { methodName: "OnMessageSent", method: __onMessageSent }
+            { methodName: "MessageReceived", method: __messageReceived }
         ]
 
         return new ReceiverMethodSubscription(connection, methodList);

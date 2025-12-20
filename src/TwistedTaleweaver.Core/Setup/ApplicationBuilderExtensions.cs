@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TwistedTaleweaver.Core.Commands;
 using TwistedTaleweaver.Core.Database;
+using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.Core.Queries;
 
 namespace TwistedTaleweaver.Core.Setup;
@@ -14,7 +15,8 @@ public static class ApplicationBuilderExtensions
     {
         return builder.Services
             .AddLazyResolution()
-            .AddUnitOfWork();
+            .AddUnitOfWork()
+            .AddKafkaProducer();
     }
 
     extension(IServiceCollection services)
@@ -75,7 +77,12 @@ public static class ApplicationBuilderExtensions
         private IServiceCollection AddUnitOfWork()
         {
             services.AddScoped<IUnitOfWorkProvider, UnitOfWorkProvider>();
-            
+            return services;
+        }
+
+        private IServiceCollection AddKafkaProducer()
+        {
+            services.AddSingleton<IKafkaEventProducer, KafkaEventProducer>();
             return services;
         }
     }

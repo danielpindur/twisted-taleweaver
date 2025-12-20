@@ -12,9 +12,7 @@ using Serilog.Formatting.Compact;
 using TwistedTaleweaver.Core.Setup;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.Exceptions;
-using TwistedTaleweaver.Gateway.Expeditions.Hubs;
 using TwistedTaleweaver.Gateway.Transformers;
-using TwistedTaleweaver.Integration.Clerk.Setup;
 using TwistedTaleweaver.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,26 +46,6 @@ builder.Services
             ValidateIssuerSigningKey = true,
             NameClaimType = JwtRegisteredClaimNames.Sub
         };
-        /*
-        options.Events = new JwtBearerEvents
-        {
-            OnTokenValidated = context =>
-            {
-                var claims = context.Principal?.Claims.Select(c => $"{c.Type}: {c.Value}");
-                Console.WriteLine("Claims in token:");
-                foreach (var claim in claims ?? Enumerable.Empty<string>())
-                {
-                    Console.WriteLine(claim);
-                }
-                return Task.CompletedTask;
-            },
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine($"Authentication failed: {context.Exception.Message}");
-                return Task.CompletedTask;
-            }
-        };
-        */
     });
 
 builder.Services.AddAuthorization();
@@ -131,8 +109,6 @@ builder.Services.AddRequestTimeouts(options =>
     };
 });
 
-builder.Services.AddSignalR();
-
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserProvider, UserIdProvider>();
 builder.Services
@@ -181,6 +157,5 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/openapi/v1.json", "v1");
 });
 app.MapControllers();
-app.MapHub<ExpeditionHub>("/hubs/expedition");
 
 app.Run();

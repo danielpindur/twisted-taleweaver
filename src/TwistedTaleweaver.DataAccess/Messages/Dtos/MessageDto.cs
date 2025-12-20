@@ -6,7 +6,7 @@ public class MessageDto
 {
     public Guid ExpeditionId { get; set; }
     
-    public int ExpeditionMessageId { get; set; }
+    public long MessageId { get; set; }
     
     public Guid? SenderCharacterId { get; set; }
     

@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{477DAA99
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwistedTaleweaver.Core.Unit.Tests", "tests\TwistedTaleweaver.Core.Unit.Tests\TwistedTaleweaver.Core.Unit.Tests.csproj", "{E2DAEA3F-26B1-40BE-81FB-20F71274AEA6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwistedTaleweaver.Hub", "src\TwistedTaleweaver.Hub\TwistedTaleweaver.Hub.csproj", "{D8D300E0-F8E2-48A7-943C-A4F25442E681}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{E2DAEA3F-26B1-40BE-81FB-20F71274AEA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2DAEA3F-26B1-40BE-81FB-20F71274AEA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2DAEA3F-26B1-40BE-81FB-20F71274AEA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8D300E0-F8E2-48A7-943C-A4F25442E681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D300E0-F8E2-48A7-943C-A4F25442E681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8D300E0-F8E2-48A7-943C-A4F25442E681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8D300E0-F8E2-48A7-943C-A4F25442E681}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E648E1A5-099C-4056-BF5A-E025DB079166} = {DA7835D2-5336-4DC5-B357-A9BA06577B61}

@@ -18,7 +18,7 @@ internal class MessagesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(p
             INSERT INTO messages
             (expedition_id, type_id, content)
             VALUES (@ExpeditionId, @Type, @Content)
-            RETURNING expedition_id, expedition_message_id, type_id AS type, content, created_at";
+            RETURNING message_id, expedition_id, type_id AS type, content, created_at";
 
         return ExecuteWithOutputAsync<MessageDto>(sql, new
         {

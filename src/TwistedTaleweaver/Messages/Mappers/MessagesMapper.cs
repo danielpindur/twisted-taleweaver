@@ -1,3 +1,4 @@
+using TwistedTaleweaver.Api.Messages.Events;
 using TwistedTaleweaver.DataAccess.Messages.Dtos;
 using TwistedTaleweaver.Domain.Messages;
 using TwistedTaleweaver.Domain.Messages.Enums;
@@ -15,7 +16,20 @@ internal static class MessagesMapper
     {
         return new ChatMessage()
         {
-            ExpeditionMessageId = source.ExpeditionMessageId,
+            MessageId = source.MessageId,
+            Type = source.Type,
+            Timestamp = source.CreatedAt,
+            Sender = source.ToMessageSender(),
+            Content = source.Content
+        };
+    }
+
+    public static MessageCreatedEvent ToMessageCreatedEvent(this MessageDto source)
+    {
+        return new MessageCreatedEvent()
+        {
+            MessageId = source.MessageId,
+            ExpeditionId = source.ExpeditionId,
             Type = source.Type,
             Timestamp = source.CreatedAt,
             Sender = source.ToMessageSender(),

@@ -9,10 +9,10 @@ namespace TwistedTaleweaver.Domain.Messages;
 public class ChatMessage
 {
     /// <summary>
-    /// Unique identifier of the message within the expedition context
+    /// Unique identifier of the message
     /// </summary>
     [Required]
-    public int ExpeditionMessageId { get; set; }
+    public long MessageId { get; set; }
     
     /// <summary>
     /// <see cref="MessageSender"/>
