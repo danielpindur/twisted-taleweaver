@@ -14,10 +14,9 @@ import type { UserResource } from "@clerk/types";
 interface PreExpeditionPanelProps {
   expedition: Expedition;
   user: UserResource;
-  onStartExpedition?: () => void;
 }
 
-export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreExpeditionPanelProps) => {
+export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps) => {
   const queryClient = useQueryClient();
   const { requestWithAuth } = useApiClient();
   const { toast } = useToast();
@@ -149,7 +148,7 @@ export const PreExpeditionPanel = ({ expedition, user, onStartExpedition }: PreE
         </div>
 
         {/* Owner Actions */}
-        {isOwner && isReady && onStartExpedition && (
+        {isOwner && isReady && (
           <div className="pt-4 mt-4 border-t border-border">
             <Button 
               onClick={handleStartExpedition}

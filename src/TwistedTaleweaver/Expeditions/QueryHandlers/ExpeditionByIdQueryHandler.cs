@@ -10,8 +10,7 @@ namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 internal class ExpeditionByIdQueryHandler(
     IExpeditionsReader expeditionsReader,
     IUsersAdapter usersAdapter,
-    IExpeditionParticipantsQueryHandler expeditionParticipantsQueryHandler,
-    IExpeditionMessagesSearchQueryHandler expeditionMessagesSearchQueryHandler) : IExpeditionByIdQueryHandler
+    IExpeditionParticipantsQueryHandler expeditionParticipantsQueryHandler) : IExpeditionByIdQueryHandler
 {
     public async Task<Expedition?> ExecuteAsync(ExpeditionByIdQuery query)
     {
@@ -28,9 +27,6 @@ internal class ExpeditionByIdQueryHandler(
         var userByExternalIdTask = usersAdapter
             .GetUsersAsync(new List<string>() { dto.CreatedByExternalUserId });
         
-        var messages = await expeditionMessagesSearchQueryHandler.ExecuteAsync(
-            new ExpeditionMessagesSearchQuery() { ExpeditionId = query.ExpeditionId });
-        
-        return dto.ToExpedition(participants, messages, await userByExternalIdTask);
+        return dto.ToExpedition(participants, await userByExternalIdTask);
     }
 }

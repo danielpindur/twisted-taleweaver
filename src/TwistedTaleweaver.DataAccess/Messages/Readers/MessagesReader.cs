@@ -23,7 +23,7 @@ internal class MessagesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(p
                 m.created_at
             FROM messages m
             WHERE m.expedition_id = @ExpeditionId
-                AND (@LastMessageId IS NULL OR m.expedition_message_id > @LastMessageId)
+                AND (@LastMessageId IS NULL OR m.expedition_message_id < @LastMessageId)
             ORDER BY m.expedition_message_id DESC
             LIMIT @PageSize";
 

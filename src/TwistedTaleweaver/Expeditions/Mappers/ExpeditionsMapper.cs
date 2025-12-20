@@ -35,7 +35,6 @@ internal static class ExpeditionsMapper
     public static Expedition ToExpedition(
         this ExpeditionDto source, 
         List<ExpeditionParticipant> participants,
-        List<ChatMessage> messages,
         Dictionary<string, ClerkUser> userByExternalId)
     {
         return new Expedition()
@@ -66,8 +65,7 @@ internal static class ExpeditionsMapper
                         Status = CreatureStatus.Alive,
                         CurrentHealth = x.Character!.MaxHealth
                     }).ToList()
-            },
-            Messages = messages
+            }
         };
     }
 

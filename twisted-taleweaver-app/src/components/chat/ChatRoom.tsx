@@ -57,7 +57,6 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
     return null;
   }
         
-
   return (
       <div className="h-screen bg-background flex flex-col">
         <ChatRoomHeader 
@@ -76,8 +75,6 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
           
           <ChatPanel 
             expedition={data}
-            partyPanelCollapsed={partyPanelCollapsed}
-            characterPanelCollapsed={characterPanelCollapsed}
             user={user} />
           
           <CharacterSidePanel 
