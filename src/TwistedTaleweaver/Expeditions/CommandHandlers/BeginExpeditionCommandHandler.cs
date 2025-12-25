@@ -17,9 +17,9 @@ internal class BeginExpeditionCommandHandler(
     {
         // TODO: Validation
         await using var scope = new UnitOfWorkScope();
-        
+
         await expeditionsWriter.StartAsync(command.ExpeditionId);
-        
+
         await SendExpeditionStartedMessageAsync(command);
 
         await scope.CompleteAsync();

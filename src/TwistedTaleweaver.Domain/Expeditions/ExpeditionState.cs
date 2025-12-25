@@ -15,12 +15,12 @@ public class ExpeditionState
     /// </summary>
     [Required]
     public ExpeditionStatus Status { get; set; }
-    
+
     /// <summary>
     /// The user whose turn it is to act
     /// </summary>
     public User? ActiveUser { get; set; }
-    
+
     /// <summary>
     /// Current states of the characters participating in the expedition
     /// </summary>

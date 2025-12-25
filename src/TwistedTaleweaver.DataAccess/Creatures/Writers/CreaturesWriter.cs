@@ -16,7 +16,7 @@ public interface ICreaturesWriter
         NarrativeAlignment narrativeAlignment,
         Gender gender,
         AttributeScores attributeScores);
-    
+
     Task SaveCombatDetailsAsync(
         Guid creatureId,
         int maxHealth,
@@ -41,7 +41,7 @@ internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(
             RETURNING creature_id";
 
         return ExecuteWithOutputAsync<Guid>(sql, new
-        { 
+        {
             Name = name,
             ContextKeywords = contextKeywords,
             Status = status,
@@ -67,7 +67,7 @@ internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(
             (@CreatureId, @MaxHealth, @ArmorClass, @WalkingSpeed, @FlyingSpeed, @SwimmingSpeed, @ClimbingSpeed, @BurrowingSpeed, @TeleportationSpeed)";
 
         return ExecuteAsync(sql, new
-        { 
+        {
             CreatureId = creatureId,
             MaxHealth = maxHealth,
             ArmorClass = armorClass,
@@ -100,7 +100,7 @@ internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(
             (@CreatureId, @ClassType)";
 
         return ExecuteAsync(sql, new
-        { 
+        {
             CreatureId = creatureId,
             ClassType = classType
         });

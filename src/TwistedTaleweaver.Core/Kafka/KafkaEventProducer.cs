@@ -15,7 +15,7 @@ public interface IKafkaEventProducer : IDisposable
     /// <summary>
     /// Publishes a Kafka event to the event queue.
     /// </summary>
-    Task PublishAsync<T>(T @event) where T: class;
+    Task PublishAsync<T>(T @event) where T : class;
 }
 
 internal sealed class KafkaEventProducer : IKafkaEventProducer
@@ -31,7 +31,7 @@ internal sealed class KafkaEventProducer : IKafkaEventProducer
     {
         var connectionString = configuration.GetConnectionString("Kafka")
                               ?? throw new InvalidOperationException("Kafka ConnectionString is not configured.");
-        
+
         var config = new ProducerConfig
         {
             BootstrapServers = connectionString,
@@ -44,7 +44,7 @@ internal sealed class KafkaEventProducer : IKafkaEventProducer
         _producer = new ProducerBuilder<string, string>(config).Build();
     }
 
-    public Task PublishAsync<T>(T @event) where T: class
+    public Task PublishAsync<T>(T @event) where T : class
     {
         var eventType = @event.GetType().FullName!;
         var message = new Message<string, string>
@@ -55,13 +55,13 @@ internal sealed class KafkaEventProducer : IKafkaEventProducer
                 { KafkaConstants.EventTypeHeader, Encoding.UTF8.GetBytes(eventType) }
             }
         };
-        
+
         var partitionKey = GetPartitionKey(@event);
         if (partitionKey is not null)
         {
             message.Key = partitionKey;
         }
-        
+
         return _producer.ProduceAsync(eventType, message);
     }
 
@@ -69,8 +69,8 @@ internal sealed class KafkaEventProducer : IKafkaEventProducer
     {
         _producer.Dispose();
     }
-    
-    private string? GetPartitionKey<T>(T @event) where T: class
+
+    private string? GetPartitionKey<T>(T @event) where T : class
     {
         var prop = typeof(T).GetProperties()
             .FirstOrDefault(p => Attribute.IsDefined(p, typeof(PartitionKeyAttribute)));
@@ -79,7 +79,7 @@ internal sealed class KafkaEventProducer : IKafkaEventProducer
         {
             return null;
         }
-        
+
         var propertyName = prop.Name;
         var propertyValue = prop.GetValue(@event)?.ToString();
 

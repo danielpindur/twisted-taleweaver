@@ -8,7 +8,7 @@ public class ExpeditionParticipantsQuery
     public Guid ExpeditionId { get; set; }
 }
 
-public interface IExpeditionParticipantsQueryHandler : 
+public interface IExpeditionParticipantsQueryHandler :
     IQueryHandler<ExpeditionParticipantsQuery, List<ExpeditionParticipant>>
 {
 }

@@ -7,7 +7,7 @@ namespace TwistedTaleweaver.DataAccess.Creatures.Readers;
 public interface ICreaturesReader
 {
     Task<CharacterDto?> GetCharacterAsync(Guid characterId);
-    
+
     Task<IEnumerable<CreatureTraitDto>> GetTraitsAsync(Guid creatureId);
 }
 
@@ -59,7 +59,7 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
                 condition_description
             FROM creature_traits ct
             WHERE ct.creature_id = @CreatureId";
-        
+
         return QueryAsync<CreatureTraitDto>(sql, new
         {
             CreatureId = creatureId

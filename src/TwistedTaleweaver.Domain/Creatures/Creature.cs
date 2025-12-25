@@ -33,19 +33,19 @@ public abstract class Creature
     /// </summary>
     [Required]
     public Gender Gender { get; set; }
-    
+
     /// <summary>
     /// <inheritdoc cref="CreatureType"/>
     /// </summary>
     [Required]
     public CreatureType CreatureType { get; set; }
-    
+
     /// <summary>
     /// <inheritdoc cref="NarrativeAlignment"/>
     /// </summary>
     [Required]
     public NarrativeAlignment Alignment { get; set; }
-    
+
     /// <summary>
     /// <inheritdoc cref="Trait"/>
     /// </summary>

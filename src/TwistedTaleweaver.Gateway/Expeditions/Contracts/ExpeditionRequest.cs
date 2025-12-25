@@ -13,26 +13,26 @@ public class ExpeditionRequest
     /// </summary>
     [Length(1, 100)]
     public string? Name { get; set; }
-    
+
     /// <summary>
     /// Description of the expedition to drive the narrative - if empty a description will be generated
     /// </summary>
     [MinLength(1)]
     public string? Description { get; set; }
-    
+
     /// <summary>
     /// Difficulty level of the expedition
     /// </summary>
     [Required]
     public ExpeditionDifficulty Difficulty { get; set; }
-    
+
     /// <summary>
     /// Minimum number of participants required to start the expedition
     /// </summary>
     [Range(1, 10)]
     [Required]
     public int MinParticipants { get; set; }
-    
+
     /// <summary>
     /// Maximum number of participants allowed in the expedition
     /// </summary>

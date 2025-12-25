@@ -35,7 +35,7 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccesso
             RETURNING expedition_id";
 
         return ExecuteWithOutputAsync<Guid>(sql, new
-        { 
+        {
             Name = name,
             Description = description,
             Difficulty = difficulty,
@@ -53,7 +53,7 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccesso
             WHERE expedition_id = @ExpeditionId";
 
         return ExecuteAsync(sql, new
-        { 
+        {
             ExpeditionId = expeditionId,
             Status = ExpeditionStatus.Started
         });

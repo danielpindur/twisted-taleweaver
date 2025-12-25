@@ -21,11 +21,11 @@ public abstract class DatabaseAccessor(IUnitOfWorkProvider unitOfWorkProvider) :
         {
             return null;
         }
-        
+
         return transaction as NpgsqlTransaction
             ?? throw new InvalidOperationException("The database transaction is not a valid NpgsqlTransaction.");
     }
-    
+
     public Task<T?> QuerySingleOrDefaultAsync<T>(string sql, object? param = null)
     {
         return GetConnection()

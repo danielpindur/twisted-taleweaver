@@ -14,7 +14,7 @@ public static class ApplicationBuilderExtensions
     public static IServiceCollection AddTwistedTaleweaver(this IHostApplicationBuilder builder)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        
+
         builder.AddOpenAiIntegration();
         builder.AddClerkIntegration();
         builder.AddDataAccess();

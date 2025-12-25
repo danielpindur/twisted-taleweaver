@@ -7,7 +7,7 @@ namespace TwistedTaleweaver.Core.Unit.Tests.Database.Stubs;
 public class StubDbConnection : DbConnection
 {
     public bool ConnectionOpen { get; private set; }
-    
+
     public override void Open()
     {
         ConnectionOpen = true;

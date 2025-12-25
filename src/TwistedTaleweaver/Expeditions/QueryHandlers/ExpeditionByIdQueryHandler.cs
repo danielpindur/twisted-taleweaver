@@ -15,7 +15,7 @@ internal class ExpeditionByIdQueryHandler(
     public async Task<Expedition?> ExecuteAsync(ExpeditionByIdQuery query)
     {
         var dto = await expeditionsReader.GetByIdAsync(query.ExpeditionId);
-        
+
         if (dto is null)
         {
             return null;
@@ -26,7 +26,7 @@ internal class ExpeditionByIdQueryHandler(
 
         var userByExternalIdTask = usersAdapter
             .GetUsersAsync(new List<string>() { dto.CreatedByExternalUserId });
-        
+
         return dto.ToExpedition(participants, await userByExternalIdTask);
     }
 }

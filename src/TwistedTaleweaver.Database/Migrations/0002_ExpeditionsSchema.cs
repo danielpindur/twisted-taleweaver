@@ -20,7 +20,7 @@ public class ExpeditionsSchema : Migration
             .Row(new { status_id = 1, status_name = "Created" })
             .Row(new { status_id = 2, status_name = "Started" })
             .Row(new { status_id = 3, status_name = "Completed" });
-        
+
         Create.Table("expedition_difficulties")
             .WithColumn("difficulty_id")
                 .AsByte()
@@ -29,13 +29,13 @@ public class ExpeditionsSchema : Migration
                 .AsString(20)
                 .NotNullable()
                 .Unique();
-        
+
         Insert.IntoTable("expedition_difficulties")
             .Row(new { difficulty_id = 1, difficulty_name = "Easy" })
             .Row(new { difficulty_id = 2, difficulty_name = "Medium" })
             .Row(new { difficulty_id = 3, difficulty_name = "Hard" })
             .Row(new { difficulty_id = 4, difficulty_name = "Nightmare" });
-        
+
         Create.Table("expedition_outcomes")
             .WithColumn("outcome_id")
                 .AsByte()
@@ -48,7 +48,7 @@ public class ExpeditionsSchema : Migration
         Insert.IntoTable("expedition_outcomes")
             .Row(new { outcome_id = 1, outcome_name = "Success" })
             .Row(new { outcome_id = 2, outcome_name = "Failure" });
-        
+
         Create.Table("expeditions")
             .WithColumn("expedition_id")
                 .AsGuid()
@@ -115,7 +115,7 @@ public class ExpeditionsSchema : Migration
                 .AsDateTimeOffset()
                 .NotNullable()
                 .WithDefault(SystemMethods.CurrentDateTimeOffset);
-        
+
         Create.PrimaryKey("PK_expedition_participants")
             .OnTable("expedition_participants")
             .Columns("expedition_id", "user_id");

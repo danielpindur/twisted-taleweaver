@@ -26,7 +26,7 @@ internal sealed class ValidationExceptionHandler(
                 g => g.Key.ToLowerInvariant(),
                 g => g.Select(e => e.ErrorMessage).ToArray()
             );
-        
+
         httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
         var context = new ProblemDetailsContext
         {
@@ -39,7 +39,7 @@ internal sealed class ValidationExceptionHandler(
                 Errors = errors
             }
         };
-        
+
         return await problemDetailsService.TryWriteAsync(context);
     }
 }

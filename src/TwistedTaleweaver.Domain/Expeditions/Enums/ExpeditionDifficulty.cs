@@ -9,17 +9,17 @@ public enum ExpeditionDifficulty
     /// Easy difficulty
     /// </summary>
     Easy = 1,
-    
+
     /// <summary>
     /// Medium difficulty
     /// </summary>
     Medium,
-    
+
     /// <summary>
     /// Hard difficulty
     /// </summary>
     Hard,
-    
+
     /// <summary>
     /// Nightmare difficulty
     /// </summary>

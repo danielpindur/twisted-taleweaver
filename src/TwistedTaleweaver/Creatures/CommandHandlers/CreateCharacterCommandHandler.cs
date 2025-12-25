@@ -15,12 +15,12 @@ internal class CreateCharacterCommandHandler(
     IGenerationAdapter generationAdapter,
     IExpeditionsReader expeditionsReader,
     ICreaturesWriter creaturesWriter,
-    IExpeditionParticipantsWriter expeditionParticipantsWriter): ICreateCharacterCommandHandler
+    IExpeditionParticipantsWriter expeditionParticipantsWriter) : ICreateCharacterCommandHandler
 {
     public async Task<CreateCharacterResult> ExecuteAsync(CreateCharacterCommand command)
     {
         // TODO: Validation
-        
+
         var expedition = await expeditionsReader.GetByIdAsync(command.ExpeditionId);
 
         var generatedCharacter = await generationAdapter.GenerateCharacterAsync(
@@ -30,7 +30,7 @@ internal class CreateCharacterCommandHandler(
             command.AttributeScores);
 
         await using var scope = new UnitOfWorkScope();
-        
+
         var creatureId = await creaturesWriter.CreateAsync(
             generatedCharacter.Name,
             generatedCharacter.CharacterContextKeywords,
@@ -39,9 +39,9 @@ internal class CreateCharacterCommandHandler(
             command.Alignment,
             command.Gender,
             command.AttributeScores);
-        
+
         const int tempHeath = 100; // TODO: Figure out how to do health
-        
+
         await creaturesWriter.SaveCombatDetailsAsync(
             creatureId,
             tempHeath,
@@ -60,9 +60,9 @@ internal class CreateCharacterCommandHandler(
         await creaturesWriter.SaveCharacterDetailsAsync(creatureId, command.Class);
 
         await expeditionParticipantsWriter.SetCharacterIdAsync(command.ExpeditionId, command.UserId, creatureId);
-        
+
         await scope.CompleteAsync();
-        
+
         return new CreateCharacterResult
         {
             CharacterId = creatureId

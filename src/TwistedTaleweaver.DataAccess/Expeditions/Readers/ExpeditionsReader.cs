@@ -8,13 +8,13 @@ namespace TwistedTaleweaver.DataAccess.Expeditions.Readers;
 public interface IExpeditionsReader
 {
     Task<ExpeditionDto?> GetByIdAsync(Guid expeditionId);
-    
+
     Task<bool> ExistsAsync(Guid expeditionId);
 
     Task<IEnumerable<ExpeditionDtoWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize);
 }
 
-internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) : 
+internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
     DatabaseAccessor(unitOfWorkProvider), IExpeditionsReader
 {
     public Task<ExpeditionDto?> GetByIdAsync(Guid expeditionId)

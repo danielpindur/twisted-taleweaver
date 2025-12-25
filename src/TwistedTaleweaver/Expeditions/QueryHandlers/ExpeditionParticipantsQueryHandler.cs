@@ -16,10 +16,10 @@ internal class ExpeditionParticipantsQueryHandler(
     public async Task<List<ExpeditionParticipant>> ExecuteAsync(ExpeditionParticipantsQuery query)
     {
         var participants = (await expeditionParticipantsReader.GetByExpeditionAsync(query.ExpeditionId)).ToList();
-        
+
         var externalUserIds = participants.Select(x => x.ExternalUserId);
         var userByExternalId = await usersAdapter.GetUsersAsync(externalUserIds);
-        
+
         var charactersById = new Dictionary<Guid, Character>();
 
         foreach (var participant in participants)
@@ -36,10 +36,10 @@ internal class ExpeditionParticipantsQueryHandler(
             {
                 continue;
             }
-            
+
             charactersById.Add(participant.CharacterId.Value, character);
         }
-        
+
         return participants.ToExpeditionParticipants(userByExternalId, charactersById);
     }
 }

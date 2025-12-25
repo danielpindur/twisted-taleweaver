@@ -13,7 +13,7 @@ internal class UserIdProvider(
     Lazy<IGetOrCreateUserCommandHandler> getOrCreateUserCommandHandler) : IUserProvider
 {
     private ClaimsPrincipal? User => httpContextAccessor.HttpContext?.User;
-    
+
     private bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
     private string ExternalUserId
@@ -42,10 +42,12 @@ internal class UserIdProvider(
             return externalUserId;
         }
     }
-    
+
+    private Guid? _userId;
+
     public async Task<Guid> GetUserIdAsync()
     {
-        return await getOrCreateUserCommandHandler.Value
+        return _userId ??= await getOrCreateUserCommandHandler.Value
             .ExecuteAsync(new GetOrCreateUserCommand() { ExternalUserId = ExternalUserId });
     }
 }

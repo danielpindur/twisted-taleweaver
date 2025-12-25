@@ -54,7 +54,7 @@ internal class CharacterByIdQueryHandler(
             },
             Class = dto.Class,
         };
-        
+
         return character;
     }
 }

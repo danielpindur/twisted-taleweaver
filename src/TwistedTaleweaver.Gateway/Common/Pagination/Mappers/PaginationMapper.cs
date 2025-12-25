@@ -12,7 +12,7 @@ internal static class PaginationMapper
     {
         query.PageNumber = queryContract.PageNumber;
         query.PageSize = queryContract.PageSize;
-        
+
         return query;
     }
 
@@ -25,7 +25,7 @@ internal static class PaginationMapper
             source.PageNumber,
             source.PageSize);
     }
-    
+
     public static PaginatedResponse<T> ToContract<T>(this PaginatedResult<T> source)
     {
         return new PaginatedResponse<T>(

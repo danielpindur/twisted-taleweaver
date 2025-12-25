@@ -17,7 +17,7 @@ public interface IGenerationAdapter
         ExpeditionDifficulty difficulty, string? expeditionName, string? expeditionDescription);
 
     Task<GeneratedCharacter> GenerateCharacterAsync(
-        string? characterName, 
+        string? characterName,
         string? characterDescription,
         string expeditionDescription,
         ClassType classType,
@@ -52,7 +52,7 @@ internal class GenerationAdapter(IEntityGenerator entityGenerator) : IGeneration
             {
                 sb.Append($", name:\"{expeditionName}\"");
             }
-            
+
             if (expeditionDescription is not null)
             {
                 sb.Append($", description:\"{expeditionDescription}\"");
@@ -62,10 +62,10 @@ internal class GenerationAdapter(IEntityGenerator entityGenerator) : IGeneration
         {
             var randomExpeditionSetting = Enum.GetValues<ExpeditionSetting>()[Random.Shared.Next(Enum.GetValues<ExpeditionSetting>().Length)];
             var randomExpeditionObjective = Enum.GetValues<ExpeditionObjective>()[Random.Shared.Next(Enum.GetValues<ExpeditionObjective>().Length)];
-        
+
             sb.Append($", setting:{randomExpeditionSetting.ToDescription()}, objective:{randomExpeditionObjective.ToDescription()}");
         }
-        
+
         sb.Append(". The generated Name must have less then 45 characters, the generated Description must have less then 350 characters. I will be very disappointed if you generate something longer.");
 
         var generatedExpedition = await entityGenerator.GenerateEntityAsync<GeneratedExpedition>(sb.ToString());
@@ -79,7 +79,7 @@ internal class GenerationAdapter(IEntityGenerator entityGenerator) : IGeneration
         {
             generatedExpedition.Description = expeditionDescription;
         }
-        
+
         return generatedExpedition;
     }
 
@@ -111,17 +111,17 @@ internal class GenerationAdapter(IEntityGenerator entityGenerator) : IGeneration
 
         sb.Append($"class:\"{classType.ToString()}\", gender:\"{gender.ToString()}\", creatureType:\"{creatureType.ToString()}\", narrativeAlignment:\"{narrativeAlignment.ToString()}\", ");
         sb.Append($"attributeScores: {JsonSerializer.Serialize(attributeScores)} ");
-        
+
         sb.Append($"for an expedition: \"{expeditionDescription}\"");
         sb.Append(". The generated Name must have less then 45 characters, the generated ContextKeywords must have less then 220 characters and not contain information contained in other response fields and request. I will be very disappointed if you generate something longer.");
-        
+
         var generatedCharacter = await entityGenerator.GenerateEntityAsync<GeneratedCharacter>(sb.ToString());
 
         if (name is not null)
         {
             generatedCharacter.Name = name;
         }
-        
+
         return generatedCharacter;
     }
 }

@@ -17,7 +17,7 @@ namespace TwistedTaleweaver.Gateway.Expeditions;
 [Route($"{ApiConstants.UriPrefix}/[controller]")]
 [Authorize]
 public sealed class ExpeditionsController(
-    IUserProvider userProvider, 
+    IUserProvider userProvider,
     Lazy<ICreateExpeditionCommandHandler> createExpeditionCommandHandler,
     Lazy<IExpeditionByIdQueryHandler> expeditionByIdQueryHandler,
     Lazy<IExpeditionSearchQueryHandler> expeditionSearchQueryHandler,
@@ -35,7 +35,7 @@ public sealed class ExpeditionsController(
     public async Task<ActionResult<ExpeditionSlim>> CreateExpedition([FromBody] ExpeditionRequest request)
     {
         var userId = await userProvider.GetUserIdAsync();
-        
+
         var result = await createExpeditionCommandHandler.Value.ExecuteAsync(new CreateExpeditionCommand()
         {
             Name = request.Name,
@@ -50,7 +50,7 @@ public sealed class ExpeditionsController(
         {
             ExpeditionId = result.ExpeditionId
         });
-        
+
         return Ok(expedition);
     }
 
@@ -73,7 +73,7 @@ public sealed class ExpeditionsController(
         {
             return NotFound();
         }
-        
+
         return Ok(expedition);
     }
 
@@ -83,16 +83,16 @@ public sealed class ExpeditionsController(
     [HttpGet]
     [ProducesResponseType(typeof(PaginatedResponse<ExpeditionSlim>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<PaginatedResponse<ExpeditionSlim>>> SearchExpeditions([FromQuery]ExpeditionSearchQueryContract query)
+    public async Task<ActionResult<PaginatedResponse<ExpeditionSlim>>> SearchExpeditions([FromQuery] ExpeditionSearchQueryContract query)
     {
         var userId = await userProvider.GetUserIdAsync();
-        
+
         var paginatedExpeditions = await expeditionSearchQueryHandler.Value
             .ExecuteAsync(new ExpeditionSearchQuery()
             {
                 UserId = userId
             }.WithPagination(query));
-        
+
         return Ok(paginatedExpeditions.ToContract());
     }
 
@@ -120,10 +120,10 @@ public sealed class ExpeditionsController(
         await expeditionHub.Value.Clients.Group(expeditionId.ToString())
             .ParticipantsUpdated(expeditionParticipants.ToContract());
         */
-        
+
         return NoContent();
     }
-    
+
     /// <summary>
     /// Begin an expedition
     /// </summary>
@@ -140,7 +140,7 @@ public sealed class ExpeditionsController(
             ExpeditionId = expeditionId,
             UserId = userId
         });
-        
+
         return NoContent();
     }
 }

@@ -13,7 +13,7 @@ public class MessageSender
     /// </summary>
     [Required]
     public Guid CreatureId { get; set; }
-    
+
     /// <summary>
     /// <see cref="SenderType"/>
     /// </summary>

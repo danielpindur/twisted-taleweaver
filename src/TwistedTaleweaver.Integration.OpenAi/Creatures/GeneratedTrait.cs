@@ -13,16 +13,16 @@ public class GeneratedTrait
     /// </summary>
     [MaxLength(50)]
     public required string Name { get; init; }
-    
+
     /// <summary>
     /// Description of the trait's effect or purpose
     /// </summary>
     [MaxLength(255)]
     public required string Effect { get; init; }
-    
+
     /// <summary>
     /// Optional. Condition under which the trait is active or applies
     /// </summary>
-    [MaxLength(255)] 
+    [MaxLength(255)]
     public required Optional<string> ConditionForPerform { get; init; }
 }

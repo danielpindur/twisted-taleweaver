@@ -16,7 +16,7 @@ public class UnitOfWorkTests
     }
 
     #region Construction
-    
+
     [Test]
     public void Constructor_OpensConnection()
     {
@@ -26,7 +26,7 @@ public class UnitOfWorkTests
 
         Assert.That(connection.ConnectionOpen, Is.True);
     }
-    
+
     #endregion
 
     #region UnitOfWorkScopeOption.Suppress scenarios
@@ -40,7 +40,7 @@ public class UnitOfWorkTests
 
         Assert.That(tx, Is.Null);
     }
-    
+
     [Test]
     public void GetTransaction_ReadWrite_SuppressScope_ReturnsNull()
     {
@@ -64,7 +64,7 @@ public class UnitOfWorkTests
 
         Assert.That(tx, Is.Null);
     }
-    
+
     [Test]
     public void GetTransaction_FirstRequest_ReadWrite_CreatesTransaction()
     {
@@ -85,7 +85,7 @@ public class UnitOfWorkTests
 
         Assert.That(first, Is.SameAs(second));
     }
-    
+
     [Test]
     public void GetTransaction_SecondRequest_ReadWrite_ReturnsSameTransaction()
     {
@@ -112,7 +112,7 @@ public class UnitOfWorkTests
 
         Assert.That(tx.TransactionCommited, Is.True);
     }
-    
+
     [Test]
     public async Task CommitAsync_NoTransaction_DoesNotThrow()
     {
@@ -146,7 +146,7 @@ public class UnitOfWorkTests
 
         Assert.That(tx.TransactionRolledBack, Is.True);
     }
-    
+
     [Test]
     public async Task RollbackAsync_NoTransaction_DoesNotThrow()
     {

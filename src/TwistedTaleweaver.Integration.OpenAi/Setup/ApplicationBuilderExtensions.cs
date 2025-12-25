@@ -14,10 +14,10 @@ public static class ApplicationBuilderExtensions
         {
             var apiKey = builder.Configuration["OpenAi:ApiKey"];
             var model = builder.Configuration["OpenAi:Model"];
-            
+
             return new OpenAIResponseClient(model, apiKey);
         });
-        
+
         builder.Services.AddSingleton<IEntityGenerator, EntityGenerator>();
         builder.Services.AddSingleton<IGenerationAdapter, GenerationAdapter>();
 

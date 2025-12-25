@@ -101,23 +101,6 @@
         condition: service_completed_successfully
     env_file:
       - .env
-
-  twistedtaleweaver.hub:
-    image: twistedtaleweaver.hub
-    build:
-      context: .
-      dockerfile: src/TwistedTaleweaver.Hub/Dockerfile
-    ports:
-      - "8082:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      twistedtaleweaver-database:
-        condition: service_completed_successfully
-    env_file:
-      - .env
       
 volumes:
   postgres-data:

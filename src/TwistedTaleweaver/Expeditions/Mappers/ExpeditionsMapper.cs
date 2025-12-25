@@ -31,9 +31,9 @@ internal static class ExpeditionsMapper
     {
         return source.Select(ToExpeditionSlim).ToList();
     }
-    
+
     public static Expedition ToExpedition(
-        this ExpeditionDto source, 
+        this ExpeditionDto source,
         List<ExpeditionParticipant> participants,
         Dictionary<string, ClerkUser> userByExternalId)
     {
@@ -71,7 +71,7 @@ internal static class ExpeditionsMapper
 
     public static ExpeditionParticipant ToExpeditionParticipant(
         this ExpeditionParticipantDto source,
-        Dictionary<string, ClerkUser> userByExternalId, 
+        Dictionary<string, ClerkUser> userByExternalId,
         Dictionary<Guid, Character> charactersById)
     {
         return new ExpeditionParticipant()

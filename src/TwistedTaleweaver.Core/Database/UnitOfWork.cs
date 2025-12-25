@@ -8,9 +8,9 @@ public interface IUnitOfWork : IAsyncDisposable
     Task CommitAsync();
 
     Task RollbackAsync();
-    
+
     UnitOfWorkScopeOption ScopeOption { get; }
-    
+
     DbConnection Connection { get; }
 
     DbTransaction? GetTransaction(TransactionMode mode);
@@ -19,19 +19,19 @@ public interface IUnitOfWork : IAsyncDisposable
 internal class UnitOfWork : IUnitOfWork
 {
     private DbTransaction? _transaction;
-    
+
     public UnitOfWork(
         IDbConnectionFactory connectionFactory,
         UnitOfWorkScopeOption scopeOption)
     {
         ScopeOption = scopeOption;
-        
+
         Connection = connectionFactory.CreateConnection();
         Connection.Open();
     }
 
     public DbConnection Connection { get; }
-    
+
     public DbTransaction? GetTransaction(TransactionMode mode)
     {
         // We are suppressing the transaction itself
@@ -51,20 +51,20 @@ internal class UnitOfWork : IUnitOfWork
     }
 
     public UnitOfWorkScopeOption ScopeOption { get; }
-    
+
     public async Task CommitAsync()
     {
         if (ScopeOption == UnitOfWorkScopeOption.Suppressed)
         {
             throw new InvalidOperationException("Cannot commit transaction in suppressed scope");
         }
-        
+
         if (_transaction is null)
         {
             // We are in a scope with transaction, but no write operations were performed
             return;
         }
-        
+
         await _transaction.CommitAsync();
         await _transaction.DisposeAsync();
         _transaction = null;
@@ -82,12 +82,12 @@ internal class UnitOfWork : IUnitOfWork
             // We are in a scope with transaction, but no write operations were performed
             return;
         }
-        
+
         await _transaction.RollbackAsync();
         await _transaction.DisposeAsync();
         _transaction = null;
     }
-    
+
     public async ValueTask DisposeAsync()
     {
         if (_transaction is not null)

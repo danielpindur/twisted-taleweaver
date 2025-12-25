@@ -9,13 +9,13 @@ public static class HostExtensions
     {
         builder.InitialiseServiceLocator();
     }
-    
+
     extension(IHost builder)
     {
         private IHost InitialiseServiceLocator()
         {
             ServiceLocator.Initialize(builder.Services);
-        
+
             return builder;
         }
     }

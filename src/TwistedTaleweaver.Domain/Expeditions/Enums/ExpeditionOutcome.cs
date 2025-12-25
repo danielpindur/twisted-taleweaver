@@ -9,7 +9,7 @@ public enum ExpeditionOutcome
     /// Participants successfully completed the expedition
     /// </summary>
     Success = 1,
-    
+
     /// <summary>
     /// Participants failed the expedition
     /// </summary>

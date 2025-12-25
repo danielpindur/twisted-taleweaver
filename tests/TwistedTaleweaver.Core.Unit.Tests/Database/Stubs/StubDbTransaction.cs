@@ -6,9 +6,9 @@ namespace TwistedTaleweaver.Core.Unit.Tests.Database.Stubs;
 public class StubDbTransaction : DbTransaction
 {
     public bool TransactionCommited { get; private set; }
-    
+
     public bool TransactionRolledBack { get; private set; }
-    
+
     public override void Commit()
     {
         TransactionCommited = true;

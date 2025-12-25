@@ -17,11 +17,11 @@ internal class CreateExpeditionCommandHandler(
     {
         var validationResult = await createExpeditionCommandValidator.ValidateAsync(command);
         validationResult.ThrowIfInvalid();
-        
+
         var generatedExpedition = await generationAdapter.GenerateExpeditionAsync(command.Difficulty, command.Name, command.Description);
 
         await using var scope = new UnitOfWorkScope();
-        
+
         var expeditionId = await expeditionsWriter.CreateAsync(
             command.UserId,
             generatedExpedition.Name,
@@ -29,11 +29,11 @@ internal class CreateExpeditionCommandHandler(
             command.Difficulty,
             command.MinParticipants,
             command.MaxParticipants);
-            
+
         await expeditionParticipantsWriter.AddAsync(expeditionId, command.UserId);
 
         var result = new CreateExpeditionResult() { ExpeditionId = expeditionId };
-            
+
         await scope.CompleteAsync();
 
         return result;

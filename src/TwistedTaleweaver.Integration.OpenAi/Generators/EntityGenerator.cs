@@ -22,7 +22,7 @@ internal class EntityGenerator(OpenAIResponseClient responseClient) : IEntityGen
             GenerateEnumMappingDescription = false,
             FlattenInheritanceHierarchy = true
         };
-        
+
         var schema = JsonSchema.FromType<TEntity>(settings);
 
         var options = new ResponseCreationOptions()
@@ -43,7 +43,7 @@ internal class EntityGenerator(OpenAIResponseClient responseClient) : IEntityGen
             ResponseItem.CreateUserMessageItem(prompt),
             ResponseItem.CreateSystemMessageItem(TwistedTaleweaverContextHelper.ExpeditionGenerationContext)
         };
-        
+
         var response = await responseClient.CreateResponseAsync(responseItems, options);
 
         if (response.Value is null || response.Value.Error is not null)
@@ -53,12 +53,12 @@ internal class EntityGenerator(OpenAIResponseClient responseClient) : IEntityGen
         }
 
         var entity = JsonSerializer.Deserialize<TEntity>(response.Value.GetOutputText());
-        
+
         if (entity is null)
         {
             throw new InvalidOperationException($"Failed to deserialize generated {typeof(TEntity).Name}.");
         }
-        
+
         return entity;
     }
 }

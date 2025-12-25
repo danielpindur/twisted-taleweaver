@@ -27,7 +27,7 @@ public sealed class CharactersController(
     public async Task<ActionResult<Character>> CreateCharacter([FromBody] CharacterRequest request)
     {
         var userId = await userProvider.GetUserIdAsync();
-        
+
         var result = await createCharacterCommandHandler.Value.ExecuteAsync(new CreateCharacterCommand()
         {
             UserId = userId,
@@ -41,12 +41,12 @@ public sealed class CharactersController(
             AttributeScores = request.AttributeScores,
         });
 
-        
+
         var character = await characterByIdQueryHandler.Value.ExecuteAsync(new CharacterByIdQuery()
         {
             CharacterId = result.CharacterId
         });
-        
+
         return Ok(character);
     }
 }

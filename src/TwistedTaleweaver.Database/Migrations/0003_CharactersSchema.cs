@@ -71,13 +71,13 @@ public class CharactersSchema : Migration
                 .AsString(20)
                 .NotNullable()
                 .Unique();
-        
+
         Insert.IntoTable("creature_genders")
             .Row(new { gender_id = 1, gender_name = "Male" })
             .Row(new { gender_id = 2, gender_name = "Female" })
             .Row(new { gender_id = 3, gender_name = "NonBinary" })
             .Row(new { gender_id = 4, gender_name = "Other" });
-        
+
         Create.Table("narrative_alignments")
             .WithColumn("alignment_id")
                 .AsByte()
@@ -168,7 +168,7 @@ public class CharactersSchema : Migration
                 .NotNullable()
             .WithColumn("condition_description")
                 .AsString(255)
-                .Nullable();;
+                .Nullable(); ;
 
         Create.Table("combat_creatures")
             .WithColumn("creature_id")
@@ -198,7 +198,7 @@ public class CharactersSchema : Migration
                 .Nullable()
             .WithColumn("teleportation_speed")
                 .AsByte()
-                .Nullable();  
+                .Nullable();
 
         Create.Table("character_class_types")
             .WithColumn("type_id")
@@ -245,7 +245,7 @@ public class CharactersSchema : Migration
                 .AsByte()
                 .NotNullable()
                 .ForeignKey("character_class_types", "type_id");
-        
+
         Alter.Table("expedition_participants")
             .AddColumn("character_id")
                 .AsGuid()

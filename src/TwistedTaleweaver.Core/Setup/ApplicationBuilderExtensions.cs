@@ -53,10 +53,10 @@ public static class ApplicationBuilderExtensions
                     .AddClasses(classes => classes.AssignableTo(typeof(IDatabaseAccessor)), false)
                     .AsImplementedInterfaces(x => x != typeof(IDatabaseAccessor))
                     .WithTransientLifetime());
-            
+
             return services;
         }
-        
+
         public IServiceCollection AddFluentValidation(Assembly assembly)
         {
             services.Scan(scan => scan
@@ -64,10 +64,10 @@ public static class ApplicationBuilderExtensions
                     .AddClasses(classes => classes.AssignableTo(typeof(IValidator<>)), false)
                     .AsImplementedInterfaces(x => x.IsGenericType)
                     .WithTransientLifetime());
-        
+
             return services;
         }
-        
+
         private IServiceCollection AddLazyResolution()
         {
             services.AddTransient(typeof(Lazy<>), typeof(LazyFactory<>));

@@ -13,9 +13,9 @@ public static class ApplicationBuilderExtensions
     public static IServiceCollection AddDataAccess(this IHostApplicationBuilder builder)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        
+
         DefaultTypeMap.MatchNamesWithUnderscores = true;
-        
+
         return builder.Services
             .AddSingleton<IDbConnectionFactory, DbConnectionFactory>()
             .AddDatabaseAccessors(assembly);

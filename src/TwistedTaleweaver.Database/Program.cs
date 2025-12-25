@@ -26,7 +26,7 @@ var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
 var command = args.Length > 0 ? args[0].ToLower() : "up";
 
-logger.LogInformation("Running migration command: {Command}", command); 
+logger.LogInformation("Running migration command: {Command}", command);
 
 switch (command)
 {

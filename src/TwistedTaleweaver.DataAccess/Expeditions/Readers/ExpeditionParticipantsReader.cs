@@ -7,7 +7,7 @@ namespace TwistedTaleweaver.DataAccess.Expeditions.Readers;
 public interface IExpeditionParticipantsReader
 {
     Task<IEnumerable<ExpeditionParticipantDto>> GetByExpeditionAsync(Guid expeditionId);
-    
+
     Task<bool> ExistsAsync(Guid expeditionId, Guid userId);
 }
 
@@ -41,7 +41,7 @@ internal class ExpeditionParticipantsReader(IUnitOfWorkProvider provider) : Data
                   AND ep.user_id = @UserId)";
 
         return QuerySingleAsync<bool>(sql, new
-        { 
+        {
             ExpeditionId = expeditionId,
             UserId = userId
         });

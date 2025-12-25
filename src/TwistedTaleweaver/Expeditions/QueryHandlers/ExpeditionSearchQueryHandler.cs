@@ -11,7 +11,7 @@ internal class ExpeditionSearchQueryHandler(IExpeditionsReader expeditionsReader
     public async Task<PaginatedResult<ExpeditionSlim>> ExecuteAsync(ExpeditionSearchQuery query)
     {
         var dtos = (await expeditionsReader.GetPageAsync(query.UserId, query.PageNumber, query.PageSize)).ToList();
-        
+
         return new PaginatedResult<ExpeditionSlim>(dtos.ToExpeditionSlims(), dtos.FirstOrDefault()?.TotalCount ?? 0, query);
     }
 }

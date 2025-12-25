@@ -11,15 +11,15 @@ public class Optional<T>
     /// Actual value or default if not specified
     /// </summary>
     public required T ActualValue { get; set; }
-    
+
     /// <summary>
     /// Whether the Value is specified or can be safely ignored
     /// </summary>
     public bool HasValue { get; set; } = false;
-    
+
     /// <summary>
     /// Simple accessor to mimic the nullable implementation
     /// </summary>
-    [JsonIgnore] 
-    public T? Value => HasValue ? ActualValue : default; 
+    [JsonIgnore]
+    public T? Value => HasValue ? ActualValue : default;
 }

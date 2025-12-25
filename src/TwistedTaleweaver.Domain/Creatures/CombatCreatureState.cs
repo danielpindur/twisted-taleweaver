@@ -13,13 +13,13 @@ public class CombatCreatureState
     /// </summary>
     [Required]
     public Guid CreatureId { get; set; }
-    
+
     /// <summary>
     /// <see cref="CreatureStatus"/>
     /// </summary>
     [Required]
     public CreatureStatus Status { get; set; }
-    
+
     /// <summary>
     /// Remaining hit points
     /// </summary>

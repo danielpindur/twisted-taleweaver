@@ -19,7 +19,7 @@ public class MessagesController(
     [HttpGet]
     [ProducesResponseType(typeof(List<ChatMessage>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<List<ChatMessage>>> SearchMessages([FromQuery]MessageSearchRequest query)
+    public async Task<ActionResult<List<ChatMessage>>> SearchMessages([FromQuery] MessageSearchRequest query)
     {
         var searchQuery = new ExpeditionMessagesSearchQuery()
         {
@@ -31,10 +31,10 @@ public class MessagesController(
         {
             searchQuery.PageSize = query.PageSize.Value;
         }
-        
+
         var expeditionMessages = await expeditionMessagesSearchQueryHandler
             .ExecuteAsync(searchQuery);
-        
+
         return Ok(expeditionMessages.ToList());
     }
 }

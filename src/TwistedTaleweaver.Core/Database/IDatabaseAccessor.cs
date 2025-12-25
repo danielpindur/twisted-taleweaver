@@ -14,7 +14,7 @@ public interface IDatabaseAccessor
     /// Queries the database for a single record
     /// </summary>    
     Task<T> QuerySingleAsync<T>(string sql, object? param = null);
-    
+
     /// <summary>
     /// Queries the database for multiple records
     /// </summary>
@@ -24,7 +24,7 @@ public interface IDatabaseAccessor
     /// Executes a command against the database without output
     /// </summary>
     Task ExecuteAsync(string sql, object? param = null);
-    
+
     /// <summary>
     /// Executes a command against the database and returns a single record
     /// </summary>    

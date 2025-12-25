@@ -11,13 +11,13 @@ public class GeneratedCharacter
     /// </summary>
     [MaxLength(50)]
     public required string Name { get; set; }
-    
+
     /// <summary>
     /// Summary context string to drive AI generation - contains information not contained in other properties
     /// </summary>
     [MaxLength(255)]
     public required string CharacterContextKeywords { get; set; }
-    
+
     /// <summary>
     /// <inheritdoc cref="GeneratedTrait"/>
     /// </summary>
@@ -29,9 +29,9 @@ public class GeneratedCharacter
     /// </summary>
     [Range(1, 30)]
     public int ArmorClass { get; set; }
-    
+
     /// <summary>
     /// <inheritdoc cref="GeneratedSpeedScores"/>
     /// </summary>
-    public required GeneratedSpeedScores SpeedScores  { get; set; }
+    public required GeneratedSpeedScores SpeedScores { get; set; }
 }

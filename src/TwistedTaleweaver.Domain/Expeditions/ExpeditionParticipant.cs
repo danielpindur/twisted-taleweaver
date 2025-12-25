@@ -12,7 +12,7 @@ public class ExpeditionParticipant
     /// User of the participant
     /// </summary>
     public required User User { get; set; }
-    
+
     /// <summary>
     /// The character associated with the participant, if any
     /// </summary>

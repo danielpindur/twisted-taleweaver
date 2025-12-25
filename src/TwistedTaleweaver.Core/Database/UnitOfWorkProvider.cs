@@ -5,13 +5,13 @@ namespace TwistedTaleweaver.Core.Database;
 public interface IUnitOfWorkProvider : IAsyncDisposable
 {
     IUnitOfWork CreateUnitOfWork(UnitOfWorkScopeOption scopeOption);
-    
+
     IUnitOfWork GetActiveUnitOfWork();
-    
+
     Task CloseUnitOfWorkAsync();
-    
+
     Task CommitUnitOfWorkAsync();
-    
+
     Task RollbackUnitOfWorkAsync();
 }
 
@@ -30,7 +30,7 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
             // Create new unit of work with a new connection
             var unitOfWorkEntry = new UnitOfWorkStackEntry(connectionFactory, scopeOption);
             _unitsOfWork.Push(unitOfWorkEntry);
-            
+
             return unitOfWorkEntry.UnitOfWork;
         }
 
@@ -41,7 +41,7 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
             // Create new unit of work with a new connection
             var unitOfWorkEntry = new UnitOfWorkStackEntry(connectionFactory, scopeOption);
             _unitsOfWork.Push(unitOfWorkEntry);
-            
+
             return unitOfWorkEntry.UnitOfWork;
         }
 
@@ -52,7 +52,7 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
             // Create new unit of work with a new connection
             var unitOfWorkEntry = new UnitOfWorkStackEntry(connectionFactory, scopeOption);
             _unitsOfWork.Push(unitOfWorkEntry);
-            
+
             return unitOfWorkEntry.UnitOfWork;
         }
 
@@ -65,7 +65,7 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
 
             return unitOfWorkEntry.UnitOfWork;
         }
-        
+
         // We are outside of a transaction and new suppressed scope is being created
         if (_unitsOfWork.Peek().UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Suppressed &&
             scopeOption == UnitOfWorkScopeOption.Suppressed)
@@ -75,7 +75,7 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
 
             return unitOfWorkEntry.UnitOfWork;
         }
-        
+
         throw new InvalidOperationException("Unhandled unit of work scope option combination.");
     }
 
@@ -89,7 +89,7 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
         {
             return unitOfWork.UnitOfWork;
         }
-        
+
         // If we have none -> we are not in a UnitOfWorkScope (as that creates the unit of work)
         // -> get one with transaction suppression
         return CreateUnitOfWork(UnitOfWorkScopeOption.Suppressed);
@@ -99,7 +99,7 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
     {
         var activeEntry = _unitsOfWork.Peek();
         activeEntry.Disconnect();
-        
+
         if (activeEntry.HasNoConnections)
         {
             _unitsOfWork.Pop();
@@ -110,20 +110,20 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
     public async Task CommitUnitOfWorkAsync()
     {
         var activeEntry = _unitsOfWork.Peek();
-        
-        if (activeEntry.IsRootConnection && 
+
+        if (activeEntry.IsRootConnection &&
             activeEntry.UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Required)
         {
             await activeEntry.UnitOfWork.CommitAsync();
         }
     }
-    
+
     public async Task RollbackUnitOfWorkAsync()
     {
         var activeEntry = _unitsOfWork.Peek();
         activeEntry.Disconnect();
-        
-        if (activeEntry.HasNoConnections && 
+
+        if (activeEntry.HasNoConnections &&
             activeEntry.UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Required)
         {
             await activeEntry.UnitOfWork.RollbackAsync();
@@ -149,14 +149,14 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
         {
             _connectionsCount++;
         }
-        
+
         public void Disconnect()
         {
             _connectionsCount--;
         }
-        
+
         public bool HasNoConnections => _connectionsCount == 0;
-        
+
         public bool IsRootConnection => _connectionsCount == 1;
     }
 }

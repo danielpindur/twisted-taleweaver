@@ -13,7 +13,7 @@ internal class JoinExpeditionCommandHandler(
     {
         var validationResult = await joinExpeditionCommandValidator.ValidateAsync(command);
         validationResult.ThrowIfInvalid();
-        
+
         await expeditionParticipantsWriter.AddAsync(command.ExpeditionId, command.UserId);
     }
 }

@@ -43,7 +43,7 @@ internal class UsersAdapter(
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
             entry.Value = loadedUser;
         }
-        
+
         return usersByIds;
     }
 }

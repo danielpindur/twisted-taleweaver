@@ -13,7 +13,7 @@ public class Character : CombatCreature
     /// </summary>
     [Required]
     public Guid CharacterId { get; set; }
-    
+
     /// <summary>
     /// <inheritdoc cref="ClassType"/>
     /// </summary>

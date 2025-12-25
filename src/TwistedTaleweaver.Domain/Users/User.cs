@@ -12,13 +12,13 @@ public class User
     /// </summary>
     [Required]
     public Guid UserId { get; set; }
-    
+
     /// <summary>
     /// The external identifier of the user (e.g., from an authentication provider)
     /// </summary>    
     [Required]
     public required string ExternalUserId { get; set; }
-    
+
     /// <summary>
     /// The display name of the user
     /// </summary>

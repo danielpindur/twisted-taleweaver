@@ -21,10 +21,10 @@ public abstract class CombatCreature : Creature
     [Range(1, 30)]
     [Required]
     public int ArmorClass { get; set; }
-    
+
     /// <summary>
     /// <inheritdoc cref="SpeedScores"/>
     /// </summary>
     [Required]
-    public required SpeedScores SpeedScores  { get; set; }
+    public required SpeedScores SpeedScores { get; set; }
 }

@@ -11,7 +11,7 @@ public static class ApplicationBuilderExtensions
     public static IServiceCollection AddClerkIntegration(this IHostApplicationBuilder builder)
     {
         builder.Services.AddMemoryCache();
-        
+
         return builder.Services
             .AddIntegrationClient(builder.Configuration)
             .AddClients();
@@ -25,10 +25,10 @@ public static class ApplicationBuilderExtensions
             {
                 config.SecretKey = configuration["Clerk:SecretKey"]!;
             });
-            
+
             return services;
         }
-        
+
         private IServiceCollection AddClients()
         {
             services.AddSingleton<IUsersAdapter, UsersAdapter>();

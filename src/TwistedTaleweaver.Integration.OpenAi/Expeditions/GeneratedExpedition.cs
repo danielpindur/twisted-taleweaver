@@ -13,7 +13,7 @@ public class GeneratedExpedition
     [MaxLength(50)]
     [Required]
     public required string Name { get; set; }
-    
+
     /// <summary>
     /// Description of the expedition to drive the narrative
     /// </summary>

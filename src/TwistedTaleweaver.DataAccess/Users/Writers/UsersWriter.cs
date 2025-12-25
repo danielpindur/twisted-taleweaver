@@ -21,7 +21,7 @@ internal class UsersWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(prov
             RETURNING user_id, external_user_id";
 
         return ExecuteWithOutputAsync<UserDto>(sql, new
-        { 
+        {
             ExternalUserId = externalUserId
         });
     }

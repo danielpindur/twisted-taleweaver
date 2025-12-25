@@ -13,17 +13,17 @@ public class Trait
     [MaxLength(50)]
     [Required]
     public required string Name { get; init; }
-    
+
     /// <summary>
     /// Description of the trait's effect or purpose
     /// </summary>
     [MaxLength(255)]
     [Required]
     public required string Effect { get; init; }
-    
+
     /// <summary>
     /// Optional. Condition under which the trait is active or applies
     /// </summary>
-    [MaxLength(255)] 
+    [MaxLength(255)]
     public string? ConditionForPerform { get; init; }
 }

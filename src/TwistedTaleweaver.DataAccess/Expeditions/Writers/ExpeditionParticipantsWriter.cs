@@ -6,7 +6,7 @@ namespace TwistedTaleweaver.DataAccess.Expeditions.Writers;
 public interface IExpeditionParticipantsWriter
 {
     Task AddAsync(Guid expeditionId, Guid userId);
-    
+
     Task SetCharacterIdAsync(Guid expeditionId, Guid userId, Guid characterId);
 }
 

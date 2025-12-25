@@ -8,17 +8,17 @@ internal class JoinExpeditionCommandValidator : AbstractValidator<JoinExpedition
 {
     private readonly IExpeditionsReader _expeditionsReader;
     private readonly IExpeditionParticipantsReader _expeditionParticipantsReader;
-            
+
     private void InitialiseRules()
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
                 .WithMessage("UserId is a required field");
-        
+
         RuleFor(x => x.ExpeditionId)
             .NotEmpty()
                 .WithMessage("ExpeditionId is a required field"); ;
-        
+
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
             .MustAsync(ExpeditionExistsAsync)
@@ -26,7 +26,7 @@ internal class JoinExpeditionCommandValidator : AbstractValidator<JoinExpedition
             .MustAsync(HasNotAlreadyJoinedAsync)
                 .WithMessage("User has already joined this expedition");
     }
-    
+
     public JoinExpeditionCommandValidator(
         IExpeditionsReader expeditionsReader,
         IExpeditionParticipantsReader expeditionParticipantsReader)
@@ -36,7 +36,7 @@ internal class JoinExpeditionCommandValidator : AbstractValidator<JoinExpedition
 
         InitialiseRules();
     }
-    
+
     private async Task<bool> HasNotAlreadyJoinedAsync(JoinExpeditionCommand command, CancellationToken cancellationToken)
     {
         var hasJoined = await _expeditionParticipantsReader.ExistsAsync(command.ExpeditionId, command.UserId);
