@@ -10,6 +10,7 @@ using Serilog;
 using Serilog.Formatting.Compact;
 using TwistedTaleweaver.Core.Setup;
 using TwistedTaleweaver.Gateway.Authorization;
+using TwistedTaleweaver.Gateway.Users.DataLoaders;
 using TwistedTaleweaver.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -111,9 +112,9 @@ builder.Services.AddAuthorization(options =>
 
 builder
     .AddGraphQL()
-    .AddQueryType<Query>()
-    .AddMutationType<Mutation>()
-    .AddSubscriptionType<Subscription>()
+    .AddGatewayTypes()
+    //.AddMutationType<Mutation>()
+    //.AddSubscriptionType<Subscription>()
     .AddAuthorization()
     .AddInMemorySubscriptions()
     .ModifyRequestOptions(options =>
@@ -121,13 +122,9 @@ builder
         options.IncludeExceptionDetails = true;
         options.ExecutionTimeout = TimeSpan.FromSeconds(5);
     })
-    .ModifyPagingOptions(options =>
-    {
-        options.MaxPageSize = 100;
-        options.DefaultPageSize = 20;
-    });
+    .AddDataLoader<UserByIdDataLoader>();
 
-builder.Services
+builder.Services    
     .AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy());
 
@@ -171,21 +168,6 @@ app.MapGraphQL()
 app.MapGet("/", () => Results.Redirect("/graphql"));
 
 app.RunWithGraphQLCommands(args);
-
-
-public class Query
-{
-    [HotChocolate.Authorization.Authorize]
-    public string GetHello()
-    {
-        return "Hello from Hot Chocolate!";
-    }
-    
-    public string GetPublicHello()
-    {
-        return "Public hello from Hot Chocolate!";
-    }
-}
 
 public class Mutation
 {

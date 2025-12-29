@@ -7,15 +7,50 @@ namespace TwistedTaleweaver.DataAccess.Common;
 
 public abstract class DatabaseAccessor(IUnitOfWorkProvider unitOfWorkProvider) : IDatabaseAccessor
 {
+    private IUnitOfWork? _operationUnitOfWork;
+
+    private IUnitOfWork GetUnitOfWork()
+    {
+        if (_operationUnitOfWork != null)
+        {
+            return _operationUnitOfWork;
+        }
+        
+        var activeUnitOfWork = unitOfWorkProvider.GetActiveUnitOfWork();
+
+        if (activeUnitOfWork != null)
+        {
+            // We are in a scope -> use existing unit of work
+            return activeUnitOfWork;
+        }
+        
+        // We are outside scope -> use unit of work specific for this operation
+        _operationUnitOfWork = unitOfWorkProvider.CreateOperationUnitOfWork();
+        return _operationUnitOfWork;
+    }
+
+    private async Task CloseOperationUnitOfWork()
+    {
+        if (_operationUnitOfWork != null)
+        {
+            await _operationUnitOfWork.DisposeAsync();
+            _operationUnitOfWork = null;
+        }
+    }
+    
     private NpgsqlConnection GetConnection()
     {
-        return unitOfWorkProvider.GetActiveUnitOfWork().Connection as NpgsqlConnection
+        var unitOfWork = GetUnitOfWork();
+        
+        return unitOfWork.Connection.Value as NpgsqlConnection
                ?? throw new InvalidOperationException("The database connection is not a valid NpgsqlConnection.");
     }
 
     private NpgsqlTransaction? GetTransaction(TransactionMode mode)
     {
-        var transaction = unitOfWorkProvider.GetActiveUnitOfWork().GetTransaction(mode);
+        var unitOfWork = GetUnitOfWork();
+        
+        var transaction = unitOfWork.GetTransaction(mode);
 
         if (transaction == null)
         {
@@ -26,33 +61,51 @@ public abstract class DatabaseAccessor(IUnitOfWorkProvider unitOfWorkProvider) :
             ?? throw new InvalidOperationException("The database transaction is not a valid NpgsqlTransaction.");
     }
 
-    public Task<T?> QuerySingleOrDefaultAsync<T>(string sql, object? param = null)
+    public async Task<T?> QuerySingleOrDefaultAsync<T>(string sql, object? param = null)
     {
-        return GetConnection()
+        var result = await GetConnection()
             .QuerySingleOrDefaultAsync<T>(sql, param, GetTransaction(TransactionMode.ReadOnly));
+
+        await CloseOperationUnitOfWork();
+
+        return result;
     }
 
-    public Task<T> QuerySingleAsync<T>(string sql, object? param = null)
+    public async Task<T> QuerySingleAsync<T>(string sql, object? param = null)
     {
-        return GetConnection()
+        var result = await GetConnection()
             .QuerySingleAsync<T>(sql, param, GetTransaction(TransactionMode.ReadOnly));
+        
+        await CloseOperationUnitOfWork();
+        
+        return result;
     }
 
-    public Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null)
+    public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null)
     {
-        return GetConnection()
+        var result = await GetConnection()
             .QueryAsync<T>(sql, param, GetTransaction(TransactionMode.ReadOnly));
+        
+        await CloseOperationUnitOfWork();
+        
+        return result;
     }
 
-    public Task ExecuteAsync(string sql, object? param = null)
+    public async Task ExecuteAsync(string sql, object? param = null)
     {
-        return GetConnection()
+        await GetConnection()
             .ExecuteAsync(sql, param, GetTransaction(TransactionMode.ReadWrite));
+
+        await CloseOperationUnitOfWork();
     }
 
-    public Task<T> ExecuteWithOutputAsync<T>(string sql, object? param = null)
+    public async Task<T> ExecuteWithOutputAsync<T>(string sql, object? param = null)
     {
-        return GetConnection()
+        var result = await GetConnection()
             .QuerySingleAsync<T>(sql, param, GetTransaction(TransactionMode.ReadWrite));
+        
+        await CloseOperationUnitOfWork();
+        
+        return result;
     }
 }

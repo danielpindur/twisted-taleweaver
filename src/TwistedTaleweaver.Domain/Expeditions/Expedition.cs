@@ -1,7 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using TwistedTaleweaver.Domain.Expeditions.Enums;
-using TwistedTaleweaver.Domain.Messages;
-using TwistedTaleweaver.Domain.Users;
 
 namespace TwistedTaleweaver.Domain.Expeditions;
 
@@ -66,7 +64,7 @@ public class Expedition
     /// User who created the expedition
     /// </summary>
     [Required]
-    public required User CreatedByUser { get; set; }
+    public Guid CreatedByUserId { get; set; }
 
     /// <summary>
     /// <see cref="ExpeditionParticipant"/>

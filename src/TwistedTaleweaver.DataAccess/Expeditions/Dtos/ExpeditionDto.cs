@@ -23,7 +23,5 @@ public class ExpeditionDto
 
     public Guid CreatedByUserId { get; set; }
 
-    public required string CreatedByExternalUserId { get; set; }
-
     public ExpeditionOutcome? Outcome { get; set; }
 }

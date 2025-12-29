@@ -3,43 +3,46 @@ using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
 using TwistedTaleweaver.Domain.Creatures;
 using TwistedTaleweaver.Domain.Expeditions;
-using TwistedTaleweaver.Expeditions.Mappers;
-using TwistedTaleweaver.Integration.Clerk.Users;
 
 namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 
 internal class ExpeditionParticipantsQueryHandler(
     IExpeditionParticipantsReader expeditionParticipantsReader,
-    ICharacterByIdQueryHandler characterByIdQueryHandler,
-    IUsersAdapter usersAdapter) : IExpeditionParticipantsQueryHandler
+    ICharacterByIdQueryHandler characterByIdQueryHandler) : IExpeditionParticipantsQueryHandler
 {
-    public async Task<List<ExpeditionParticipant>> ExecuteAsync(ExpeditionParticipantsQuery query)
+    public async Task<Dictionary<Guid, List<ExpeditionParticipant>>> ExecuteAsync(ExpeditionParticipantsQuery query)
     {
-        var participants = (await expeditionParticipantsReader.GetByExpeditionAsync(query.ExpeditionId)).ToList();
-
-        var externalUserIds = participants.Select(x => x.ExternalUserId);
-        var userByExternalId = await usersAdapter.GetUsersAsync(externalUserIds);
-
-        var charactersById = new Dictionary<Guid, Character>();
-
+        var participants = await expeditionParticipantsReader.GetByExpeditionsAsync(query.ExpeditionIds);
+        var result = new Dictionary<Guid, List<ExpeditionParticipant>>();
+        
+        // TODO: Do this in bulk
         foreach (var participant in participants)
         {
-            if (participant.CharacterId is null)
+            if (!result.ContainsKey(participant.ExpeditionId))
             {
-                continue;
+                result.Add(participant.ExpeditionId, new List<ExpeditionParticipant>());
             }
-
-            var character = await characterByIdQueryHandler.ExecuteAsync(
-                new CharacterByIdQuery() { CharacterId = participant.CharacterId.Value });
-
-            if (character is null)
+            
+            var character = await GetCharacterAsync(participant.CharacterId);
+            
+            result[participant.ExpeditionId].Add(new ExpeditionParticipant()
             {
-                continue;
-            }
-
-            charactersById.Add(participant.CharacterId.Value, character);
+                UserId = participant.UserId,
+                Character = character,
+            });
         }
 
-        return participants.ToExpeditionParticipants(userByExternalId, charactersById);
+        return result;
+    }
+
+    private async Task<Character?> GetCharacterAsync(Guid? characterId)
+    {
+        if (characterId is null)
+        {
+            return null;
+        }
+        
+        return await characterByIdQueryHandler.ExecuteAsync(
+            new CharacterByIdQuery() { CharacterId = characterId.Value });
     }
 }

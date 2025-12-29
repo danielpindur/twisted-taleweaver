@@ -4,8 +4,7 @@ using TwistedTaleweaver.Domain.Creatures;
 
 namespace TwistedTaleweaver.Creatures.QueryHandlers;
 
-internal class CharacterByIdQueryHandler(
-    ICreaturesReader creaturesReader) : ICharacterByIdQueryHandler
+internal class CharacterByIdQueryHandler(ICreaturesReader creaturesReader) : ICharacterByIdQueryHandler
 {
     public async Task<Character?> ExecuteAsync(CharacterByIdQuery query)
     {

@@ -11,7 +11,7 @@ public interface IUnitOfWork : IAsyncDisposable
 
     UnitOfWorkScopeOption ScopeOption { get; }
 
-    DbConnection Connection { get; }
+    Lazy<DbConnection> Connection { get; }
 
     DbTransaction? GetTransaction(TransactionMode mode);
 }
@@ -25,13 +25,19 @@ internal class UnitOfWork : IUnitOfWork
         UnitOfWorkScopeOption scopeOption)
     {
         ScopeOption = scopeOption;
-
-        Connection = connectionFactory.CreateConnection();
-        Connection.Open();
+        Connection = new  Lazy<DbConnection>(() => OpenConnection(connectionFactory));
     }
 
-    public DbConnection Connection { get; }
+    public Lazy<DbConnection> Connection { get; }
 
+    private DbConnection OpenConnection(IDbConnectionFactory connectionFactory)
+    {
+        var connection = connectionFactory.CreateConnection();
+        connection.Open();
+
+        return connection;
+    }
+    
     public DbTransaction? GetTransaction(TransactionMode mode)
     {
         // We are suppressing the transaction itself
@@ -47,7 +53,7 @@ internal class UnitOfWork : IUnitOfWork
         }
 
         // We need a transaction, either get active one or create one
-        return _transaction ??= Connection.BeginTransaction();
+        return _transaction ??= Connection.Value.BeginTransaction();
     }
 
     public UnitOfWorkScopeOption ScopeOption { get; }
@@ -95,6 +101,6 @@ internal class UnitOfWork : IUnitOfWork
             throw new InvalidOperationException("Cannot dispose unit of work with active transaction");
         }
 
-        await Connection.DisposeAsync();
+        await Connection.Value.DisposeAsync();
     }
 }

@@ -1,4 +1,3 @@
-using System.Reflection;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Database.Enums;
 using TwistedTaleweaver.Core.Unit.Tests.Database.Stubs;
@@ -25,13 +24,25 @@ public class UnitOfWorkProviderTests
     /// No UnitOfWorkScope was created, but DatabaseAccessor requested UnitOfWork
     /// </summary>
     [Test]
-    public void GetActiveUnitOfWork_Without_UnitOfWork_Creates_Suppressed_UnitOfWork()
+    public void GetActiveUnitOfWork_Without_UnitOfWork_Returns_Null()
     {
         var provider = CreateProvider();
         var unitOfWork = provider.GetActiveUnitOfWork();
 
+        Assert.That(unitOfWork, Is.Null);
+    }
+
+    public void CreateOperationUnitOfWork_Creates_Suppressed_Not_Tracked_UnitOfWork()
+    {
+        var provider = CreateProvider();
+
+        var unitOfWork = provider.CreateOperationUnitOfWork();
+        
         Assert.That(unitOfWork.Connection, Is.Not.Null);
         Assert.That(unitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
+
+        var activeUnitOfWork = provider.GetActiveUnitOfWork();
+        Assert.That(activeUnitOfWork, Is.Null);
     }
 
     /// <summary>
@@ -152,7 +163,7 @@ public class UnitOfWorkProviderTests
         Assert.That(secondUnitOfWork, Is.SameAs(firstUnitOfWork));
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
         Assert.That(activeUnitOfWork, Is.SameAs(secondUnitOfWork));
     }
@@ -176,7 +187,7 @@ public class UnitOfWorkProviderTests
         Assert.That(secondUnitOfWork, Is.SameAs(firstUnitOfWork));
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Required));
         Assert.That(activeUnitOfWork, Is.SameAs(secondUnitOfWork));
     }
@@ -194,7 +205,7 @@ public class UnitOfWorkProviderTests
         Assert.That(suppressedUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
         Assert.That(activeUnitOfWork, Is.SameAs(suppressedUnitOfWork));
 
@@ -205,7 +216,7 @@ public class UnitOfWorkProviderTests
         Assert.That(requiredUnitOfWork.Connection, Is.Not.SameAs(suppressedUnitOfWork.Connection));
 
         var newActiveUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(newActiveUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(newActiveUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(newActiveUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Required));
         Assert.That(newActiveUnitOfWork, Is.SameAs(requiredUnitOfWork));
     }
@@ -223,7 +234,7 @@ public class UnitOfWorkProviderTests
         Assert.That(requiredUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Required));
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Required));
         Assert.That(activeUnitOfWork, Is.SameAs(requiredUnitOfWork));
 
@@ -234,7 +245,7 @@ public class UnitOfWorkProviderTests
         Assert.That(suppressedUnitOfWork.Connection, Is.Not.SameAs(requiredUnitOfWork.Connection));
 
         var newActiveUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(newActiveUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(newActiveUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(newActiveUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
         Assert.That(newActiveUnitOfWork, Is.SameAs(suppressedUnitOfWork));
     }
@@ -255,7 +266,7 @@ public class UnitOfWorkProviderTests
         await provider.CloseUnitOfWorkAsync();
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
         Assert.That(activeUnitOfWork, Is.SameAs(suppressedUnitOfWork));
     }
@@ -277,7 +288,7 @@ public class UnitOfWorkProviderTests
         await provider.CloseUnitOfWorkAsync();
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
         Assert.That(activeUnitOfWork, Is.SameAs(suppressedUnitOfWork));
     }
@@ -297,7 +308,7 @@ public class UnitOfWorkProviderTests
         await provider.CloseUnitOfWorkAsync();
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
         Assert.That(activeUnitOfWork, Is.SameAs(suppressedUnitOfWork));
     }
@@ -336,14 +347,14 @@ public class UnitOfWorkProviderTests
         await provider.CloseUnitOfWorkAsync();
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Required));
         Assert.That(activeUnitOfWork, Is.SameAs(requiredUnitOfWork));
 
         await provider.CloseUnitOfWorkAsync();
 
         activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
         Assert.That(activeUnitOfWork, Is.SameAs(suppressedUnitOfWork));
     }
@@ -362,7 +373,7 @@ public class UnitOfWorkProviderTests
         await provider.CloseUnitOfWorkAsync();
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Required));
         Assert.That(activeUnitOfWork, Is.SameAs(requiredUnitOfWork));
     }
@@ -382,14 +393,14 @@ public class UnitOfWorkProviderTests
         await provider.CloseUnitOfWorkAsync();
 
         var activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Suppressed));
         Assert.That(activeUnitOfWork, Is.SameAs(suppressedUnitOfWork));
 
         await provider.CloseUnitOfWorkAsync();
 
         activeUnitOfWork = provider.GetActiveUnitOfWork();
-        Assert.That(activeUnitOfWork.Connection, Is.Not.Null);
+        Assert.That(activeUnitOfWork!.Connection, Is.Not.Null);
         Assert.That(activeUnitOfWork.ScopeOption, Is.EqualTo(UnitOfWorkScopeOption.Required));
         Assert.That(activeUnitOfWork, Is.SameAs(requiredUnitOfWork));
     }

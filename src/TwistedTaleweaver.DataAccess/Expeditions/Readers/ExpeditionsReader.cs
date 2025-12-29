@@ -30,8 +30,7 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
                 e.max_participants,
                 (SELECT COUNT (*) FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id) AS current_participants,
                 e.outcome_id AS outcome,
-                u.user_id AS created_by_user_id,
-                u.external_user_id AS created_by_external_user_id
+                u.user_id AS created_by_user_id
             FROM expeditions e
             INNER JOIN users u ON e.created_by_user_id = u.user_id
             WHERE e.expedition_id = @ExpeditionId";

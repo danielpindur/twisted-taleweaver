@@ -22,7 +22,7 @@ public class UnitOfWorkTests
     {
         var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
-        var connection = (StubDbConnection)uow.Connection;
+        var connection = (StubDbConnection)uow.Connection.Value;
 
         Assert.That(connection.ConnectionOpen, Is.True);
     }
@@ -174,7 +174,7 @@ public class UnitOfWorkTests
     {
         var uow = new UnitOfWork(_factory, UnitOfWorkScopeOption.Required);
 
-        var connection = (StubDbConnection)uow.Connection;
+        var connection = (StubDbConnection)uow.Connection.Value;
 
         await uow.DisposeAsync();
 

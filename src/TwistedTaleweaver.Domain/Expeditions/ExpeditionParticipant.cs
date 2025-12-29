@@ -9,9 +9,9 @@ namespace TwistedTaleweaver.Domain.Expeditions;
 public class ExpeditionParticipant
 {
     /// <summary>
-    /// User of the participant
+    /// Unique identifier of the user participating in the expedition
     /// </summary>
-    public required User User { get; set; }
+    public Guid UserId { get; set; }
 
     /// <summary>
     /// The character associated with the participant, if any

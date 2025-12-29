@@ -65,4 +65,10 @@ public class ExpeditionSlim
     /// Outcome of the expedition, if completed
     /// </summary>    
     public ExpeditionOutcome? Outcome { get; set; }
+    
+    /// <summary>
+    /// User who created the expedition
+    /// </summary>
+    [Required]
+    public Guid CreatedByUserId { get; set; }
 }
