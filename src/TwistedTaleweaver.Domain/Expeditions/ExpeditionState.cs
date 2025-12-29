@@ -11,6 +11,11 @@ namespace TwistedTaleweaver.Domain.Expeditions;
 public class ExpeditionState
 {
     /// <summary>
+    /// Unique identifier of the expedition the state is for
+    /// </summary>
+    public Guid ExpeditionId { get; set; }
+    
+    /// <summary>
     /// <see cref="ExpeditionStatus"/>
     /// </summary>
     [Required]
@@ -24,6 +29,6 @@ public class ExpeditionState
     /// <summary>
     /// Current states of the characters participating in the expedition
     /// </summary>
-    [Required]
-    public required List<CombatCreatureState> Participants { get; set; }
+    //[Required]
+    //public required List<CombatCreatureState> Participants { get; set; }
 }

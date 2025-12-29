@@ -48,14 +48,14 @@ internal static class ExpeditionsMapper
             State = new ExpeditionState()
             {
                 Status = source.Status,
-                Participants = participants
+                /*Participants = participants
                     .Where(x => x.Character is not null)
                     .Select(x => new CombatCreatureState()
                     {
                         CreatureId = x.Character!.CharacterId,
                         Status = CreatureStatus.Alive,
                         CurrentHealth = x.Character!.MaxHealth
-                    }).ToList()
+                    }).ToList()*/
             }
         };
     }

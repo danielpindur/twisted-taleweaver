@@ -9,6 +9,8 @@ type Expedition {
   userCreated: User! @cost(weight: "10")
   "Participants of the expedition."
   participants: [ExpeditionParticipant!]! @cost(weight: "10")
+  "The state of the expedition."
+  state: ExpeditionState! @cost(weight: "10")
   "Unique identifier of the expedition."
   id: UUID!
   "Name of the expedition."
@@ -31,6 +33,12 @@ type Expedition {
 type ExpeditionParticipant {
   "User of the participant."
   user: User! @cost(weight: "10")
+}
+
+"Information regarding the state the expedition is in."
+type ExpeditionState {
+  "Current status of the expedition."
+  status: ExpeditionStatus!
 }
 
 type Mutation {
@@ -111,6 +119,12 @@ enum ExpeditionDifficulty {
 enum ExpeditionOutcome {
   SUCCESS
   FAILURE
+}
+
+enum ExpeditionStatus {
+  CREATED
+  STARTED
+  COMPLETED
 }
 
 "The authorize directive."

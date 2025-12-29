@@ -1,0 +1,10 @@
+using TwistedTaleweaver.Domain.Expeditions.Enums;
+
+namespace TwistedTaleweaver.Gateway.Expeditions.Contracts;
+
+[GraphQLDescription("Information regarding the state the expedition is in.")]
+public class ExpeditionState
+{
+    [GraphQLDescription("Current status of the expedition.")]
+    public ExpeditionStatus Status { get; init; }
+}

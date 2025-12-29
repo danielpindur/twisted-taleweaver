@@ -1,6 +1,7 @@
 using TwistedTaleweaver.Domain.Expeditions;
 using ExpeditionContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.Expedition;
 using ExpeditionParticipantContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionParticipant;
+using ExpeditionStateContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionState;
 
 namespace TwistedTaleweaver.Gateway.Expeditions.Mappers;
 
@@ -68,5 +69,13 @@ internal static class ExpeditionMapper
     private static List<ExpeditionParticipantContract> ToContracts(this List<ExpeditionParticipant> source)
     {
         return source.Select(ToContract).ToList();
+    }
+
+    public static ExpeditionStateContract ToContract(this ExpeditionState source)
+    {
+        return new ExpeditionStateContract()
+        {
+            Status = source.Status,
+        };
     }
 }

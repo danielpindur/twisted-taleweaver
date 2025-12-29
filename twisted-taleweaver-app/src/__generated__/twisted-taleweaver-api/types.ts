@@ -63,6 +63,8 @@ export type Expedition = {
   outcome?: Maybe<ExpeditionOutcome>;
   /** Participants of the expedition. */
   participants: Array<ExpeditionParticipant>;
+  /** The state of the expedition. */
+  state: ExpeditionState;
   /** User who created the expedition. */
   userCreated: User;
 };
@@ -85,6 +87,19 @@ export type ExpeditionParticipant = {
   /** User of the participant. */
   user: User;
 };
+
+/** Information regarding the state the expedition is in. */
+export type ExpeditionState = {
+  __typename?: 'ExpeditionState';
+  /** Current status of the expedition. */
+  status: ExpeditionStatus;
+};
+
+export enum ExpeditionStatus {
+  Completed = 'COMPLETED',
+  Created = 'CREATED',
+  Started = 'STARTED'
+}
 
 /** Request to join an existing expedition. */
 export type JoinExpeditionInput = {
@@ -160,14 +175,14 @@ export type AddExpeditionMutationVariables = Exact<{
 }>;
 
 
-export type AddExpeditionMutation = { __typename?: 'Mutation', addExpedition: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null } };
+export type AddExpeditionMutation = { __typename?: 'Mutation', addExpedition: { __typename?: 'Expedition', id: any } };
 
 export type JoinExpeditionMutationVariables = Exact<{
   input: JoinExpeditionInput;
 }>;
 
 
-export type JoinExpeditionMutation = { __typename?: 'Mutation', joinExpedition: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null } };
+export type JoinExpeditionMutation = { __typename?: 'Mutation', joinExpedition: { __typename?: 'Expedition', id: any } };
 
 export type GetExpeditionsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -175,20 +190,13 @@ export type GetExpeditionsQueryVariables = Exact<{
 }>;
 
 
-export type GetExpeditionsQuery = { __typename?: 'Query', expeditions: { __typename?: 'OffsetPageOfExpedition', totalCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null }> } };
+export type GetExpeditionsQuery = { __typename?: 'Query', expeditions: { __typename?: 'OffsetPageOfExpedition', totalCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus } }> } };
 
 
 export const AddExpeditionDocument = gql`
     mutation AddExpedition($input: AddExpeditionInput!) {
   addExpedition(input: $input) {
     id
-    name
-    description
-    difficulty
-    minParticipants
-    maxParticipants
-    currentParticipants
-    outcome
   }
 }
     `;
@@ -196,13 +204,6 @@ export const JoinExpeditionDocument = gql`
     mutation JoinExpedition($input: JoinExpeditionInput!) {
   joinExpedition(input: $input) {
     id
-    name
-    description
-    difficulty
-    minParticipants
-    maxParticipants
-    currentParticipants
-    outcome
   }
 }
     `;
@@ -218,6 +219,9 @@ export const GetExpeditionsDocument = gql`
       maxParticipants
       currentParticipants
       outcome
+      state {
+        status
+      }
     }
     totalCount
     page

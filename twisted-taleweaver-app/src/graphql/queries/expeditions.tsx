@@ -12,6 +12,9 @@ export const ExpeditionsQuery = gql(`
         maxParticipants
         currentParticipants
         outcome
+        state {
+          status
+        }
       }
       totalCount
       page

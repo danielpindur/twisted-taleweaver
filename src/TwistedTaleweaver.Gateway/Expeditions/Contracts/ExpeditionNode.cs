@@ -26,4 +26,14 @@ public static partial class ExpeditionNode
         var participants = await dataLoader.LoadAsync(expedition.Id, cancellationToken);
         return participants!;
     }
+
+    [GraphQLDescription("The state of the expedition.")]
+    public static async Task<ExpeditionState> GetStateAsync(
+        [Parent] Expedition expedition,
+        ExpeditionStateByExpeditionIdDataLoader dataLoader,
+        CancellationToken cancellationToken)
+    {
+        var state = await dataLoader.LoadAsync(expedition.Id, cancellationToken);
+        return state!;
+    }
 }

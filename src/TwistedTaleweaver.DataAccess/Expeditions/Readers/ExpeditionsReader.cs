@@ -2,6 +2,7 @@ using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Pagination;
 using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Expeditions.Dtos;
+using TwistedTaleweaver.Domain.Expeditions;
 
 namespace TwistedTaleweaver.DataAccess.Expeditions.Readers;
 
@@ -12,6 +13,8 @@ public interface IExpeditionsReader
     Task<bool> ExistsAsync(Guid expeditionId);
 
     Task<IEnumerable<ExpeditionDtoWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize);
+    
+    Task<IEnumerable<ExpeditionState>> GetStatesAsync(List<Guid> expeditionIds);
 }
 
 internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
@@ -82,6 +85,21 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
             UserId = userId,
             PageSize = pageSize,
             Offset = PaginationHelper.CalculateOffset(pageNumber, pageSize)
+        });
+    }
+
+    public Task<IEnumerable<ExpeditionState>> GetStatesAsync(List<Guid> expeditionIds)
+    {
+        const string sql = @"
+            SELECT 
+                e.expedition_id,
+                e.status_id AS status
+            FROM expeditions e
+            WHERE e.expedition_id = ANY(@ExpeditionIds)";
+
+        return QueryAsync<ExpeditionState>(sql, new
+        {
+            ExpeditionIds = expeditionIds
         });
     }
 }

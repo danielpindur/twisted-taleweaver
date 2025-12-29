@@ -12,12 +12,13 @@ import { TextArea } from "@/components/ui/textarea";
 import { Users, Plus, Swords, KeyRound, Loader2, AlertCircle } from "lucide-react";
 import { useGraphQlClient } from "@/hooks/useGraphQlClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExpeditionDifficulty } from "@/__generated__/twisted-taleweaver-api/types";
+import { ExpeditionDifficulty, ExpeditionStatus } from "@/__generated__/twisted-taleweaver-api/types";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
 import { extractGraphQLErrors, isValidationGraphQLError, normalizeValidationErrors } from "@/utils/GraphQLErrorUtils";
 import type { AddExpeditionInput, JoinExpeditionInput } from "@/__generated__/twisted-taleweaver-api/types";
 import type { ValidationGraphQLErrorExtensions } from "@/graphql/errors/graphQlError";
+import { getStatusColor } from "@/utils/ExpeditionStatusUtils";
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
@@ -44,7 +45,6 @@ export const ExpeditionSelection = () => {
       requestWithAuth((sdk) => sdk.AddExpedition({ input})),
 
     onSuccess: (data) => {
-      queryClient.setQueryData(["expedition", data.addExpedition.id], data.addExpedition);
       queryClient.invalidateQueries({ queryKey: ["expeditions"] });
 
       toast({
@@ -358,8 +358,8 @@ export const ExpeditionSelection = () => {
             )}
 
             {!isError && data?.expeditions.items.map((expedition) => (
-              <Card key={expedition.id} className="bg-card border-border shadow-dark hover:shadow-glow transition-all duration-300">
-                <CardHeader>
+              <Card key={expedition.id} className="bg-card border-border shadow-dark hover:shadow-glow transition-all duration-300 flex flex-col">
+                <CardHeader className="mb-2">
                   <div className="flex justify-between items-start mb-2">
                     <CardTitle className="font-cinzel text-xl text-primary">{expedition.name}</CardTitle>
                     <div className="flex flex-col gap-1">
@@ -372,7 +372,9 @@ export const ExpeditionSelection = () => {
                     {expedition.description}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                
+                {/* This will stick to the bottom */}
+                <CardContent className="mt-auto">
                   <div className="space-y-4">
                     {/* Player Count */}
                     <div className="flex items-center justify-between">
@@ -383,11 +385,10 @@ export const ExpeditionSelection = () => {
                         </span>
                       </div>
 
-                      {/* <Badge className={getStatusColor(expedition.status)}>
-                        {expedition.status === ExpeditionStatus.CREATED && "Gathering Victims"}
-                        {expedition.status === ExpeditionStatus.STARTED && "Doom in Progress"}
-                      </Badge> */}
-
+                      <Badge className={getStatusColor(expedition.state.status)}>
+                        {expedition.state.status === ExpeditionStatus.Created && "Gathering Victims"}
+                        {expedition.state.status === ExpeditionStatus.Started && "Doom in Progress"}
+                      </Badge>
                     </div>
 
                     {/* Join Button */}
