@@ -12,16 +12,12 @@ import { TextArea } from "@/components/ui/textarea";
 import { Users, Plus, Swords, KeyRound, Loader2, AlertCircle } from "lucide-react";
 import { useGraphQlClient } from "@/hooks/useGraphQlClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExpeditionsService } from "@/generated/twisted-taleweaver-api";
-import { ExpeditionStatus } from "@/generated/twisted-taleweaver-api/models/ExpeditionStatus";
-import { ExpeditionDifficulty } from "@/generated/twisted-taleweaver-api/models/ExpeditionDifficulty";
+import { ExpeditionDifficulty } from "@/__generated__/twisted-taleweaver-api/types";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
-import { getStatusColor } from "@/utils/ExpeditionStatusUtils";
-import { ApiError } from "@/generated/twisted-taleweaver-api/core/ApiError";
-import { normalizeValidationErrors } from "@/utils/ApiErrorUtils";
-import type { ExpeditionRequest } from "@/generated/twisted-taleweaver-api/models/ExpeditionRequest";
-import type { ValidationProblemDetails } from "@/generated/twisted-taleweaver-api/models/ValidationProblemDetails"; 
+import { extractGraphQLErrors, isValidationGraphQLError, normalizeValidationErrors } from "@/utils/GraphQLErrorUtils";
+import type { AddExpeditionInput, JoinExpeditionInput } from "@/__generated__/twisted-taleweaver-api/types";
+import type { ValidationGraphQLErrorExtensions } from "@/graphql/errors/graphQlError";
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
@@ -36,7 +32,7 @@ export const ExpeditionSelection = () => {
     
   const [newExpeditionName, setNewExpeditionName] = useState("");
   const [newExpeditionDescription, setNewExpeditionDescription] = useState("");
-  const [newExpeditionDifficulty, setNewExpeditionDifficulty] = useState<ExpeditionDifficulty>(ExpeditionDifficulty.MEDIUM);
+  const [newExpeditionDifficulty, setNewExpeditionDifficulty] = useState<ExpeditionDifficulty>(ExpeditionDifficulty.Medium);
   const [newMinParticipants, setNewMinParticipants] = useState(4);
   const [newMaxParticipants, setNewMaxParticipants] = useState(4);
   
@@ -44,13 +40,11 @@ export const ExpeditionSelection = () => {
   const [joinError, setJoinError] = useState("");
   
   const createExpeditionMutation = useMutation({
-    mutationFn: (request: ExpeditionRequest) =>
-      requestWithAuth(() =>
-        ExpeditionsService.postApiV1Expeditions(request)
-      ),
+    mutationFn: (input: AddExpeditionInput) =>
+      requestWithAuth((sdk) => sdk.AddExpedition({ input})),
 
     onSuccess: (data) => {
-      queryClient.setQueryData(["expedition", data.expeditionId], data);
+      queryClient.setQueryData(["expedition", data.addExpedition.id], data.addExpedition);
       queryClient.invalidateQueries({ queryKey: ["expeditions"] });
 
       toast({
@@ -61,11 +55,11 @@ export const ExpeditionSelection = () => {
       setIsCreateDialogOpen(false);
       setNewExpeditionName("");
       setNewExpeditionDescription("");
-      setNewExpeditionDifficulty(ExpeditionDifficulty.MEDIUM);
+      setNewExpeditionDifficulty(ExpeditionDifficulty.Medium);
       setNewMinParticipants(4);
       setNewMaxParticipants(4);
 
-      navigateToExpedition(data.expeditionId);
+      navigateToExpedition(data.addExpedition.id);
     },
 
     onError: (_) => {
@@ -78,10 +72,9 @@ export const ExpeditionSelection = () => {
   });
 
   const joinExpeditionMutation = useMutation({
-    mutationFn: (expeditionId: string) => 
-      requestWithAuth(() => 
-      ExpeditionsService.postApiV1ExpeditionsJoin(expeditionId)
-      ),
+    mutationFn: (input: JoinExpeditionInput) => 
+      requestWithAuth((sdk) => sdk.JoinExpedition({ input })),
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expeditions"] });
 
@@ -96,12 +89,13 @@ export const ExpeditionSelection = () => {
       setJoinError("");
     },
     onError: (err) => {
-      if (err instanceof ApiError && err.status === 400) {
-        const details = err.body as ValidationProblemDetails;
-        const normalizedErrorText = normalizeValidationErrors(details);
-        
-        setJoinError(normalizedErrorText);
-        return;
+      const gqlErrors = extractGraphQLErrors(err);
+
+      for (const gqlError of gqlErrors) {
+        if (isValidationGraphQLError(gqlError)) {
+          handleJoinValidationErrors(gqlError.extensions!);
+          return;
+        }
       }
 
       setJoinError("An unexpected error has occured.");
@@ -114,6 +108,11 @@ export const ExpeditionSelection = () => {
     }
   })
 
+  const handleJoinValidationErrors = (validationErrorExtensions: ValidationGraphQLErrorExtensions) => {
+    const normalizedErrorText = normalizeValidationErrors(validationErrorExtensions);
+    setJoinError(normalizedErrorText);
+  }
+
   const navigateToExpedition = (expeditionId: string) => {
     navigate("/expedition/" + expeditionId);
   };
@@ -121,7 +120,7 @@ export const ExpeditionSelection = () => {
   // TODO: Handle long name and description display properly
 
   const handleCreateExpedition = () => {
-    const request: ExpeditionRequest = {
+    const input: AddExpeditionInput = {
       name: newExpeditionName || undefined,
       description: newExpeditionDescription || undefined,
       difficulty: newExpeditionDifficulty,
@@ -129,7 +128,7 @@ export const ExpeditionSelection = () => {
       maxParticipants: newMaxParticipants,
     };
 
-    createExpeditionMutation.mutate(request);
+    createExpeditionMutation.mutate(input);
   };
 
   const handleJoinExpedition = () => {
@@ -143,7 +142,11 @@ export const ExpeditionSelection = () => {
       return;
     }
 
-    joinExpeditionMutation.mutate(joinCode)
+    const input: JoinExpeditionInput = {
+      expeditionId: joinCode,
+    };
+
+    joinExpeditionMutation.mutate(input)
   };
 
   const { data, isLoading, isError } = useQuery({
@@ -239,10 +242,10 @@ export const ExpeditionSelection = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={ExpeditionDifficulty.EASY}>Easy - Child's Play</SelectItem>
-                        <SelectItem value={ExpeditionDifficulty.MEDIUM}>Medium - Standard Doom</SelectItem>
-                        <SelectItem value={ExpeditionDifficulty.HARD}>Hard - Certain Death</SelectItem>
-                        <SelectItem value={ExpeditionDifficulty.NIGHTMARE}>Nightmare - Beyond Despair</SelectItem>
+                        <SelectItem value={ExpeditionDifficulty.Easy}>Easy - Child's Play</SelectItem>
+                        <SelectItem value={ExpeditionDifficulty.Medium}>Medium - Standard Doom</SelectItem>
+                        <SelectItem value={ExpeditionDifficulty.Hard}>Hard - Certain Death</SelectItem>
+                        <SelectItem value={ExpeditionDifficulty.Nightmare}>Nightmare - Beyond Despair</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

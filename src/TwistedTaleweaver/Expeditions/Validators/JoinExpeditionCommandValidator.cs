@@ -13,18 +13,19 @@ internal class JoinExpeditionCommandValidator : AbstractValidator<JoinExpedition
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-                .WithMessage("UserId is a required field");
+                .WithMessage("UserId is a required field.");
 
         RuleFor(x => x.ExpeditionId)
             .NotEmpty()
-                .WithMessage("ExpeditionId is a required field"); ;
+                .WithMessage("ExpeditionId is a required field."); ;
 
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
             .MustAsync(ExpeditionExistsAsync)
-                .WithMessage("Expedition doesn't exist")
+                .WithMessage("Expedition doesn't exist.")
             .MustAsync(HasNotAlreadyJoinedAsync)
-                .WithMessage("User has already joined this expedition");
+                .WithMessage("User has already joined this expedition.")
+            .WithName(nameof(JoinExpeditionCommand.ExpeditionId));
     }
 
     public JoinExpeditionCommandValidator(

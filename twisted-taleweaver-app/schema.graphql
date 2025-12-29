@@ -1,5 +1,6 @@
 schema {
   query: Query
+  mutation: Mutation
 }
 
 "Represents an expedition."
@@ -32,6 +33,13 @@ type ExpeditionParticipant {
   user: User! @cost(weight: "10")
 }
 
+type Mutation {
+  "Creates a new expedition."
+  addExpedition(input: AddExpeditionInput!): Expedition! @authorize @cost(weight: "10")
+  "Joins an existing expedition."
+  joinExpedition(input: JoinExpeditionInput!): Expedition! @authorize @cost(weight: "10")
+}
+
 "Represents a page of items using offset pagination."
 type OffsetPageOfExpedition {
   "The items on the current page."
@@ -61,6 +69,26 @@ type User {
   externalId: String!
   "Name of the user."
   name: String!
+}
+
+"Request to create a new expedition."
+input AddExpeditionInput {
+  "Name of the expedition - if empty a name will be generated."
+  name: String
+  "Description of the expedition to drive the narrative - if empty a description will be generated."
+  description: String
+  "Difficulty level of the expedition."
+  difficulty: ExpeditionDifficulty!
+  "Minimum number of participants required to start the expedition."
+  minParticipants: Int!
+  "Maximum number of participants allowed in the expedition."
+  maxParticipants: Int!
+}
+
+"Request to join an existing expedition."
+input JoinExpeditionInput {
+  "Unique identifier of the expedition to join."
+  expeditionId: UUID!
 }
 
 "Defines when a policy shall be executed."

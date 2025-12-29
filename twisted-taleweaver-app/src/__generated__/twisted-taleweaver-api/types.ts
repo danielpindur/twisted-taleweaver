@@ -18,6 +18,20 @@ export type Scalars = {
   UUID: { input: any; output: any; }
 };
 
+/** Request to create a new expedition. */
+export type AddExpeditionInput = {
+  /** Description of the expedition to drive the narrative - if empty a description will be generated. */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Difficulty level of the expedition. */
+  difficulty: ExpeditionDifficulty;
+  /** Maximum number of participants allowed in the expedition. */
+  maxParticipants: Scalars['Int']['input'];
+  /** Minimum number of participants required to start the expedition. */
+  minParticipants: Scalars['Int']['input'];
+  /** Name of the expedition - if empty a name will be generated. */
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Defines when a policy shall be executed. */
 export enum ApplyPolicy {
   /** After the resolver was executed. */
@@ -72,6 +86,30 @@ export type ExpeditionParticipant = {
   user: User;
 };
 
+/** Request to join an existing expedition. */
+export type JoinExpeditionInput = {
+  /** Unique identifier of the expedition to join. */
+  expeditionId: Scalars['UUID']['input'];
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  /** Creates a new expedition. */
+  addExpedition: Expedition;
+  /** Joins an existing expedition. */
+  joinExpedition: Expedition;
+};
+
+
+export type MutationAddExpeditionArgs = {
+  input: AddExpeditionInput;
+};
+
+
+export type MutationJoinExpeditionArgs = {
+  input: JoinExpeditionInput;
+};
+
 /** Represents a page of items using offset pagination. */
 export type OffsetPageOfExpedition = {
   __typename?: 'OffsetPageOfExpedition';
@@ -117,6 +155,20 @@ export type User = {
   name: Scalars['String']['output'];
 };
 
+export type AddExpeditionMutationVariables = Exact<{
+  input: AddExpeditionInput;
+}>;
+
+
+export type AddExpeditionMutation = { __typename?: 'Mutation', addExpedition: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null } };
+
+export type JoinExpeditionMutationVariables = Exact<{
+  input: JoinExpeditionInput;
+}>;
+
+
+export type JoinExpeditionMutation = { __typename?: 'Mutation', joinExpedition: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null } };
+
 export type GetExpeditionsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   pageSize?: InputMaybe<Scalars['Int']['input']>;
@@ -126,6 +178,34 @@ export type GetExpeditionsQueryVariables = Exact<{
 export type GetExpeditionsQuery = { __typename?: 'Query', expeditions: { __typename?: 'OffsetPageOfExpedition', totalCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null }> } };
 
 
+export const AddExpeditionDocument = gql`
+    mutation AddExpedition($input: AddExpeditionInput!) {
+  addExpedition(input: $input) {
+    id
+    name
+    description
+    difficulty
+    minParticipants
+    maxParticipants
+    currentParticipants
+    outcome
+  }
+}
+    `;
+export const JoinExpeditionDocument = gql`
+    mutation JoinExpedition($input: JoinExpeditionInput!) {
+  joinExpedition(input: $input) {
+    id
+    name
+    description
+    difficulty
+    minParticipants
+    maxParticipants
+    currentParticipants
+    outcome
+  }
+}
+    `;
 export const GetExpeditionsDocument = gql`
     query GetExpeditions($page: Int = 1, $pageSize: Int = 20) {
   expeditions(page: $page, pageSize: $pageSize) {
@@ -154,6 +234,12 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    AddExpedition(variables: AddExpeditionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AddExpeditionMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddExpeditionMutation>({ document: AddExpeditionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AddExpedition', 'mutation', variables);
+    },
+    JoinExpedition(variables: JoinExpeditionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<JoinExpeditionMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<JoinExpeditionMutation>({ document: JoinExpeditionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'JoinExpedition', 'mutation', variables);
+    },
     GetExpeditions(variables?: GetExpeditionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetExpeditionsQuery>({ document: GetExpeditionsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetExpeditions', 'query', variables);
     }

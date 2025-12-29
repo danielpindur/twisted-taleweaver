@@ -14,9 +14,13 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  mutation AddExpedition($input: AddExpeditionInput!) {\n    addExpedition(input: $input) {\n      id\n      name\n      description\n      difficulty\n      minParticipants\n      maxParticipants\n      currentParticipants\n      outcome\n    }\n  }\n": typeof types.AddExpeditionDocument,
+    "\n  mutation JoinExpedition($input: JoinExpeditionInput!) {\n    joinExpedition(input: $input) {\n      id\n      name\n      description\n      difficulty\n      minParticipants\n      maxParticipants\n      currentParticipants\n      outcome\n    }\n  }\n": typeof types.JoinExpeditionDocument,
     "\n  query GetExpeditions($page: Int = 1, $pageSize: Int = 20) {\n    expeditions(page: $page, pageSize: $pageSize) {\n      items {\n        id\n        name\n        description\n        difficulty\n        minParticipants\n        maxParticipants\n        currentParticipants\n        outcome\n      }\n      totalCount\n      page\n      pageSize\n      totalPages\n    }\n  }\n": typeof types.GetExpeditionsDocument,
 };
 const documents: Documents = {
+    "\n  mutation AddExpedition($input: AddExpeditionInput!) {\n    addExpedition(input: $input) {\n      id\n      name\n      description\n      difficulty\n      minParticipants\n      maxParticipants\n      currentParticipants\n      outcome\n    }\n  }\n": types.AddExpeditionDocument,
+    "\n  mutation JoinExpedition($input: JoinExpeditionInput!) {\n    joinExpedition(input: $input) {\n      id\n      name\n      description\n      difficulty\n      minParticipants\n      maxParticipants\n      currentParticipants\n      outcome\n    }\n  }\n": types.JoinExpeditionDocument,
     "\n  query GetExpeditions($page: Int = 1, $pageSize: Int = 20) {\n    expeditions(page: $page, pageSize: $pageSize) {\n      items {\n        id\n        name\n        description\n        difficulty\n        minParticipants\n        maxParticipants\n        currentParticipants\n        outcome\n      }\n      totalCount\n      page\n      pageSize\n      totalPages\n    }\n  }\n": types.GetExpeditionsDocument,
 };
 
@@ -34,6 +38,14 @@ const documents: Documents = {
  */
 export function gql(source: string): unknown;
 
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AddExpedition($input: AddExpeditionInput!) {\n    addExpedition(input: $input) {\n      id\n      name\n      description\n      difficulty\n      minParticipants\n      maxParticipants\n      currentParticipants\n      outcome\n    }\n  }\n"): (typeof documents)["\n  mutation AddExpedition($input: AddExpeditionInput!) {\n    addExpedition(input: $input) {\n      id\n      name\n      description\n      difficulty\n      minParticipants\n      maxParticipants\n      currentParticipants\n      outcome\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation JoinExpedition($input: JoinExpeditionInput!) {\n    joinExpedition(input: $input) {\n      id\n      name\n      description\n      difficulty\n      minParticipants\n      maxParticipants\n      currentParticipants\n      outcome\n    }\n  }\n"): (typeof documents)["\n  mutation JoinExpedition($input: JoinExpeditionInput!) {\n    joinExpedition(input: $input) {\n      id\n      name\n      description\n      difficulty\n      minParticipants\n      maxParticipants\n      currentParticipants\n      outcome\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

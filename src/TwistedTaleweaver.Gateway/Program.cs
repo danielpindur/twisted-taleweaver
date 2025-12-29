@@ -10,6 +10,7 @@ using Serilog;
 using Serilog.Formatting.Compact;
 using TwistedTaleweaver.Core.Setup;
 using TwistedTaleweaver.Gateway.Authorization;
+using TwistedTaleweaver.Gateway.Common.Errors;
 using TwistedTaleweaver.Gateway.Users.DataLoaders;
 using TwistedTaleweaver.Setup;
 
@@ -113,16 +114,14 @@ builder.Services.AddAuthorization(options =>
 builder
     .AddGraphQL()
     .AddGatewayTypes()
-    //.AddMutationType<Mutation>()
-    //.AddSubscriptionType<Subscription>()
+    .AddErrorFilter<GatewayErrorFilter>()
     .AddAuthorization()
     .AddInMemorySubscriptions()
     .ModifyRequestOptions(options =>
     {
-        options.IncludeExceptionDetails = true;
+        options.IncludeExceptionDetails = builder.Environment.IsDevelopment();
         options.ExecutionTimeout = TimeSpan.FromSeconds(5);
-    })
-    .AddDataLoader<UserByIdDataLoader>();
+    });
 
 builder.Services    
     .AddHealthChecks()
@@ -168,20 +167,3 @@ app.MapGraphQL()
 app.MapGet("/", () => Results.Redirect("/graphql"));
 
 app.RunWithGraphQLCommands(args);
-
-public class Mutation
-{
-    public async Task<bool> PublishEvent(
-        string message,
-        [Service] ITopicEventSender sender)
-    {
-        await sender.SendAsync(nameof(Subscription.OnEvent), message);
-        return true;
-    }
-}
-
-public class Subscription
-{
-    [Subscribe]
-    public string OnEvent([EventMessage] string message) => message;
-}
