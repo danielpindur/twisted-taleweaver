@@ -1,0 +1,97 @@
+schema {
+  query: Query
+}
+
+"Represents an expedition."
+type Expedition {
+  "User who created the expedition."
+  userCreated: User! @cost(weight: "10")
+  "Participants of the expedition."
+  participants: [ExpeditionParticipant!]! @cost(weight: "10")
+  "Unique identifier of the expedition."
+  id: UUID!
+  "Name of the expedition."
+  name: String!
+  "Description of the expedition."
+  description: String!
+  "Difficulty level of the expedition."
+  difficulty: ExpeditionDifficulty!
+  "Minimum number of participants required for the expedition."
+  minParticipants: Int!
+  "Maximum number of participants allowed for the expedition."
+  maxParticipants: Int!
+  "Current number of participants in the expedition."
+  currentParticipants: Int!
+  "Outcome of the expedition, if completed."
+  outcome: ExpeditionOutcome
+}
+
+"Represents a participant in an expedition."
+type ExpeditionParticipant {
+  "User of the participant."
+  user: User! @cost(weight: "10")
+}
+
+"Represents a page of items using offset pagination."
+type OffsetPageOfExpedition {
+  "The items on the current page."
+  items: [Expedition!]!
+  "Total number of items available."
+  totalCount: Int!
+  "Current page number (1-based)."
+  page: Int!
+  "Number of items per page."
+  pageSize: Int!
+  "Total number of pages available."
+  totalPages: Int!
+}
+
+type Query {
+  "Retrieves an expedition by its unique identifier."
+  expeditionById(id: UUID!): Expedition @authorize @cost(weight: "10")
+  "Retrieves a paginated list of expeditions."
+  expeditions(page: Int! = 1 pageSize: Int! = 20): OffsetPageOfExpedition! @authorize @cost(weight: "10")
+}
+
+"Represents an user."
+type User {
+  "Unique identifier of the user."
+  id: UUID!
+  "External identifier of the user."
+  externalId: String!
+  "Name of the user."
+  name: String!
+}
+
+"Defines when a policy shall be executed."
+enum ApplyPolicy {
+  "Before the resolver was executed."
+  BEFORE_RESOLVER
+  "After the resolver was executed."
+  AFTER_RESOLVER
+  "The policy is applied in the validation step before the execution."
+  VALIDATION
+}
+
+enum ExpeditionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+  NIGHTMARE
+}
+
+enum ExpeditionOutcome {
+  SUCCESS
+  FAILURE
+}
+
+"The authorize directive."
+directive @authorize("The name of the authorization policy that determines access to the annotated resource." policy: String "Roles that are allowed to access the annotated resource." roles: [String!] "Defines when when the authorize directive shall be applied.By default the authorize directives are applied during the validation phase." apply: ApplyPolicy! = BEFORE_RESOLVER) repeatable on OBJECT | FIELD_DEFINITION
+
+"The purpose of the `cost` directive is to define a `weight` for GraphQL types, fields, and arguments. Static analysis can use these weights when calculating the overall cost of a query or response."
+directive @cost("The `weight` argument defines what value to add to the overall cost for every appearance, or possible appearance, of a type, field, argument, etc." weight: String!) on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM | INPUT_FIELD_DEFINITION
+
+"The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
+directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
+
+scalar UUID @specifiedBy(url: "https:\/\/tools.ietf.org\/html\/rfc4122")

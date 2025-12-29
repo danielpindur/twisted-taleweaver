@@ -32,6 +32,10 @@ public class UnitOfWorkProviderTests
         Assert.That(unitOfWork, Is.Null);
     }
 
+    /// <summary>
+    /// No UnitOfWorkScope was created, but DatabaseAccessor requested OperationUnitOfWork
+    /// </summary>
+    [Test]
     public void CreateOperationUnitOfWork_Creates_Suppressed_Not_Tracked_UnitOfWork()
     {
         var provider = CreateProvider();

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TextArea } from "@/components/ui/textarea";
 import { Users, Plus, Swords, KeyRound, Loader2, AlertCircle } from "lucide-react";
-import { useApiClient } from "@/hooks/useApiClient";
+import { useGraphQlClient } from "@/hooks/useGraphQlClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExpeditionsService } from "@/generated/twisted-taleweaver-api";
 import { ExpeditionStatus } from "@/generated/twisted-taleweaver-api/models/ExpeditionStatus";
@@ -25,7 +25,7 @@ import type { ValidationProblemDetails } from "@/generated/twisted-taleweaver-ap
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
-  const { requestWithAuth } = useApiClient();
+  const { requestWithAuth } = useGraphQlClient();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -149,9 +149,7 @@ export const ExpeditionSelection = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["expeditions", currentPage, pageSize],
     queryFn: () => {
-      return requestWithAuth(() =>
-        ExpeditionsService.getApiV1Expeditions(currentPage, pageSize)
-      );
+      return requestWithAuth((sdk) => sdk.GetExpeditions({ page: currentPage, pageSize }));
     },
   });
 
@@ -350,14 +348,14 @@ export const ExpeditionSelection = () => {
                 Failed to load expeditions. Try refreshing the page.
               </div>
             )}
-            {!isLoading && !isError && data?.items.length === 0 && (
+            {!isLoading && !isError && data?.expeditions.items.length === 0 && (
               <p className="col-span-full flex justify-center items-center text-muted-foreground text-center font-crimson italic">
                 No active expeditions found. Dare to create a new one?
               </p>
             )}
 
-            {!isError && data?.items.map((expedition) => (
-              <Card key={expedition.expeditionId} className="bg-card border-border shadow-dark hover:shadow-glow transition-all duration-300">
+            {!isError && data?.expeditions.items.map((expedition) => (
+              <Card key={expedition.id} className="bg-card border-border shadow-dark hover:shadow-glow transition-all duration-300">
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
                     <CardTitle className="font-cinzel text-xl text-primary">{expedition.name}</CardTitle>
@@ -381,17 +379,19 @@ export const ExpeditionSelection = () => {
                           {expedition.currentParticipants}/{expedition.maxParticipants} souls
                         </span>
                       </div>
-                      <Badge className={getStatusColor(expedition.status)}>
+
+                      {/* <Badge className={getStatusColor(expedition.status)}>
                         {expedition.status === ExpeditionStatus.CREATED && "Gathering Victims"}
                         {expedition.status === ExpeditionStatus.STARTED && "Doom in Progress"}
-                      </Badge>
+                      </Badge> */}
+
                     </div>
 
                     {/* Join Button */}
                     <Button
                       variant="default"
                       className="w-full gap-2"
-                      onClick={() => navigateToExpedition(expedition.expeditionId)}
+                      onClick={() => navigateToExpedition(expedition.id)}
                     >
                       <Swords className="h-4 w-4" />
                       Continue Expedition
@@ -402,7 +402,7 @@ export const ExpeditionSelection = () => {
             ))}
 
             {/* Pagination for Active Expeditions */}
-            {!isLoading && !isError && data && data.items.length !== 0 && data.totalPages !== 1 && (
+            {!isLoading && !isError && data && data.expeditions.items.length !== 0 && data.expeditions.totalPages !== 1 && (
               <div className="col-span-full flex justify-center items-center justify-center mt-6">
                 <Pagination>
                   <PaginationContent>
@@ -412,7 +412,7 @@ export const ExpeditionSelection = () => {
                         className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                       />
                     </PaginationItem>
-                    {Array.from({ length: data.totalPages }, (_, i) => i + 1).map((page) => (
+                    {Array.from({ length: data.expeditions.totalPages }, (_, i) => i + 1).map((page) => (
                       <PaginationItem key={page}>
                         <PaginationLink
                           onClick={() => setCurrentPage(page)}
@@ -425,8 +425,8 @@ export const ExpeditionSelection = () => {
                     ))}
                     <PaginationItem>
                       <PaginationNext 
-                        onClick={() => setCurrentPage(Math.min(data?.totalPages, currentPage + 1))}
-                        className={currentPage === data?.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        onClick={() => setCurrentPage(Math.min(data?.expeditions.totalPages, currentPage + 1))}
+                        className={currentPage === data?.expeditions.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                       />
                     </PaginationItem>
                   </PaginationContent>

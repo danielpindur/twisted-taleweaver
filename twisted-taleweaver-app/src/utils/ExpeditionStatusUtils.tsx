@@ -1,4 +1,4 @@
-import { ExpeditionStatus } from "@/generated/twisted-taleweaver-api/models/ExpeditionStatus";
+//import { ExpeditionStatus } from "@/__generated__/twisted-taleweaver-api/types";
 
 export const getStatusColor = (status: ExpeditionStatus) => {
 	switch (status) {

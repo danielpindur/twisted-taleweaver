@@ -5,7 +5,7 @@ namespace TwistedTaleweaver.Api.Expeditions.Queries;
 
 public class ExpeditionParticipantsQuery
 {
-    public List<Guid> ExpeditionIds { get; set; }
+    public required List<Guid> ExpeditionIds { get; set; }
 }
 
 public interface IExpeditionParticipantsQueryHandler :
