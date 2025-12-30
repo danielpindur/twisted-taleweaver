@@ -10,6 +10,7 @@ import Landing from "@/pages/Landing";
 import NotFound from "@/pages/NotFound";
 import Dashboard from "@/pages/Dashboard";
 import Expedition from "@/pages/Expedition";
+import { WebSocketClientProvider } from "./components/websocket/WebSocketClientProvider";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
@@ -23,35 +24,37 @@ function App() {
 		<QueryClientProvider client={queryClient}>
 			<TooltipProvider>
 				<ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-					<BrowserRouter>
-						<Routes>
-							{/* Public routes */}
-							<Route path="/" element={
-								<>
-									<SignedIn>
-										<Dashboard />
-									</SignedIn>
-									<SignedOut>
-										<Landing />
-									</SignedOut>
-								</>} />
+					<WebSocketClientProvider>
+						<BrowserRouter>
+							<Routes>
+								{/* Public routes */}
+								<Route path="/" element={
+									<>
+										<SignedIn>
+											<Dashboard />
+										</SignedIn>
+										<SignedOut>
+											<Landing />
+										</SignedOut>
+									</>} />
 
-							{/* Protected routes */}
-							<Route 
-                path="/expedition/:expeditionId" 
-                element={
+								{/* Protected routes */}
+								<Route 
+                  path="/expedition/:expeditionId" 
+                  element={
                   <ProtectedRoute>
                     <Expedition />
                   </ProtectedRoute>
-                } 
-              />
+                  } 
+                />
 
-							{/* 404 route */}
-							<Route path="*" element={<NotFound />} />
-						</Routes>
-					</BrowserRouter>
-					<Toaster />
-					<Sonner />
+								{/* 404 route */}
+								<Route path="*" element={<NotFound />} />
+							</Routes>
+						</BrowserRouter>
+						<Toaster />
+						<Sonner />
+					</WebSocketClientProvider>
 				</ClerkProvider>
 			</TooltipProvider>
 			<ReactQueryDevtools initialIsOpen={false} />

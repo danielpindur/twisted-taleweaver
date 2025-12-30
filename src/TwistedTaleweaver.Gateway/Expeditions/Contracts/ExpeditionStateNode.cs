@@ -20,7 +20,8 @@ public static partial class ExpeditionStateNode
         }
         
         var user = await dataLoader.LoadAsync(state.ActiveUserId.Value, cancellationToken);
-        return user!;
+        return user ?? 
+               throw new InvalidOperationException($"Active user not found with ID {state.ActiveUserId.Value}");
     }
     
     [GraphQLDescription("States of characters in the expedition.")]
@@ -30,6 +31,7 @@ public static partial class ExpeditionStateNode
         CancellationToken cancellationToken)
     {
         var characterStates = await dataLoader.LoadAsync(state.ExpeditionId, cancellationToken);
-        return characterStates!;
+        return characterStates ?? 
+               throw new InvalidOperationException($"Character states not found for expedition with ID {state.ExpeditionId}");
     }
 }

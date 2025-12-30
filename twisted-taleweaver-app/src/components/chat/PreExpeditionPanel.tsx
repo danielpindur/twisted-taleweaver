@@ -10,7 +10,8 @@ import { useToast } from "@/hooks/useToast";
 import type { UserResource } from "@clerk/types";
 import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 import { useGraphQlClient } from "@/hooks/useGraphQlClient";
-import { ExpeditionStatus, type StartExpeditionInput } from "@/__generated__/twisted-taleweaver-api/types";
+import { ExpeditionStatus, OnParticipantsChangedDocument, type OnParticipantsChangedSubscription, type StartExpeditionInput } from "@/__generated__/twisted-taleweaver-api/types";
+import { useGraphQlSubscription } from "@/hooks/useGraphQlSubscription";
 
 interface PreExpeditionPanelProps {
   expedition: ExpeditionViewModel;
@@ -44,6 +45,14 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
         variant: "destructive",
       });
     },
+  });
+
+  useGraphQlSubscription<OnParticipantsChangedSubscription>({
+    document: OnParticipantsChangedDocument,
+    variables: { expeditionId: expedition.id },
+    onNext: (_) => {
+        queryClient.invalidateQueries({ queryKey: ["expedition", expedition.id] });
+      }
   });
 
   const handleStartExpedition = () => {

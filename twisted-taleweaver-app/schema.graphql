@@ -1,6 +1,7 @@
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 "Breakdown of a character's attribute scores that represents their physical and mental capabilities."
@@ -155,6 +156,10 @@ type SpeedScores {
   burrowing: Int
   "Represents the creature's speed while teleporting, if applicable."
   teleportation: Int
+}
+
+type Subscription {
+  participantsUpdated(expeditionId: UUID!): Expedition! @cost(weight: "10")
 }
 
 "Represents an user."

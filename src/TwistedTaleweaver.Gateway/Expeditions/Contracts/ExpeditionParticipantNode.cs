@@ -16,7 +16,7 @@ public static partial class ExpeditionParticipantNode
         CancellationToken cancellationToken)
     {
         var user = await dataLoader.LoadAsync(participant.UserId, cancellationToken);
-        return user!;
+        return user ?? throw new InvalidOperationException($"User for participant not found with ID {participant.UserId}");
     }
     
     [GraphQLDescription("Character of the participant.")]
@@ -31,6 +31,6 @@ public static partial class ExpeditionParticipantNode
         }
         
         var character = await dataLoader.LoadAsync(participant.CharacterId.Value, cancellationToken);
-        return character!;
+        return character ?? throw new InvalidOperationException($"Character for participant not found with ID {participant.CharacterId.Value}");
     }
 }

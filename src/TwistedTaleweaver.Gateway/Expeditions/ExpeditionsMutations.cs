@@ -1,8 +1,10 @@
 using HotChocolate.Authorization;
+using HotChocolate.Subscriptions;
 using TwistedTaleweaver.Api.Expeditions.Commands;
 using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.Expeditions.Contracts;
+using TwistedTaleweaver.Gateway.Expeditions.Helpers;
 using TwistedTaleweaver.Gateway.Expeditions.Mappers;
 
 namespace TwistedTaleweaver.Gateway.Expeditions;
@@ -43,7 +45,8 @@ public static class ExpeditionsMutations
         JoinExpeditionInput input,
         [Service] IUserProvider userProvider,
         [Service] IJoinExpeditionCommandHandler joinExpeditionCommandHandler,
-        [Service] IExpeditionByIdQueryHandler expeditionByIdQueryHandler)
+        [Service] IExpeditionByIdQueryHandler expeditionByIdQueryHandler,
+        [Service] ITopicEventSender topicEventSender)
     {
         var userId = await userProvider.GetUserIdAsync();
 
@@ -53,7 +56,11 @@ public static class ExpeditionsMutations
         var expedition = await expeditionByIdQueryHandler.ExecuteAsync(
             new ExpeditionByIdQuery() { ExpeditionId = input.ExpeditionId });
 
-        return expedition!.ToContract();
+        var expeditionContract = expedition!.ToContract();
+
+        await topicEventSender.PublishParticipantsChanged(expeditionContract);
+
+        return expeditionContract;
     }
     
     [GraphQLDescription("Starts an existing expedition.")]

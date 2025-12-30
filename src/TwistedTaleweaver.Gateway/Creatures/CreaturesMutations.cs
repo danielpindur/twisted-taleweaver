@@ -1,9 +1,13 @@
+using HotChocolate.Subscriptions;
 using Microsoft.AspNetCore.Authorization;
 using TwistedTaleweaver.Api.Creatures.Commands;
 using TwistedTaleweaver.Api.Creatures.Queries;
+using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.Gateway.Authorization;
 using TwistedTaleweaver.Gateway.Creatures.Contracts;
 using TwistedTaleweaver.Gateway.Creatures.Mappers;
+using TwistedTaleweaver.Gateway.Expeditions.Helpers;
+using TwistedTaleweaver.Gateway.Expeditions.Mappers;
 using AttributeScores = TwistedTaleweaver.Api.Creatures.Entities.AttributeScores;
 
 namespace TwistedTaleweaver.Gateway.Creatures;
@@ -17,7 +21,9 @@ public static class CreaturesMutations
         AddCharacterInput input,
         [Service] IUserProvider userProvider,
         [Service] ICreateCharacterCommandHandler createCharacterCommandHandler,
-        [Service] ICharactersQueryHandler charactersQueryHandler)
+        [Service] ICharactersQueryHandler charactersQueryHandler,
+        [Service] IExpeditionByIdQueryHandler expeditionByIdQueryHandler,
+        [Service] ITopicEventSender topicEventSender)
     {
         var userId = await userProvider.GetUserIdAsync();
 
@@ -45,6 +51,11 @@ public static class CreaturesMutations
 
         var character = await charactersQueryHandler.ExecuteAsync(
             new CharacterByIdQuery() { CharacterId = creationResult.CharacterId });
+
+        var expedition = await expeditionByIdQueryHandler.ExecuteAsync(
+            new ExpeditionByIdQuery() { ExpeditionId = input.ExpeditionId });
+
+        await topicEventSender.PublishParticipantsChanged(expedition!.ToContract());
         
         return character!.ToContract();
     }

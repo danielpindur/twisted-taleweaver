@@ -3,7 +3,7 @@ using TwistedTaleweaver.Core.Database.Enums;
 
 namespace TwistedTaleweaver.Core.Database;
 
-public interface IUnitOfWorkProvider : IAsyncDisposable
+public interface IUnitOfWorkProvider : IDisposable, IAsyncDisposable
 {
     IUnitOfWork CreateUnitOfWork(UnitOfWorkScopeOption scopeOption);
 
@@ -169,5 +169,10 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
 
         public bool HasNoConnections => Volatile.Read(ref _connectionsCount) == 0;
         public bool IsRootConnection => Volatile.Read(ref _connectionsCount) == 1;
+    }
+
+    public void Dispose()
+    {
+        Task.Run(DisposeAsync);
     }
 }

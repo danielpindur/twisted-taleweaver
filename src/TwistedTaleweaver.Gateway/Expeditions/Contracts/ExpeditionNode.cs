@@ -14,7 +14,7 @@ public static partial class ExpeditionNode
         CancellationToken cancellationToken)
     {
         var user = await dataLoader.LoadAsync(expedition.CreatedByUserId, cancellationToken);
-        return user!;
+        return user ?? throw new InvalidOperationException($"User who created the expedition not found with ID {expedition.CreatedByUserId}");
     }
 
     [GraphQLDescription("Participants of the expedition.")]
@@ -24,7 +24,7 @@ public static partial class ExpeditionNode
         CancellationToken cancellationToken)
     {
         var participants = await dataLoader.LoadAsync(expedition.Id, cancellationToken);
-        return participants!;
+        return participants ?? throw new InvalidOperationException($"Participants not found for expedition with ID {expedition.Id}");
     }
 
     [GraphQLDescription("The state of the expedition.")]
@@ -34,6 +34,6 @@ public static partial class ExpeditionNode
         CancellationToken cancellationToken)
     {
         var state = await dataLoader.LoadAsync(expedition.Id, cancellationToken);
-        return state!;
+        return state ?? throw new InvalidOperationException($"Expedition state not found for expedition with ID {expedition.Id}");
     }
 }

@@ -4,7 +4,7 @@ using TwistedTaleweaver.Gateway.Creatures.Mappers;
 
 namespace TwistedTaleweaver.Gateway.Creatures.DataLoaders;
 
-public class CreatureTraisByCreatureIdDataLoader(
+public class CreatureTraitsByCreatureIdDataLoader(
     IBatchScheduler batchScheduler,
     DataLoaderOptions options,
     ICreatureTraitsQueryHandler creatureTraitsQueryHandler)

@@ -394,6 +394,16 @@ export type StartExpeditionInput = {
   expeditionId: Scalars['UUID']['input'];
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  participantsUpdated: Expedition;
+};
+
+
+export type SubscriptionParticipantsUpdatedArgs = {
+  expeditionId: Scalars['UUID']['input'];
+};
+
 /** Represents an user. */
 export type User = {
   __typename?: 'User';
@@ -447,6 +457,13 @@ export type GetExpeditionByIdQueryVariables = Exact<{
 
 
 export type GetExpeditionByIdQuery = { __typename?: 'Query', expeditionById?: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, userCreated: { __typename?: 'User', id: any, externalId: string, name: string }, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeUser?: { __typename?: 'User', id: any, externalId: string } | null, characterStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }> }, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any, externalId: string, name: string }, character?: { __typename?: 'Character', id: any, name: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, class: CharacterClass, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> } | null }> } | null };
+
+export type OnParticipantsChangedSubscriptionVariables = Exact<{
+  expeditionId: Scalars['UUID']['input'];
+}>;
+
+
+export type OnParticipantsChangedSubscription = { __typename?: 'Subscription', participantsUpdated: { __typename?: 'Expedition', id: any, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any }, character?: { __typename?: 'Character', id: any } | null }> } };
 
 
 export const AddCharacterDocument = gql`
@@ -569,6 +586,21 @@ export const GetExpeditionByIdDocument = gql`
   }
 }
     `;
+export const OnParticipantsChangedDocument = gql`
+    subscription OnParticipantsChanged($expeditionId: UUID!) {
+  participantsUpdated(expeditionId: $expeditionId) {
+    id
+    participants {
+      user {
+        id
+      }
+      character {
+        id
+      }
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string, variables?: any) => Promise<T>;
 
@@ -594,6 +626,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetExpeditionById(variables: GetExpeditionByIdQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionByIdQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetExpeditionByIdQuery>({ document: GetExpeditionByIdDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetExpeditionById', 'query', variables);
+    },
+    OnParticipantsChanged(variables: OnParticipantsChangedSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<OnParticipantsChangedSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<OnParticipantsChangedSubscription>({ document: OnParticipantsChangedDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'OnParticipantsChanged', 'subscription', variables);
     }
   };
 }
