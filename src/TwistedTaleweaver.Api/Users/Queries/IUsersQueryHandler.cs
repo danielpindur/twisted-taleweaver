@@ -1,5 +1,5 @@
+using TwistedTaleweaver.Api.Users.Entities;
 using TwistedTaleweaver.Core.Queries;
-using TwistedTaleweaver.Domain.Users;
 
 namespace TwistedTaleweaver.Api.Users.Queries;
 

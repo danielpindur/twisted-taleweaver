@@ -1,4 +1,4 @@
-using TwistedTaleweaver.Domain.Users;
+using TwistedTaleweaver.Api.Users.Entities;
 using UserContract = TwistedTaleweaver.Gateway.Users.Contracts.User;
 
 namespace TwistedTaleweaver.Gateway.Users.Mappers;

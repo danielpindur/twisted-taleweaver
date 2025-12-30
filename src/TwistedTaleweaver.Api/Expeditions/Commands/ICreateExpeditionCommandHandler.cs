@@ -1,5 +1,5 @@
+using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 using TwistedTaleweaver.Core.Commands;
-using TwistedTaleweaver.Domain.Expeditions.Enums;
 
 namespace TwistedTaleweaver.Api.Expeditions.Commands;
 

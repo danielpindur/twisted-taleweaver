@@ -1,8 +1,8 @@
 using TwistedTaleweaver.Api.Creatures.Queries;
+using TwistedTaleweaver.Api.Expeditions.Entities;
 using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
 using TwistedTaleweaver.Domain.Creatures;
-using TwistedTaleweaver.Domain.Expeditions;
 
 namespace TwistedTaleweaver.Expeditions.QueryHandlers;
 

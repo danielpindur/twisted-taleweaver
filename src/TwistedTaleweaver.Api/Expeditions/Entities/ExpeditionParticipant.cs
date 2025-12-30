@@ -1,7 +1,6 @@
 using TwistedTaleweaver.Domain.Creatures;
-using TwistedTaleweaver.Domain.Users;
 
-namespace TwistedTaleweaver.Domain.Expeditions;
+namespace TwistedTaleweaver.Api.Expeditions.Entities;
 
 /// <summary>
 /// Represents a participant in an expedition

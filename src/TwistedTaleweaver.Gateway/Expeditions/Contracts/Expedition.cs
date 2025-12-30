@@ -1,4 +1,4 @@
-using TwistedTaleweaver.Domain.Expeditions.Enums;
+using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 
 namespace TwistedTaleweaver.Gateway.Expeditions.Contracts;
 

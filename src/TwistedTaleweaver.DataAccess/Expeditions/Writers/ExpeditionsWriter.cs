@@ -1,6 +1,6 @@
+using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.DataAccess.Common;
-using TwistedTaleweaver.Domain.Expeditions.Enums;
 
 namespace TwistedTaleweaver.DataAccess.Expeditions.Writers;
 

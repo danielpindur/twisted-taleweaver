@@ -1,5 +1,5 @@
+using TwistedTaleweaver.Api.Expeditions.Entities;
 using TwistedTaleweaver.Core.Queries;
-using TwistedTaleweaver.Domain.Expeditions;
 
 namespace TwistedTaleweaver.Api.Expeditions.Queries;
 

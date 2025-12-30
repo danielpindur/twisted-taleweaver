@@ -1,5 +1,5 @@
+using TwistedTaleweaver.Api.Users.Entities;
 using TwistedTaleweaver.DataAccess.Users.Dtos;
-using TwistedTaleweaver.Domain.Users;
 using ClerkUser = Clerk.Net.Client.Models.User;
 
 namespace TwistedTaleweaver.Users.Mappers;

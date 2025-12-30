@@ -1,5 +1,4 @@
 using TwistedTaleweaver.Core.Commands;
-using TwistedTaleweaver.Domain.Users;
 
 namespace TwistedTaleweaver.Api.Users.Commands;
 

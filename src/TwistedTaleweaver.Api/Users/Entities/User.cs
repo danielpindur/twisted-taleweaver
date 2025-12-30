@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace TwistedTaleweaver.Domain.Users;
+namespace TwistedTaleweaver.Api.Users.Entities;
 
 /// <summary>
 /// Represents a user within the system

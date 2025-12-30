@@ -34,7 +34,7 @@ public static class ExpeditionsMutations
         var expedition = await expeditionByIdQueryHandler.ExecuteAsync(
             new ExpeditionByIdQuery() { ExpeditionId = creationResult.ExpeditionId });
 
-        return expedition.ToContract()!;
+        return expedition!.ToContract();
     }
 
     [GraphQLDescription("Joins an existing expedition.")]
@@ -53,6 +53,6 @@ public static class ExpeditionsMutations
         var expedition = await expeditionByIdQueryHandler.ExecuteAsync(
             new ExpeditionByIdQuery() { ExpeditionId = input.ExpeditionId });
 
-        return expedition.ToContract()!;
+        return expedition!.ToContract();
     }
 }

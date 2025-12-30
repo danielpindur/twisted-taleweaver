@@ -1,6 +1,6 @@
+using TwistedTaleweaver.Api.Users.Entities;
 using TwistedTaleweaver.Api.Users.Queries;
 using TwistedTaleweaver.DataAccess.Users.Readers;
-using TwistedTaleweaver.Domain.Users;
 using TwistedTaleweaver.Integration.Clerk.Users;
 using TwistedTaleweaver.Users.Mappers;
 

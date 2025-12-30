@@ -1,4 +1,4 @@
-namespace TwistedTaleweaver.Domain.Expeditions.Enums;
+namespace TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 
 /// <summary>
 /// Represents the status of an expedition

@@ -1,8 +1,8 @@
 using System.Text;
+using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 using TwistedTaleweaver.Core.Common.Extensions;
 using TwistedTaleweaver.Domain.Creatures;
 using TwistedTaleweaver.Domain.Creatures.Enums;
-using TwistedTaleweaver.Domain.Expeditions.Enums;
 using TwistedTaleweaver.Integration.OpenAi.Creatures;
 using TwistedTaleweaver.Integration.OpenAi.Expeditions;
 using TwistedTaleweaver.Integration.OpenAi.Expeditions.Enums;

@@ -1,4 +1,4 @@
-using TwistedTaleweaver.Domain.Expeditions;
+using TwistedTaleweaver.Api.Expeditions.Entities;
 using ExpeditionContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.Expedition;
 using ExpeditionParticipantContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionParticipant;
 using ExpeditionStateContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionState;
@@ -7,27 +7,17 @@ namespace TwistedTaleweaver.Gateway.Expeditions.Mappers;
 
 internal static class ExpeditionMapper
 {
-    public static ExpeditionContract? ToContract(this Expedition? source)
+    public static ExpeditionContract? ToNullableContract(this Expedition? source)
     {
         if (source is null)
         {
             return null;
         }
-        
-        return new ExpeditionContract()
-        {
-            Id = source.ExpeditionId,
-            Name = source.Name,
-            Description = source.Description,
-            Difficulty = source.Difficulty,
-            MinParticipants = source.MinParticipants,
-            MaxParticipants = source.MaxParticipants,
-            CurrentParticipants = source.CurrentParticipants,
-            CreatedByUserId = source.CreatedByUserId
-        };
-    }
 
-    public static ExpeditionContract ToContract(this ExpeditionSlim source)
+        return source.ToContract();
+    }
+    
+    public static ExpeditionContract ToContract(this Expedition source)
     {
         return new ExpeditionContract()
         {

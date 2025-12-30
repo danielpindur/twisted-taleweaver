@@ -1,9 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using TwistedTaleweaver.Domain.Creatures;
-using TwistedTaleweaver.Domain.Expeditions.Enums;
-using TwistedTaleweaver.Domain.Users;
+using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 
-namespace TwistedTaleweaver.Domain.Expeditions;
+namespace TwistedTaleweaver.Api.Expeditions.Entities;
 
 /// <summary>
 /// Information regarding the state the expedition is in
@@ -18,13 +16,12 @@ public class ExpeditionState
     /// <summary>
     /// <see cref="ExpeditionStatus"/>
     /// </summary>
-    [Required]
     public ExpeditionStatus Status { get; set; }
 
     /// <summary>
-    /// The user whose turn it is to act
+    /// Unique identifier or the user whose turn it is to act
     /// </summary>
-    public User? ActiveUser { get; set; }
+    public Guid? ActiveUserId { get; set; }
 
     /// <summary>
     /// Current states of the characters participating in the expedition

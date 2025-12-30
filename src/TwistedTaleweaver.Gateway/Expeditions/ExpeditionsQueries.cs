@@ -23,7 +23,7 @@ public static class ExpeditionsQueries
                 ExpeditionId = id
             });
         
-        return expedition.ToContract();
+        return expedition.ToNullableContract();
     }
 
     [GraphQLDescription("Retrieves a paginated list of expeditions.")]
