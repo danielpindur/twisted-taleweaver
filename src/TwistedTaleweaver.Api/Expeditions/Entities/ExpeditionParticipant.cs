@@ -1,5 +1,3 @@
-using TwistedTaleweaver.Api.Creatures.Entities;
-
 namespace TwistedTaleweaver.Api.Expeditions.Entities;
 
 /// <summary>
@@ -13,7 +11,7 @@ public class ExpeditionParticipant
     public Guid UserId { get; set; }
 
     /// <summary>
-    /// The character associated with the participant, if any
+    /// Unique identifier of the character associated with the participant, if any
     /// </summary>
-    public Character? Character { get; set; }
+    public Guid? CharacterId { get; set; }
 }

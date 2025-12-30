@@ -4,31 +4,32 @@ import { Badge } from "@/components/ui/badge";
 import { User, Users, Crown, Play, Clock, Loader2 } from "lucide-react";
 import { CharacterCreationForm } from "@/components/chat/CharacterCreationForm";
 import { getClassIcon } from "@/utils/CharacterUtils";
-import { ExpeditionsService, ExpeditionStatus, type Expedition } from "@/generated/twisted-taleweaver-api";
 import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
-import { useApiClient } from "@/hooks/useApiClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
 import type { UserResource } from "@clerk/types";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
+import { useGraphQlClient } from "@/hooks/useGraphQlClient";
+import { ExpeditionStatus } from "@/__generated__/twisted-taleweaver-api/types";
 
 interface PreExpeditionPanelProps {
-  expedition: Expedition;
+  expedition: ExpeditionViewModel;
   user: UserResource;
 }
 
 export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps) => {
   const queryClient = useQueryClient();
-  const { requestWithAuth } = useApiClient();
+  const { requestWithAuth } = useGraphQlClient();
   const { toast } = useToast();
 
-  const isOwner = expedition.createdByUser.externalUserId === user.id;
+  const isOwner = expedition.userCreated.externalId === user.id;
   const isReady = expedition.currentParticipants >= expedition.minParticipants;
   const waitingCount = expedition.minParticipants - expedition.currentParticipants;
-  const currentParticipant = expedition.participants.find(p => p.user.externalUserId === user.id);
+  const currentParticipant = expedition.participants.find(p => p.user.externalId === user.id);
   const hasCharacter = currentParticipant && currentParticipant.character;
   const allHaveCharacters = expedition.participants.every(p => p.character);
 
-  const startExpeditionMutation = useMutation({
+  /* const startExpeditionMutation = useMutation({
     mutationFn: (expeditionId: string) =>
       requestWithAuth(() =>
         ExpeditionsService.postApiV1ExpeditionsBegin(expeditionId)
@@ -45,10 +46,10 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
         variant: "destructive",
       });
     },
-  });
+  }); */
 
   const handleStartExpedition = () => {
-    startExpeditionMutation.mutate(expedition.expeditionId);
+    /* startExpeditionMutation.mutate(expedition.expeditionId); */
   };
 
   return (
@@ -76,7 +77,7 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
                 {expedition.currentParticipants}/{expedition.maxParticipants} adventurers
               </span>
             </div>
-            {expedition.state.status === ExpeditionStatus.CREATED && waitingCount > 0 && (
+            {expedition.state.status === ExpeditionStatus.Created && waitingCount > 0 && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 Waiting for {waitingCount} more
@@ -91,7 +92,7 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
 
           {/* Character Creation Form */}
           {!hasCharacter && (
-            <CharacterCreationForm expeditionId={expedition.expeditionId} />
+            <CharacterCreationForm expeditionId={expedition.id} />
           )}
 
           {/* Participants List */}
@@ -102,12 +103,12 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
                 {expedition.participants.map((participant) => {
                   const character = participant.character;
                   const ClassIcon = character ? getClassIcon(character.class) : User;
-                  const isCurrentUser = participant.user.externalUserId === user.id;
-                  const isLeader = participant.user.externalUserId === expedition.createdByUser.externalUserId;
+                  const isCurrentUser = participant.user.externalId === user.id;
+                  const isLeader = participant.user.externalId === expedition.userCreated.externalId;
                   
                   return (
                     <div 
-                      key={participant.user.userId}
+                      key={participant.user.id}
                       className={`flex items-center justify-between p-2 rounded text-sm ${
                         isCurrentUser ? "bg-primary/10 border border-primary/20" : "bg-muted/30"
                       }`}
@@ -150,7 +151,7 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
         {/* Owner Actions */}
         {isOwner && isReady && (
           <div className="pt-4 mt-4 border-t border-border">
-            <Button 
+            {/* <Button 
               onClick={handleStartExpedition}
               className="w-full gap-2"
               variant="default"
@@ -175,14 +176,14 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
                   ? "Waiting for all adventurers to create their characters..." 
                   : "All adventurers have joined. You may now begin the tale..."
               }
-            </p>
+            </p> */}
           </div>
         )}
 
         {!isOwner && isReady && (
           <div className="pt-4 mt-4 border-t border-border">
             <p className="text-sm text-center text-muted-foreground font-crimson">
-              Waiting for <span className="text-primary font-semibold">{expedition.createdByUser.name}</span> to begin the expedition...
+              Waiting for <span className="text-primary font-semibold">{expedition.userCreated.name}</span> to begin the expedition...
             </p>
           </div>
         )}

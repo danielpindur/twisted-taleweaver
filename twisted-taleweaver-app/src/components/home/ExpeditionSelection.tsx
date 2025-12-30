@@ -15,7 +15,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExpeditionDifficulty, ExpeditionStatus } from "@/__generated__/twisted-taleweaver-api/types";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
-import { extractGraphQLErrors, isValidationGraphQLError, normalizeValidationErrors } from "@/utils/GraphQLErrorUtils";
+import { extractGraphQLErrors, isValidationGraphQLError, normalizeValidationErrors } from "@/utils/GraphQlErrorUtils";
 import type { AddExpeditionInput, JoinExpeditionInput } from "@/__generated__/twisted-taleweaver-api/types";
 import type { ValidationGraphQLErrorExtensions } from "@/graphql/errors/graphQlError";
 import { getStatusColor } from "@/utils/ExpeditionStatusUtils";

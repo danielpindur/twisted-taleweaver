@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { User as UserIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { NoCharacterSidePanelContent } from "./NoCharacterSidePanelContent";
 import { CharacterSidePanelContent } from "./CharacterSidePanelContent";
-import type { ExpeditionParticipant, ExpeditionState } from "@/generated/twisted-taleweaver-api";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
 export interface CharacterSidePanelProps {
   panelCollapsed: boolean,
   setPanelCollapsed: (collapsed: boolean) => void,
-  participant: ExpeditionParticipant,
-  expeditionState: ExpeditionState
+  participant: ExpeditionViewModel["participants"][number],
+  expeditionState: ExpeditionViewModel["state"]
 };
 
 export const CharacterSidePanel = ({ panelCollapsed, setPanelCollapsed, participant, expeditionState }: CharacterSidePanelProps) => {

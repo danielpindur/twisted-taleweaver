@@ -5,4 +5,7 @@ public class ExpeditionParticipant
 {
     [GraphQLIgnore]
     public Guid UserId { get; init; }
+    
+    [GraphQLIgnore]
+    public Guid? CharacterId { get; set; }
 }

@@ -41,6 +41,123 @@ export enum ApplyPolicy {
   Validation = 'VALIDATION'
 }
 
+/** Breakdown of a character's attribute scores that represents their physical and mental capabilities. */
+export type AttributeScores = {
+  __typename?: 'AttributeScores';
+  /** Charisma represents a character's charm, social skills, and ability to influence others. */
+  charisma: Scalars['Int']['output'];
+  /** Constitution represents a character's health, stamina, and resilience against physical challenges. */
+  constitution: Scalars['Int']['output'];
+  /** Dexterity represents a character's agility, reflexes, and balance. */
+  dexterity: Scalars['Int']['output'];
+  /** Intelligence represents a character's mental acuity, knowledge, and reasoning ability. */
+  intelligence: Scalars['Int']['output'];
+  /** Strength represents a character's physical power and ability to exert force. */
+  strength: Scalars['Int']['output'];
+  /** Wisdom represents a character's perception, insight, and intuition about the world around them. */
+  wisdom: Scalars['Int']['output'];
+};
+
+/** Represents an user's character within the system. */
+export type Character = {
+  __typename?: 'Character';
+  /** Narrative alignment of the character. */
+  alignment: NarrativeAlignment;
+  /** Armor class of the character. */
+  armorClass: Scalars['Int']['output'];
+  /** Attribute scores of the character. */
+  attributeScores: AttributeScores;
+  /** Class of the character. */
+  class: CharacterClass;
+  /** Type of a creature, that the character is. */
+  creatureType: CreatureType;
+  /** Gender of the character. */
+  gender: CreatureGender;
+  /** Unique identifier of the character. */
+  id: Scalars['UUID']['output'];
+  /** Maximum health points of the character. */
+  maxHealth: Scalars['Int']['output'];
+  /** The name of the character. */
+  name: Scalars['String']['output'];
+  /** Speed scores of the character. */
+  speedScores: SpeedScores;
+  /** The traits of the character. */
+  traits: Array<CreatureTrait>;
+};
+
+export enum CharacterClass {
+  Alchemist = 'ALCHEMIST',
+  Artificer = 'ARTIFICER',
+  Barbarian = 'BARBARIAN',
+  Bard = 'BARD',
+  Beastmaster = 'BEASTMASTER',
+  Bloodmage = 'BLOODMAGE',
+  Chronomancer = 'CHRONOMANCER',
+  Cleric = 'CLERIC',
+  Druid = 'DRUID',
+  Elementalist = 'ELEMENTALIST',
+  Fighter = 'FIGHTER',
+  Hexblade = 'HEXBLADE',
+  Monk = 'MONK',
+  Necromancer = 'NECROMANCER',
+  Paladin = 'PALADIN',
+  Psion = 'PSION',
+  Ranger = 'RANGER',
+  Rogue = 'ROGUE',
+  Shadowdancer = 'SHADOWDANCER',
+  Sorcerer = 'SORCERER',
+  Spellblade = 'SPELLBLADE',
+  Summoner = 'SUMMONER',
+  Warden = 'WARDEN',
+  Warlock = 'WARLOCK',
+  Wizard = 'WIZARD'
+}
+
+export enum CreatureGender {
+  Female = 'FEMALE',
+  Male = 'MALE',
+  NonBinary = 'NON_BINARY',
+  Other = 'OTHER'
+}
+
+/** Passive ability or feature that is always active or trigger under certain conditions. */
+export type CreatureTrait = {
+  __typename?: 'CreatureTrait';
+  /** Optional. Condition under which the trait is active or applies. */
+  conditionForPerform?: Maybe<Scalars['String']['output']>;
+  /** Description of the trait's effect or purpose. */
+  effect: Scalars['String']['output'];
+  /** Name of the trait. */
+  name: Scalars['String']['output'];
+};
+
+export enum CreatureType {
+  Aberration = 'ABERRATION',
+  Beast = 'BEAST',
+  Celestial = 'CELESTIAL',
+  Chronowyrm = 'CHRONOWYRM',
+  Construct = 'CONSTRUCT',
+  Dragon = 'DRAGON',
+  Dreamwalker = 'DREAMWALKER',
+  Elemental = 'ELEMENTAL',
+  Ethereal = 'ETHEREAL',
+  Fey = 'FEY',
+  Fiend = 'FIEND',
+  Forgeborn = 'FORGEBORN',
+  Giant = 'GIANT',
+  Humanoid = 'HUMANOID',
+  Luminarch = 'LUMINARCH',
+  Monstrosity = 'MONSTROSITY',
+  Ooze = 'OOZE',
+  Plant = 'PLANT',
+  Psychic = 'PSYCHIC',
+  Shadowspawn = 'SHADOWSPAWN',
+  Starforged = 'STARFORGED',
+  Steamborn = 'STEAMBORN',
+  Tidehunter = 'TIDEHUNTER',
+  Undead = 'UNDEAD'
+}
+
 /** Represents an expedition. */
 export type Expedition = {
   __typename?: 'Expedition';
@@ -83,6 +200,8 @@ export enum ExpeditionOutcome {
 /** Represents a participant in an expedition. */
 export type ExpeditionParticipant = {
   __typename?: 'ExpeditionParticipant';
+  /** Character of the participant. */
+  character?: Maybe<Character>;
   /** User of the participant. */
   user: User;
 };
@@ -90,6 +209,8 @@ export type ExpeditionParticipant = {
 /** Information regarding the state the expedition is in. */
 export type ExpeditionState = {
   __typename?: 'ExpeditionState';
+  /** User whose turn it is to act. */
+  activeUser?: Maybe<User>;
   /** Current status of the expedition. */
   status: ExpeditionStatus;
 };
@@ -123,6 +244,21 @@ export type MutationAddExpeditionArgs = {
 export type MutationJoinExpeditionArgs = {
   input: JoinExpeditionInput;
 };
+
+export enum NarrativeAlignment {
+  ChaoticEvil = 'CHAOTIC_EVIL',
+  ChaoticGood = 'CHAOTIC_GOOD',
+  ChaoticNeutral = 'CHAOTIC_NEUTRAL',
+  LawfulEvil = 'LAWFUL_EVIL',
+  LawfulGood = 'LAWFUL_GOOD',
+  LawfulNeutral = 'LAWFUL_NEUTRAL',
+  NeutralEvil = 'NEUTRAL_EVIL',
+  NeutralGood = 'NEUTRAL_GOOD',
+  TrueNeutral = 'TRUE_NEUTRAL',
+  Twisted = 'TWISTED',
+  Unknowable = 'UNKNOWABLE',
+  Unknown = 'UNKNOWN'
+}
 
 /** Represents a page of items using offset pagination. */
 export type OffsetPageOfExpedition = {
@@ -158,6 +294,23 @@ export type QueryExpeditionsArgs = {
   pageSize?: Scalars['Int']['input'];
 };
 
+/** Represents how far a creature can move on its turn during combat. */
+export type SpeedScores = {
+  __typename?: 'SpeedScores';
+  /** Represents the creature's speed while burrowing, if applicable. */
+  burrowing?: Maybe<Scalars['Int']['output']>;
+  /** Represents the creature's speed while climbing, if applicable. */
+  climbing?: Maybe<Scalars['Int']['output']>;
+  /** Represents the creature's speed while flying, if applicable. */
+  flying?: Maybe<Scalars['Int']['output']>;
+  /** Represents the creature's speed while swimming, if applicable. */
+  swimming?: Maybe<Scalars['Int']['output']>;
+  /** Represents the creature's speed while teleporting, if applicable. */
+  teleportation?: Maybe<Scalars['Int']['output']>;
+  /** Default walking speed in feet. */
+  walking: Scalars['Int']['output'];
+};
+
 /** Represents an user. */
 export type User = {
   __typename?: 'User';
@@ -191,7 +344,15 @@ export type GetExpeditionsQueryVariables = Exact<{
 
 export type GetExpeditionsQuery = { __typename?: 'Query', expeditions: { __typename?: 'OffsetPageOfExpedition', totalCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus } }> } };
 
+export type GetExpeditionByIdQueryVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type GetExpeditionByIdQuery = { __typename?: 'Query', expeditionById?: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, userCreated: { __typename?: 'User', id: any, externalId: string, name: string }, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeUser?: { __typename?: 'User', id: any, externalId: string } | null }, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any, externalId: string, name: string }, character?: { __typename?: 'Character', id: any, name: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, class: CharacterClass, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> } | null }> } | null };
+
 
 export const AddExpeditionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddExpedition"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AddExpeditionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addExpedition"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<AddExpeditionMutation, AddExpeditionMutationVariables>;
 export const JoinExpeditionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"JoinExpedition"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"JoinExpeditionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"joinExpedition"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<JoinExpeditionMutation, JoinExpeditionMutationVariables>;
 export const GetExpeditionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetExpeditions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"page"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"1"}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pageSize"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"20"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"expeditions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"page"},"value":{"kind":"Variable","name":{"kind":"Name","value":"page"}}},{"kind":"Argument","name":{"kind":"Name","value":"pageSize"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pageSize"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"difficulty"}},{"kind":"Field","name":{"kind":"Name","value":"minParticipants"}},{"kind":"Field","name":{"kind":"Name","value":"maxParticipants"}},{"kind":"Field","name":{"kind":"Name","value":"currentParticipants"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}},{"kind":"Field","name":{"kind":"Name","value":"state"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pageSize"}},{"kind":"Field","name":{"kind":"Name","value":"totalPages"}}]}}]}}]} as unknown as DocumentNode<GetExpeditionsQuery, GetExpeditionsQueryVariables>;
+export const GetExpeditionByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetExpeditionById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"expeditionById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"difficulty"}},{"kind":"Field","name":{"kind":"Name","value":"minParticipants"}},{"kind":"Field","name":{"kind":"Name","value":"maxParticipants"}},{"kind":"Field","name":{"kind":"Name","value":"currentParticipants"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}},{"kind":"Field","name":{"kind":"Name","value":"userCreated"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"externalId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"state"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"activeUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"externalId"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"participants"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"externalId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"character"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"gender"}},{"kind":"Field","name":{"kind":"Name","value":"creatureType"}},{"kind":"Field","name":{"kind":"Name","value":"alignment"}},{"kind":"Field","name":{"kind":"Name","value":"class"}},{"kind":"Field","name":{"kind":"Name","value":"maxHealth"}},{"kind":"Field","name":{"kind":"Name","value":"armorClass"}},{"kind":"Field","name":{"kind":"Name","value":"speedScores"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"walking"}},{"kind":"Field","name":{"kind":"Name","value":"swimming"}},{"kind":"Field","name":{"kind":"Name","value":"flying"}},{"kind":"Field","name":{"kind":"Name","value":"climbing"}},{"kind":"Field","name":{"kind":"Name","value":"burrowing"}},{"kind":"Field","name":{"kind":"Name","value":"teleportation"}}]}},{"kind":"Field","name":{"kind":"Name","value":"attributeScores"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"strength"}},{"kind":"Field","name":{"kind":"Name","value":"wisdom"}},{"kind":"Field","name":{"kind":"Name","value":"intelligence"}},{"kind":"Field","name":{"kind":"Name","value":"dexterity"}},{"kind":"Field","name":{"kind":"Name","value":"constitution"}},{"kind":"Field","name":{"kind":"Name","value":"charisma"}}]}},{"kind":"Field","name":{"kind":"Name","value":"traits"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"effect"}},{"kind":"Field","name":{"kind":"Name","value":"conditionForPerform"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetExpeditionByIdQuery, GetExpeditionByIdQueryVariables>;

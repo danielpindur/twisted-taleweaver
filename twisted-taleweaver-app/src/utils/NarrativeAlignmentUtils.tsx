@@ -1,28 +1,28 @@
-import { NarrativeAlignment } from "@/generated/twisted-taleweaver-api/models/NarrativeAlignment";
+import { NarrativeAlignment } from "@/__generated__/twisted-taleweaver-api/types";
 
 export const getDisplayString = (alignment: NarrativeAlignment): string => {
     switch (alignment) {
-        case NarrativeAlignment.LAWFUL_GOOD:
+        case NarrativeAlignment.LawfulGood:
             return "Lawful Good";
-        case NarrativeAlignment.NEUTRAL_GOOD:
+        case NarrativeAlignment.NeutralGood:
             return "Neutral Good";
-        case NarrativeAlignment.CHAOTIC_GOOD:
+        case NarrativeAlignment.ChaoticGood:
             return "Chaotic Good";
-        case NarrativeAlignment.LAWFUL_NEUTRAL:
+        case NarrativeAlignment.LawfulNeutral:
             return "Lawful Neutral";
-        case NarrativeAlignment.TRUE_NEUTRAL:
+        case NarrativeAlignment.TrueNeutral:
             return "True Neutral";
-        case NarrativeAlignment.CHAOTIC_NEUTRAL:
+        case NarrativeAlignment.ChaoticNeutral:
             return "Chaotic Neutral";
-        case NarrativeAlignment.LAWFUL_EVIL:
+        case NarrativeAlignment.LawfulEvil:
             return "Lawful Evil";
-        case NarrativeAlignment.NEUTRAL_EVIL:
+        case NarrativeAlignment.NeutralEvil:
             return "Neutral Evil";
-        case NarrativeAlignment.CHAOTIC_EVIL:
+        case NarrativeAlignment.ChaoticEvil:
             return "Chaotic Evil";
-        case NarrativeAlignment.UNKNOWABLE:
+        case NarrativeAlignment.Unknowable:
             return "Unknowable";
-        case NarrativeAlignment.TWISTED:
+        case NarrativeAlignment.Twisted:
             return "Twisted";
         default:
             return "Unknown";

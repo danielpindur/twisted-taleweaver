@@ -7,4 +7,7 @@ public class ExpeditionState
 {
     [GraphQLDescription("Current status of the expedition.")]
     public ExpeditionStatus Status { get; init; }
+    
+    [GraphQLIgnore]
+    public Guid? ActiveUserId { get; init; }
 }

@@ -4,14 +4,14 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Heart, Shield, Star, Wind } from "lucide-react";
-import { getGenderSymbol, getCreatureCurrentHealth } from "@/utils/CharacterUtils";
-import { getHealthColor, getHealthPercentage } from "@/utils/HealthUtils";
+import { getGenderSymbol } from "@/utils/CharacterUtils";
 import { formatModifier, getAttributeModifier } from "@/utils/AttributeUtils";
-import type { Character, ExpeditionState } from "@/generated/twisted-taleweaver-api";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
+import { ATTRIBUTE_KEYS } from "@/viewmodels/AttributeScoresViewModel";
 
 export interface CharacterSidePanelContentProps {
-  character: Character,
-  expeditionState: ExpeditionState
+  character: NonNullable<ExpeditionViewModel["participants"][number]["character"]>,
+  expeditionState: ExpeditionViewModel["state"]
 };
 
 export const CharacterSidePanelContent = ({ character, expeditionState }: CharacterSidePanelContentProps) => {
@@ -32,7 +32,7 @@ export const CharacterSidePanelContent = ({ character, expeditionState }: Charac
 
         {/* Stats */}
         <div className="space-y-2">
-          <div>
+        {/*   <div>
             <div className="flex justify-between text-sm mb-1">
               <span className="flex items-center gap-1 font-crimson">
                 <Heart className="h-4 w-4" />
@@ -44,7 +44,7 @@ export const CharacterSidePanelContent = ({ character, expeditionState }: Charac
               value={getHealthPercentage(getCreatureCurrentHealth(character, expeditionState), character.maxHealth)}
               className={`h-2 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(character, expeditionState), character.maxHealth))}`}
             />
-          </div>
+          </div> */}
           
           <div className="flex justify-between text-sm">
             <span className="flex items-center gap-1 font-crimson">
@@ -61,17 +61,24 @@ export const CharacterSidePanelContent = ({ character, expeditionState }: Charac
         <div>
           <h3 className="font-cinzel font-medium text-sm mb-2">Attributes</h3>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-            {Object.entries(character.attributeScores).map(([attr, value]) => (
-              <div key={attr} className="flex justify-between items-center text-xs">
-                <span className="font-crimson capitalize">{attr}</span>
-                <div className="flex items-center gap-1">
-                  <span className="font-medium">{value}</span>
-                  <span className="text-muted-foreground">
-                    {formatModifier(getAttributeModifier(value))}
-                  </span>
-                </div>
-              </div>
-            ))}
+            {character &&
+              ATTRIBUTE_KEYS.map((attr) => {
+                const value = character!.attributeScores[attr];
+
+                return (
+                  <div key={attr} className="flex justify-between items-center text-xs">
+                    <span className="font-crimson capitalize">{attr}</span>
+
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">{value}</span>
+
+                      <span className="text-xs text-muted-foreground">
+                        {formatModifier(getAttributeModifier(value))}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </div>
 

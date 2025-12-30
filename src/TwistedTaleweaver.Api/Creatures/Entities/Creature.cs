@@ -39,9 +39,4 @@ public abstract class Creature
     /// <inheritdoc cref="NarrativeAlignment"/>
     /// </summary>
     public NarrativeAlignment Alignment { get; set; }
-
-    /// <summary>
-    /// <inheritdoc cref="Trait"/>
-    /// </summary>
-    public required List<Trait> Traits { get; set; }
 }

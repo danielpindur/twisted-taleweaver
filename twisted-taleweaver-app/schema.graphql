@@ -3,6 +3,58 @@ schema {
   mutation: Mutation
 }
 
+"Breakdown of a character's attribute scores that represents their physical and mental capabilities."
+type AttributeScores {
+  "Strength represents a character's physical power and ability to exert force."
+  strength: Int!
+  "Dexterity represents a character's agility, reflexes, and balance."
+  dexterity: Int!
+  "Constitution represents a character's health, stamina, and resilience against physical challenges."
+  constitution: Int!
+  "Intelligence represents a character's mental acuity, knowledge, and reasoning ability."
+  intelligence: Int!
+  "Wisdom represents a character's perception, insight, and intuition about the world around them."
+  wisdom: Int!
+  "Charisma represents a character's charm, social skills, and ability to influence others."
+  charisma: Int!
+}
+
+"Represents an user's character within the system."
+type Character {
+  "The traits of the character."
+  traits: [CreatureTrait!]! @cost(weight: "10")
+  "Unique identifier of the character."
+  id: UUID!
+  "The name of the character."
+  name: String!
+  "Gender of the character."
+  gender: CreatureGender!
+  "Type of a creature, that the character is."
+  creatureType: CreatureType!
+  "Narrative alignment of the character."
+  alignment: NarrativeAlignment!
+  "Class of the character."
+  class: CharacterClass!
+  "Maximum health points of the character."
+  maxHealth: Int!
+  "Armor class of the character."
+  armorClass: Int!
+  "Speed scores of the character."
+  speedScores: SpeedScores!
+  "Attribute scores of the character."
+  attributeScores: AttributeScores!
+}
+
+"Passive ability or feature that is always active or trigger under certain conditions."
+type CreatureTrait {
+  "Name of the trait."
+  name: String!
+  "Description of the trait's effect or purpose."
+  effect: String!
+  "Optional. Condition under which the trait is active or applies."
+  conditionForPerform: String
+}
+
 "Represents an expedition."
 type Expedition {
   "User who created the expedition."
@@ -33,10 +85,14 @@ type Expedition {
 type ExpeditionParticipant {
   "User of the participant."
   user: User! @cost(weight: "10")
+  "Character of the participant."
+  character: Character @cost(weight: "10")
 }
 
 "Information regarding the state the expedition is in."
 type ExpeditionState {
+  "User whose turn it is to act."
+  activeUser: User @cost(weight: "10")
   "Current status of the expedition."
   status: ExpeditionStatus!
 }
@@ -67,6 +123,22 @@ type Query {
   expeditionById(id: UUID!): Expedition @authorize @cost(weight: "10")
   "Retrieves a paginated list of expeditions."
   expeditions(page: Int! = 1 pageSize: Int! = 20): OffsetPageOfExpedition! @authorize @cost(weight: "10")
+}
+
+"Represents how far a creature can move on its turn during combat."
+type SpeedScores {
+  "Default walking speed in feet."
+  walking: Int!
+  "Represents the creature's speed while flying, if applicable."
+  flying: Int
+  "Represents the creature's speed while swimming, if applicable."
+  swimming: Int
+  "Represents the creature's speed while climbing, if applicable."
+  climbing: Int
+  "Represents the creature's speed while burrowing, if applicable."
+  burrowing: Int
+  "Represents the creature's speed while teleporting, if applicable."
+  teleportation: Int
 }
 
 "Represents an user."
@@ -109,6 +181,68 @@ enum ApplyPolicy {
   VALIDATION
 }
 
+enum CharacterClass {
+  BARBARIAN
+  BARD
+  CLERIC
+  DRUID
+  FIGHTER
+  MONK
+  PALADIN
+  RANGER
+  ROGUE
+  SORCERER
+  WARLOCK
+  WIZARD
+  ARTIFICER
+  ALCHEMIST
+  BEASTMASTER
+  BLOODMAGE
+  CHRONOMANCER
+  ELEMENTALIST
+  HEXBLADE
+  NECROMANCER
+  PSION
+  SHADOWDANCER
+  SPELLBLADE
+  SUMMONER
+  WARDEN
+}
+
+enum CreatureGender {
+  MALE
+  FEMALE
+  NON_BINARY
+  OTHER
+}
+
+enum CreatureType {
+  ABERRATION
+  BEAST
+  CELESTIAL
+  CONSTRUCT
+  DRAGON
+  ELEMENTAL
+  FEY
+  FIEND
+  GIANT
+  HUMANOID
+  MONSTROSITY
+  OOZE
+  PLANT
+  UNDEAD
+  DREAMWALKER
+  ETHEREAL
+  PSYCHIC
+  SHADOWSPAWN
+  STEAMBORN
+  LUMINARCH
+  CHRONOWYRM
+  FORGEBORN
+  TIDEHUNTER
+  STARFORGED
+}
+
 enum ExpeditionDifficulty {
   EASY
   MEDIUM
@@ -125,6 +259,21 @@ enum ExpeditionStatus {
   CREATED
   STARTED
   COMPLETED
+}
+
+enum NarrativeAlignment {
+  UNKNOWN
+  LAWFUL_GOOD
+  NEUTRAL_GOOD
+  CHAOTIC_GOOD
+  LAWFUL_NEUTRAL
+  TRUE_NEUTRAL
+  CHAOTIC_NEUTRAL
+  LAWFUL_EVIL
+  NEUTRAL_EVIL
+  CHAOTIC_EVIL
+  UNKNOWABLE
+  TWISTED
 }
 
 "The authorize directive."

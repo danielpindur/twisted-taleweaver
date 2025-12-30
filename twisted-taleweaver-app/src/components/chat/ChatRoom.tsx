@@ -2,13 +2,12 @@ import { useState } from "react";
 import { ChatRoomHeader} from "@/components/chat/ChatRoomHeader";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { useQuery } from "@tanstack/react-query";
-import { useApiClient } from "@/hooks/useApiClient";
-import { ExpeditionsService } from "@/generated/twisted-taleweaver-api/services/ExpeditionsService";
 import { useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
 import { getUserParticipant } from "@/utils/CharacterUtils"
 import { CharacterSidePanel } from "@/components/chat/CharacterSidePanel";
 import { PartySidePanel } from "@/components/chat/PartySidePanel";
+import { useGraphQlClient } from "@/hooks/useGraphQlClient";
 import type { UserResource } from "@clerk/types";
 
 export interface ChatRoomProps {
@@ -18,15 +17,13 @@ export interface ChatRoomProps {
 };
 
 export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => {
-  const { requestWithAuth } = useApiClient();
+  const { requestWithAuth } = useGraphQlClient();
   const navigate = useNavigate();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["expedition", expeditionId],
     queryFn: () => {
-      return requestWithAuth(() =>
-        ExpeditionsService.getApiV1Expeditions1(expeditionId)
-      );
+      return requestWithAuth((sdk) => sdk.GetExpeditionById({ id: expeditionId }));
     },
   });
 
@@ -43,7 +40,8 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
     )
   }
 
-  if (isError) {
+  if (isError || !data?.expeditionById)
+  {
     return (
       <div className="col-span-full flex justify-center items-center text-center text-red-500 font-crimson">
         <AlertCircle className="inline-block h-5 w-5 mr-1" />
@@ -62,26 +60,26 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
         <ChatRoomHeader 
           expeditionId={expeditionId}
           onLeaveRoom={onLeaveRoom}
-          currentParticipants={data.currentParticipants} />
+          currentParticipants={data.expeditionById.currentParticipants} />
        
         <div className="flex-1 flex overflow-x-auto">
           <PartySidePanel 
-            participants={data.participants}
-            expeditionOwner={data.createdByUser}
-            expeditionState={data.state}
+            participants={data.expeditionById.participants}
+            expeditionOwner={data.expeditionById.userCreated}
+            expeditionState={data.expeditionById.state}
             panelCollapsed={partyPanelCollapsed}
             setPanelCollapsed={setPartyPanelCollapsed}
-            activeUser={data.state.activeUser} />
+            activeUser={data.expeditionById.state.activeUser} />
           
           <ChatPanel 
-            expedition={data}
+            expedition={data.expeditionById}
             user={user} />
           
           <CharacterSidePanel 
             panelCollapsed={characterPanelCollapsed}
             setPanelCollapsed={setCharacterPanelCollapsed}
-            expeditionState={data.state}
-            participant={getUserParticipant(data.participants, user)!} />
+            expeditionState={data.expeditionById.state}
+            participant={getUserParticipant(data.expeditionById.participants, user)!} />
         </div>
       </div>
   );

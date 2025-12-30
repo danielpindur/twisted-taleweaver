@@ -1,19 +1,19 @@
-import type { ExpeditionParticipant, User } from "@/generated/twisted-taleweaver-api";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
 /**
  * Checks if the current user can act (if it's their character's turn)
  */
-export const canParticipantAct = (participant: ExpeditionParticipant, activeUser?: (User | null)): boolean => {
-  return activeUser !== null && participant?.user.userId === activeUser?.userId;
+export const canParticipantAct = (participant: ExpeditionViewModel["participants"][number], activeUser: ExpeditionViewModel["state"]["activeUser"]): boolean => {
+  return activeUser !== null && participant?.user.id === activeUser?.id;
 };
 
 /**
  * Gets the participant whose turn it is
  */
-export const getCurrentTurnParticipant = (participants: ExpeditionParticipant[], activeUser?: (User | null)): (ExpeditionParticipant | undefined) => {
+export const getCurrentTurnParticipant = (participants: ExpeditionViewModel["participants"], activeUser: ExpeditionViewModel["state"]["activeUser"]): (ExpeditionViewModel["participants"][number] | undefined) => {
   if (activeUser === null) {
     return undefined;
   }
 
-  return participants.find(p => p.user.userId === activeUser?.userId);
+  return participants.find(p => p.user.id === activeUser?.id);
 };

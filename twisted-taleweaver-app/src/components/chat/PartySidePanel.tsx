@@ -17,18 +17,19 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { getGenderSymbol, getStatusColor, getCreatureStatus, getCreatureCurrentHealth } from "@/utils/CharacterUtils";
+import { getGenderSymbol } from "@/utils/CharacterUtils";
 import { getHealthPercentage, getHealthColor } from "@/utils/HealthUtils";
 import { formatModifier, getAttributeModifier } from "@/utils/AttributeUtils";
 import { canParticipantAct } from "@/utils/TurnUtils"
-import type { ExpeditionParticipant, ExpeditionState, User } from "@/generated/twisted-taleweaver-api";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
+import { ATTRIBUTE_KEYS } from "@/viewmodels/AttributeScoresViewModel";
 
 export interface PartySidePanelProps {
-  participants: ExpeditionParticipant[],
-  expeditionState: ExpeditionState,
-  expeditionOwner: User,
+  participants: ExpeditionViewModel["participants"],
+  expeditionState: ExpeditionViewModel["state"],
+  expeditionOwner: ExpeditionViewModel["userCreated"],
   panelCollapsed: boolean,
-  activeUser?: (null | User),
+  activeUser: ExpeditionViewModel["state"]["activeUser"], 
   setPanelCollapsed: (collapsed: boolean) => void;
 };
 
@@ -77,23 +78,23 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
       <div className="space-y-3">
         {participants.map((participant) => (
           participant.character ? 
-            <Dialog key={participant.user.userId}>
+            <Dialog key={participant.user.id}>
               <DialogTrigger asChild>
                 <Card className={`bg-muted border cursor-pointer hover:bg-muted/80 transition-colors ${canParticipantAct(participant, activeUser) ? 'border-primary shadow-glow' : 'border-border'}`}>
                   <CardContent className="p-3">
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          {participant.user.userId === expeditionOwner.userId && <Crown className="h-4 w-4 text-primary" />}
+                          {participant.user.id === expeditionOwner.id && <Crown className="h-4 w-4 text-primary" />}
                           <span className="font-crimson font-medium">{participant.character.name}</span>
                         </div>
                         <div className="text-xs text-muted-foreground capitalize">
                           {participant.character.creatureType} {getGenderSymbol(participant.character.gender)}
                         </div>
                       </div>
-                      <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
+                      {/* <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
                         {getCreatureStatus(participant.character, expeditionState)}
-                      </Badge>
+                      </Badge> */}
                     </div>
                     
                     {/* Health Bar */}
@@ -103,12 +104,12 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                           <Heart className="h-3 w-3" />
                           Health
                         </span>
-                        <span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span>
+                        {/* <span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span> */}
                       </div>
-                      <Progress 
+                     {/*  <Progress 
                         value={getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)} 
                         className={`h-2 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
-                      />
+                      /> */}
                     </div>
 
                     {/* Armor */}
@@ -161,12 +162,12 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                             <Heart className="h-4 w-4" />
                             Health
                           </span>
-                          <span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span>
+                          {/* <span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span> */}
                         </div>
-                        <Progress 
+                        {/* <Progress 
                           value={getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)}
                           className={`h-3 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
-                        />
+                        /> */}
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 text-sm">
@@ -179,9 +180,9 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                         </div>
                         <div className="flex justify-between">
                           <span className="font-crimson">Status</span>
-                          <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
+                          {/* <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
                             {getCreatureStatus(participant.character, expeditionState)}
-                          </Badge>
+                          </Badge> */}
                         </div>
                       </div>
                     </div>
@@ -238,17 +239,24 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                     <div>
                       <h3 className="font-cinzel font-medium mb-2 text-sm">Attributes</h3>
                       <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                        {participant.character && Object.entries(participant.character.attributeScores).map(([attr, value]) => (
-                          <div key={attr} className="flex justify-between items-center">
-                            <span className="font-crimson capitalize">{attr}</span>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{value}</span>
-                              <span className="text-xs text-muted-foreground min-w-[2rem] text-right">
-                                {formatModifier(getAttributeModifier(value))}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
+                        {participant.character &&
+                          ATTRIBUTE_KEYS.map((attr) => {
+                            const value = participant.character!.attributeScores[attr];
+
+                            return (
+                              <div key={attr} className="flex justify-between items-center">
+                                <span className="font-crimson capitalize">{attr}</span>
+
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">{value}</span>
+
+                                  <span className="text-xs text-muted-foreground min-w-[2rem] text-right">
+                                    {formatModifier(getAttributeModifier(value))}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
 
@@ -279,7 +287,7 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
             </Dialog> :
         
             <Card 
-              key={participant.user.userId} 
+              key={participant.user.id} 
               className="bg-muted/50 border border-dashed border-border"
             >
               <CardContent className="p-3">

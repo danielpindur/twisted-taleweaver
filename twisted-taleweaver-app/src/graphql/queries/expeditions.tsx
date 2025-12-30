@@ -23,3 +23,68 @@ export const ExpeditionsQuery = gql(`
     }
   }
 `);
+
+export const ExpeditionByIdQuery = gql(`
+  query GetExpeditionById($id: UUID!) {
+    expeditionById(id: $id) {
+      id
+      name
+      description
+      difficulty
+      minParticipants
+      maxParticipants
+      currentParticipants
+      outcome
+      userCreated {
+        id
+        externalId
+        name
+      }
+      state {
+        status
+        activeUser {
+          id
+          externalId
+        }
+      }
+      participants {
+        user {
+          id
+          externalId
+          name
+        }
+        character {
+          id
+          name
+          gender
+          creatureType
+          alignment
+          class
+          maxHealth
+          armorClass
+          speedScores {
+            walking
+            swimming
+            flying
+            climbing
+            burrowing
+            teleportation
+          }
+          attributeScores {
+            strength
+            wisdom
+            intelligence
+            dexterity
+            constitution
+            charisma
+          }
+          traits {
+            name
+            effect
+            conditionForPerform
+          }
+        }
+      }
+    }
+  }
+`);

@@ -25,23 +25,21 @@ import {
   Moon,
   Users2} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { CreatureStatus } from "@/generated/twisted-taleweaver-api/models/CreatureStatus";
-import { ClassType } from "@/generated/twisted-taleweaver-api/models/ClassType";
-import { Gender } from "@/generated/twisted-taleweaver-api/models/Gender";
-import type { Character, Expedition, ExpeditionParticipant, ExpeditionState } from "@/generated/twisted-taleweaver-api";
 import type { UserResource } from "@clerk/types";
+import { CharacterClass, CreatureGender } from "@/__generated__/twisted-taleweaver-api/types";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
-export const getGenderSymbol = (gender: Gender) => {
+export const getGenderSymbol = (gender: CreatureGender) => {
   switch (gender) {
-    case Gender.MALE: return "♂";
-    case Gender.FEMALE: return "♀";
-    case Gender.NON_BINARY: return "⚥";
-    case Gender.OTHER: return "○";
+    case CreatureGender.Male: return "♂";
+    case CreatureGender.Female: return "♀";
+    case CreatureGender.NonBinary: return "⚥";
+    case CreatureGender.Other: return "○";
     default: return "○";
     }
 };
 
-export const getStatusColor = (status: CreatureStatus) => {
+/* export const getStatusColor = (status: CreatureStatus) => {
   switch (status) {
     case CreatureStatus.ALIVE: return "text-health";
     case CreatureStatus.INJURED: return "text-warning";
@@ -55,35 +53,35 @@ export const getStatusColor = (status: CreatureStatus) => {
     case CreatureStatus.CURSED: return "text-violet-600";
     default: return "text-foreground";
   }
-};
+}; */
 
-export const getClassIcon = (className: ClassType) => {
-  const classIconMap: Record<ClassType, LucideIcon> = {
-    [ClassType.BARBARIAN]: Axe,
-    [ClassType.BARD]: Music,
-    [ClassType.CLERIC]: Cross,
-    [ClassType.DRUID]: Leaf,
-    [ClassType.FIGHTER]: Swords,
-    [ClassType.MONK]: Hand,
-    [ClassType.PALADIN]: Shield,
-    [ClassType.RANGER]: Crosshair,
-    [ClassType.ROGUE]: Eye,
-    [ClassType.SORCERER]: Zap,
-    [ClassType.WARLOCK]: Flame,
-    [ClassType.WIZARD]: Wand2,
-    [ClassType.ARTIFICER]: Wrench,
-    [ClassType.ALCHEMIST]: FlaskConical,
-    [ClassType.BEASTMASTER]: Dog,
-    [ClassType.BLOODMAGE]: Droplets,
-    [ClassType.CHRONOMANCER]: Timer,
-    [ClassType.ELEMENTALIST]: Waves,
-    [ClassType.HEXBLADE]: Sword,
-    [ClassType.NECROMANCER]: Skull,
-    [ClassType.PSION]: Brain,
-    [ClassType.SHADOWDANCER]: Moon,
-    [ClassType.SPELLBLADE]: Sparkles,
-    [ClassType.SUMMONER]: Users2,
-    [ClassType.WARDEN]: TreePine,
+export const getClassIcon = (className: CharacterClass) => {
+  const classIconMap: Record<CharacterClass, LucideIcon> = {
+    [CharacterClass.Barbarian]: Axe,
+    [CharacterClass.Bard]: Music,
+    [CharacterClass.Cleric]: Cross,
+    [CharacterClass.Druid]: Leaf,
+    [CharacterClass.Fighter]: Swords,
+    [CharacterClass.Monk]: Hand,
+    [CharacterClass.Paladin]: Shield,
+    [CharacterClass.Ranger]: Crosshair,
+    [CharacterClass.Rogue]: Eye,
+    [CharacterClass.Sorcerer]: Zap,
+    [CharacterClass.Warlock]: Flame,
+    [CharacterClass.Wizard]: Wand2,
+    [CharacterClass.Artificer]: Wrench,
+    [CharacterClass.Alchemist]: FlaskConical,
+    [CharacterClass.Beastmaster]: Dog,
+    [CharacterClass.Bloodmage]: Droplets,
+    [CharacterClass.Chronomancer]: Timer,
+    [CharacterClass.Elementalist]: Waves,
+    [CharacterClass.Hexblade]: Sword,
+    [CharacterClass.Necromancer]: Skull,
+    [CharacterClass.Psion]: Brain,
+    [CharacterClass.Shadowdancer]: Moon,
+    [CharacterClass.Spellblade]: Sparkles,
+    [CharacterClass.Summoner]: Users2,
+    [CharacterClass.Warden]: TreePine,
   };
   
   return classIconMap[className] ?? Swords;
@@ -92,18 +90,19 @@ export const getClassIcon = (className: ClassType) => {
 /**
  * Gets the user's participant
  */
-export const getUserParticipant = (participants: ExpeditionParticipant[], user: UserResource): ExpeditionParticipant | undefined => {
-  return participants.find(p => p.user.externalUserId === user.id);
+export const getUserParticipant = (participants: ExpeditionViewModel["participants"], user: UserResource): ExpeditionViewModel["participants"][number] | undefined => {
+  return participants.find(p => p.user.externalId === user.id);
 };
 
-export const getCreatureStatus = (character: Character, expeditionState: ExpeditionState) => {
+/* export const getCreatureStatus = (character: Character, expeditionState: ExpeditionViewModel["state"]) => {
   const participantState = expeditionState.participants.find(p => p.creatureId === character.characterId)!;
 
   return participantState.status;
-};
+}; */
 
-export const getCreatureCurrentHealth = (character: Character, expeditionState: ExpeditionState) => {
+/* export const getCreatureCurrentHealth = (character: Character, expeditionState: ExpeditionState) => {
   const participantState = expeditionState.participants.find(p => p.creatureId === character.characterId)!;
 
   return participantState.currentHealth;
 };
+ */

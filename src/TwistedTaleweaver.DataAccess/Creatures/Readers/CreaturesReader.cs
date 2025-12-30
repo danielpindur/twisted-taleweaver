@@ -6,14 +6,14 @@ namespace TwistedTaleweaver.DataAccess.Creatures.Readers;
 
 public interface ICreaturesReader
 {
-    Task<CharacterDto?> GetCharacterAsync(Guid characterId);
+    Task<IEnumerable<CharacterDto>> GetCharactersAsync(List<Guid> characterIds);
 
     Task<IEnumerable<CreatureTraitDto>> GetTraitsAsync(Guid creatureId);
 }
 
 internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesReader
 {
-    public Task<CharacterDto?> GetCharacterAsync(Guid characterId)
+    public Task<IEnumerable<CharacterDto>> GetCharactersAsync(List<Guid> characterIds)
     {
         const string sql = @"
             SELECT 
@@ -41,11 +41,11 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
             FROM characters ch
             INNER JOIN combat_creatures cc ON cc.creature_id = ch.creature_id
             INNER JOIN creatures c ON c.creature_id = ch.creature_id
-            WHERE ch.creature_id = @CharacterId";
+            WHERE ch.creature_id = ANY(@CharacterId)";
 
-        return QuerySingleOrDefaultAsync<CharacterDto>(sql, new
+        return QueryAsync<CharacterDto>(sql, new
         {
-            CharacterId = characterId
+            CharacterIds = characterIds
         });
     }
 

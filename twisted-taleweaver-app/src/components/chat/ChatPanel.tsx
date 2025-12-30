@@ -4,21 +4,23 @@ import { PreExpeditionPanel } from "./PreExpeditionPanel";
 import { TurnIndicator } from "./TurnIndicator";
 import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
-import { ExpeditionStatus, MessagesService, type Expedition } from "@/generated/twisted-taleweaver-api";
 import { getCurrentTurnParticipant } from "@/utils/TurnUtils"
 import type { UserResource } from "@clerk/types";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
+
 import type { Monster } from "@/interfaces/Monster";
 
 // TODO: Replace with actual API data
 import { mockMonsters } from "@/mock/MockMonsters";
+import { ExpeditionStatus } from "@/__generated__/twisted-taleweaver-api/types";
 
 export interface ChatPanelProps {
-  expedition: Expedition,
+  expedition: ExpeditionViewModel,
   user: UserResource
 }
 
 export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
-  const [isInCombat] = useState(expedition.state.status === ExpeditionStatus.STARTED); // TODO: Get from game state
+  const [isInCombat] = useState(expedition.state.status === ExpeditionStatus.Started); // TODO: Get from game state
   const [combatMonsters] = useState<Monster[]>(mockMonsters); // TODO: Get from combat state
  
   // TODO: Implement actual message sending API call
@@ -26,11 +28,11 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
     
   };
 
-  const { data, fetchNextPage, isFetchingNextPage, hasNextPage, isError } = useInfiniteQuery({
-    queryKey: ["expedition", expedition.expeditionId, "messages"],
+  /* const { data, fetchNextPage, isFetchingNextPage, hasNextPage, isError } = useInfiniteQuery({
+    queryKey: ["expedition", expedition.id, "messages"],
     initialPageParam: null as number | null,
     queryFn: ({ pageParam }) =>
-      MessagesService.getApiV1Messages(expedition.expeditionId, pageParam ?? undefined),
+      MessagesService.getApiV1Messages(expedition.id, pageParam ?? undefined),
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length === 0) {
         return undefined;
@@ -39,11 +41,11 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
       const lastMessage = lastPage[lastPage.length - 1];
       return lastMessage.expeditionMessageId;
     }
-  });
+  }); */
   
   return (
     <div className="flex-1 flex flex-col min-w-0" style={{ minWidth: '200px' }}>
-      {expedition.state.status === ExpeditionStatus.CREATED ? (
+      {expedition.state.status === ExpeditionStatus.Created ? (
         <PreExpeditionPanel 
           expedition={expedition} 
           user={user}
@@ -51,13 +53,13 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
       ) : (
         <>
           {/* <CombatEncounterTopPanel isInCombat={isInCombat} combatMonsters={combatMonsters} /> */} 
-          <ChatMessages 
+          {/* <ChatMessages 
             messages={data?.pages.flatMap(p => p) ?? []} 
             participants={expedition.participants} 
             loadMoreMessages={fetchNextPage}
             isLoadingError={isError}
             isFetchingMoreMessages={isFetchingNextPage} 
-            canFetchMoreMessages={hasNextPage} />
+            canFetchMoreMessages={hasNextPage} /> */}
 
           <TurnIndicator 
             participants={expedition.participants} 
@@ -67,7 +69,7 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
           <div className="bg-card border-t border-border p-4 space-y-3">
             <ChatInput 
               handleSendMessage={handleSendMessage} 
-              disabled={expedition.state.activeUser?.externalUserId !== user.id}
+              disabled={expedition.state.activeUser?.externalId !== user.id}
               currentTurnParticipant={getCurrentTurnParticipant(expedition.participants, expedition.state.activeUser)}
             />
           </div>

@@ -53,6 +53,7 @@ internal static class ExpeditionMapper
         return new ExpeditionParticipantContract()
         {
             UserId = source.UserId,
+            CharacterId = source.CharacterId
         };
     }
 

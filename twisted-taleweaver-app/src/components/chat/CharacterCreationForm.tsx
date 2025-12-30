@@ -6,14 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dices, Sparkles, Plus, Minus, Loader2 } from "lucide-react";
 import { getClassIcon, getGenderSymbol } from "@/utils/CharacterUtils";
-import { CharactersService, ClassType, CreatureType, Gender, NarrativeAlignment, type CharacterRequest } from "@/generated/twisted-taleweaver-api";
 import { getRandomEnumValue, getEnumValues } from "@/utils/EnumUtils";
 import { getDisplayString } from "@/utils/NarrativeAlignmentUtils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useToast } from "@/hooks/useToast";
-import { useApiClient } from "@/hooks/useApiClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useGraphQlClient } from "@/hooks/useGraphQlClient";
+import { CharacterClass, CreatureGender, CreatureType, NarrativeAlignment } from "@/__generated__/twisted-taleweaver-api/types";
 
 export interface CharacterCreationFormProps {
   expeditionId: string;
@@ -21,7 +21,7 @@ export interface CharacterCreationFormProps {
 
 export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps) => {
   const queryClient = useQueryClient();
-  const { requestWithAuth } = useApiClient();
+  const { requestWithAuth } = useGraphQlClient();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(true);
 
@@ -32,10 +32,10 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [characterClass, setCharacterClass] = useState<ClassType>(ClassType.BARBARIAN);
-  const [characterGender, setCharacterGender] = useState<Gender>(Gender.MALE);
-  const [creatureType, setCreatureType] = useState<CreatureType>(CreatureType.HUMANOID);
-  const [narrativeAlignment, setNarrativeAlignment] = useState<NarrativeAlignment>(NarrativeAlignment.UNKNOWN);
+  const [characterClass, setCharacterClass] = useState<ClassType>(CharacterClass.Barbarian);
+  const [characterGender, setCharacterGender] = useState<CreatureGender>(CreatureGender.Male);
+  const [creatureType, setCreatureType] = useState<CreatureType>(CreatureType.Humanoid);
+  const [narrativeAlignment, setNarrativeAlignment] = useState<NarrativeAlignment>(NarrativeAlignment.Unknown);
   const [characterStrength, setCharacterStrength] = useState(defaultAttributePoints);
   const [characterDexterity, setCharacterDexterity] = useState(defaultAttributePoints);
   const [characterConstitution, setCharacterConstitution] = useState(defaultAttributePoints);
@@ -44,7 +44,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
   const [characterCharisma, setCharacterCharisma] = useState(defaultAttributePoints);
   const remainingPoints = totalStartingPoints - characterStrength - characterDexterity - characterConstitution - characterIntelligence - characterWisdom - characterCharisma;
 
-  const createCharacterMutation = useMutation({
+  /* const createCharacterMutation = useMutation({
     mutationFn: (request: CharacterRequest) =>
       requestWithAuth(() =>
         CharactersService.postApiV1Characters(request)
@@ -81,11 +81,11 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
         variant: "destructive",
       });
     },
-  });
+  }); */
 
   const randomize = () => {
-    setCharacterClass(getRandomEnumValue(ClassType));
-    setCharacterGender(getRandomEnumValue(Gender));
+    setCharacterClass(getRandomEnumValue(CharacterClass));
+    setCharacterGender(getRandomEnumValue(CreatureGender));
     setCreatureType(getRandomEnumValue(CreatureType));
     setNarrativeAlignment(getRandomEnumValue(NarrativeAlignment));
 
@@ -149,7 +149,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
   }
 
   const handleSubmit = () => {
-    const request: CharacterRequest = {
+    /* const request: CharacterRequest = {
       expeditionId: expeditionId,
       name: name || undefined,
       description: description || undefined,
@@ -166,7 +166,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
         charisma: characterCharisma
       }
     }
-    createCharacterMutation.mutate(request);
+    createCharacterMutation.mutate(request); */
   };
 
   return (
@@ -225,12 +225,12 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="char-class" className="font-crimson">Class</Label>
-              <Select value={characterClass} onValueChange={(value: ClassType) => setCharacterClass(value)}>
+              <Select value={characterClass} onValueChange={(value: CharacterClass) => setCharacterClass(value)}>
                 <SelectTrigger className="bg-input border-border">
                   <SelectValue placeholder="Choose a class ..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {getEnumValues(ClassType).map((cls) => {
+                  {getEnumValues(CharacterClass).map((cls) => {
                     const Icon = getClassIcon(cls);
                     return (
                       <SelectItem key={cls} value={cls}>
@@ -247,12 +247,12 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
 
             <div className="space-y-1">
               <Label htmlFor="char-gender" className="font-crimson">Gender</Label>
-              <Select value={characterGender} onValueChange={(value: Gender) => setCharacterGender(value)}>
+              <Select value={characterGender} onValueChange={(value: CreatureGender) => setCharacterGender(value)}>
                 <SelectTrigger className="bg-input border-border">
                   <SelectValue placeholder="Choose a gender ..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {getEnumValues(Gender).map((cls) => {
+                  {getEnumValues(CreatureGender).map((cls) => {
                     const symbol = getGenderSymbol(cls);
                     return (
                       <SelectItem key={cls} value={cls}>
@@ -475,10 +475,10 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button onClick={handleSubmit} className="flex-1" size="sm" disabled={createCharacterMutation.isPending || remainingPoints > 0}>
+            {/* <Button onClick={handleSubmit} className="flex-1" size="sm" disabled={createCharacterMutation.isPending || remainingPoints > 0}>
               {createCharacterMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-3 w-3" />}
               {createCharacterMutation.isPending ? "Summoning Soul..." : "Forge the Character"}
-            </Button>
+            </Button> */}
           </div>
         </div>
       </DialogContent>

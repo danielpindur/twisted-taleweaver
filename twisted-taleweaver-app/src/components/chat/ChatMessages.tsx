@@ -1,24 +1,22 @@
 import { useRef, useState, useCallback, useLayoutEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronDown, AlertCircle } from "lucide-react";
-import type { ChatMessage } from "@/generated/twisted-taleweaver-api/models/ChatMessage";
-import { MessageType, SenderType, type ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
 import { NarrativeMessage } from "./NarrativeMessage";
 import { SystemMessage } from "./SystemMessage";
 import { CharacterMessage } from "./CharacterMessage";
 import { MonsterMessage } from "./MonsterMessage";
 
 export interface ChatMessagesProps {
-  messages: ChatMessage[],
+  /* messages: ChatMessage[],
   participants: ExpeditionParticipant[],
   loadMoreMessages: () => void,
   isLoadingError: boolean,
   isFetchingMoreMessages: boolean,
-  canFetchMoreMessages: boolean
+  canFetchMoreMessages: boolean */
 };
 
-export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadingError, isFetchingMoreMessages, canFetchMoreMessages }: ChatMessagesProps) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+export const ChatMessages = (/* { messages, participants, loadMoreMessages, isLoadingError, isFetchingMoreMessages, canFetchMoreMessages }: ChatMessagesProps */) => {
+  /* const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
@@ -93,7 +91,7 @@ export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadi
           )}
 
           {/* Load more indicator */}
-          {messages.length > 0 && isFetchingMoreMessages && (
+          /* {messages.length > 0 && isFetchingMoreMessages && (
             <div className="text-center py-2">
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
@@ -111,8 +109,8 @@ export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadi
         </div>
       </div>
       
-      {/* Scroll to bottom button */}
-      {!shouldScrollToBottom && (
+      {/* Scroll to bottom button */
+      {/* !shouldScrollToBottom && (
         <Button
           onClick={scrollToBottom}
           className="absolute bottom-4 right-4 rounded-full h-10 w-10 p-0 shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground z-10"
@@ -122,5 +120,5 @@ export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadi
         </Button>
       )}
     </div>
-  );
+  ); */ 
 };
