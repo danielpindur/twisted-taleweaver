@@ -13,8 +13,4 @@
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\TwistedTaleweaver.Domain\TwistedTaleweaver.Domain.csproj" />
-    </ItemGroup>
-
 </Project>

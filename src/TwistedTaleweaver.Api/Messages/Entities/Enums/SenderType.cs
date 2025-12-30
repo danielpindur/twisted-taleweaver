@@ -1,4 +1,4 @@
-namespace TwistedTaleweaver.Domain.Messages.Enums;
+namespace TwistedTaleweaver.Api.Messages.Entities.Enums;
 
 /// <summary>
 /// Type of the action message sender

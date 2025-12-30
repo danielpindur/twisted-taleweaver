@@ -1,6 +1,6 @@
+using TwistedTaleweaver.Api.Messages.Entities;
+using TwistedTaleweaver.Api.Messages.Entities.Enums;
 using TwistedTaleweaver.Core.Kafka.Attributes;
-using TwistedTaleweaver.Domain.Messages;
-using TwistedTaleweaver.Domain.Messages.Enums;
 
 namespace TwistedTaleweaver.Api.Messages.Events;
 

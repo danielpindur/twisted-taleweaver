@@ -21,7 +21,6 @@
     <ItemGroup>
       <ProjectReference Include="..\TwistedTaleweaver.Api\TwistedTaleweaver.Api.csproj" />
       <ProjectReference Include="..\TwistedTaleweaver.Core\TwistedTaleweaver.Core.csproj" />
-      <ProjectReference Include="..\TwistedTaleweaver.Domain\TwistedTaleweaver.Domain.csproj" />
     </ItemGroup>
 
 </Project>

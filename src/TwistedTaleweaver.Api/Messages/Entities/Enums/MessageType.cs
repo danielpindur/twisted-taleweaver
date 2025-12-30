@@ -1,4 +1,4 @@
-namespace TwistedTaleweaver.Domain.Messages.Enums;
+namespace TwistedTaleweaver.Api.Messages.Entities.Enums;
 
 /// <summary>
 /// Defines different types of messages

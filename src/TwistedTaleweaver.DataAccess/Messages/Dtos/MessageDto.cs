@@ -1,4 +1,4 @@
-using TwistedTaleweaver.Domain.Messages.Enums;
+using TwistedTaleweaver.Api.Messages.Entities.Enums;
 
 namespace TwistedTaleweaver.DataAccess.Messages.Dtos;
 

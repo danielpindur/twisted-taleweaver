@@ -1,6 +1,6 @@
+using TwistedTaleweaver.Api.Messages.Entities;
 using TwistedTaleweaver.Api.Messages.Queries;
 using TwistedTaleweaver.DataAccess.Messages.Readers;
-using TwistedTaleweaver.Domain.Messages;
 using TwistedTaleweaver.Messages.Mappers;
 
 namespace TwistedTaleweaver.Messages.QueryHandlers;

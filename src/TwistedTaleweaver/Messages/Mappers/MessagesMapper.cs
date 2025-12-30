@@ -1,7 +1,7 @@
+using TwistedTaleweaver.Api.Messages.Entities;
+using TwistedTaleweaver.Api.Messages.Entities.Enums;
 using TwistedTaleweaver.Api.Messages.Events;
 using TwistedTaleweaver.DataAccess.Messages.Dtos;
-using TwistedTaleweaver.Domain.Messages;
-using TwistedTaleweaver.Domain.Messages.Enums;
 
 namespace TwistedTaleweaver.Messages.Mappers;
 

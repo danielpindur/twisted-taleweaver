@@ -1,5 +1,5 @@
+using TwistedTaleweaver.Api.Messages.Entities;
 using TwistedTaleweaver.Core.Queries;
-using TwistedTaleweaver.Domain.Messages;
 
 namespace TwistedTaleweaver.Api.Messages.Queries;
 
