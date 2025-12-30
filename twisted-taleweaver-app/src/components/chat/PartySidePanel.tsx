@@ -17,12 +17,12 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { getGenderSymbol } from "@/utils/CharacterUtils";
+import { getCreatureCurrentHealth, getCreatureStatus, getGenderSymbol, getStatusColor } from "@/utils/CharacterUtils";
 import { getHealthPercentage, getHealthColor } from "@/utils/HealthUtils";
 import { formatModifier, getAttributeModifier } from "@/utils/AttributeUtils";
 import { canParticipantAct } from "@/utils/TurnUtils"
-import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 import { ATTRIBUTE_KEYS } from "@/viewmodels/AttributeScoresViewModel";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
 export interface PartySidePanelProps {
   participants: ExpeditionViewModel["participants"],
@@ -92,9 +92,9 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                           {participant.character.creatureType} {getGenderSymbol(participant.character.gender)}
                         </div>
                       </div>
-                      {/* <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
+                      <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
                         {getCreatureStatus(participant.character, expeditionState)}
-                      </Badge> */}
+                      </Badge>
                     </div>
                     
                     {/* Health Bar */}
@@ -104,12 +104,12 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                           <Heart className="h-3 w-3" />
                           Health
                         </span>
-                        {/* <span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span> */}
+                        <span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span>
                       </div>
-                     {/*  <Progress 
+                      <Progress 
                         value={getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)} 
                         className={`h-2 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
-                      /> */}
+                      />
                     </div>
 
                     {/* Armor */}
@@ -162,12 +162,12 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                             <Heart className="h-4 w-4" />
                             Health
                           </span>
-                          {/* <span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span> */}
+                          {<span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span>}
                         </div>
-                        {/* <Progress 
+                        <Progress 
                           value={getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)}
                           className={`h-3 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
-                        /> */}
+                        />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 text-sm">
@@ -180,9 +180,9 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                         </div>
                         <div className="flex justify-between">
                           <span className="font-crimson">Status</span>
-                          {/* <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
+                          <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
                             {getCreatureStatus(participant.character, expeditionState)}
-                          </Badge> */}
+                          </Badge>
                         </div>
                       </div>
                     </div>

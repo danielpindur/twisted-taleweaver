@@ -15,3 +15,11 @@ export const JoinExpedition = gql(`
     }
   }
 `);
+
+export const StartExpedition = gql(`
+  mutation StartExpedition($input: StartExpeditionInput!) {
+    startExpedition(input: $input) {
+      id
+    }
+  }
+`);

@@ -62,10 +62,11 @@ internal static class ExpeditionMapper
         return source.Select(ToContract).ToList();
     }
 
-    public static ExpeditionStateContract ToContract(this ExpeditionState source)
+    public static ExpeditionStateContract ToContract(this ExpeditionState source, Guid expeditionId)
     {
         return new ExpeditionStateContract()
         {
+            ExpeditionId = expeditionId,
             Status = source.Status,
         };
     }

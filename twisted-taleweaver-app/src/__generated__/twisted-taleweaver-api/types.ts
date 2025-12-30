@@ -18,6 +18,26 @@ export type Scalars = {
   UUID: { input: any; output: any; }
 };
 
+/** Request to create a new character in the expedition. */
+export type AddCharacterInput = {
+  /** Narrative alignment of the character. */
+  alignment: NarrativeAlignment;
+  /** Attribute scores of the character. */
+  attributeScores: AttributeScoresInput;
+  /** Class of the character. */
+  class: CharacterClass;
+  /** Type of a creature, that the character is. */
+  creatureType: CreatureType;
+  /** Description of the expedition to drive the narrative - if empty a description will be generated. */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Identifier of the expedition to create the character in. */
+  expeditionId: Scalars['UUID']['input'];
+  /** Gender of the character. */
+  gender: CreatureGender;
+  /** Name of the character - if empty a name will be generated. */
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Request to create a new expedition. */
 export type AddExpeditionInput = {
   /** Description of the expedition to drive the narrative - if empty a description will be generated. */
@@ -57,6 +77,22 @@ export type AttributeScores = {
   strength: Scalars['Int']['output'];
   /** Wisdom represents a character's perception, insight, and intuition about the world around them. */
   wisdom: Scalars['Int']['output'];
+};
+
+/** Breakdown of a character's attribute scores that represents their physical and mental capabilities. */
+export type AttributeScoresInput = {
+  /** Charisma represents a character's charm, social skills, and ability to influence others. */
+  charisma: Scalars['Int']['input'];
+  /** Constitution represents a character's health, stamina, and resilience against physical challenges. */
+  constitution: Scalars['Int']['input'];
+  /** Dexterity represents a character's agility, reflexes, and balance. */
+  dexterity: Scalars['Int']['input'];
+  /** Intelligence represents a character's mental acuity, knowledge, and reasoning ability. */
+  intelligence: Scalars['Int']['input'];
+  /** Strength represents a character's physical power and ability to exert force. */
+  strength: Scalars['Int']['input'];
+  /** Wisdom represents a character's perception, insight, and intuition about the world around them. */
+  wisdom: Scalars['Int']['input'];
 };
 
 /** Represents an user's character within the system. */
@@ -114,11 +150,35 @@ export enum CharacterClass {
   Wizard = 'WIZARD'
 }
 
+/** Represents current state of a combat creature. */
+export type CombatCreatureState = {
+  __typename?: 'CombatCreatureState';
+  /** Identifier of the creature this state data is related to. */
+  creatureId: Scalars['UUID']['output'];
+  /** Remaining hit points. */
+  currentHealth: Scalars['Int']['output'];
+  /** Current status of the creature. */
+  status: CreatureStatus;
+};
+
 export enum CreatureGender {
   Female = 'FEMALE',
   Male = 'MALE',
   NonBinary = 'NON_BINARY',
   Other = 'OTHER'
+}
+
+export enum CreatureStatus {
+  Alive = 'ALIVE',
+  Cursed = 'CURSED',
+  Dead = 'DEAD',
+  Empowered = 'EMPOWERED',
+  Enraged = 'ENRAGED',
+  Injured = 'INJURED',
+  Stunned = 'STUNNED',
+  Terrified = 'TERRIFIED',
+  Unconscious = 'UNCONSCIOUS',
+  Weakened = 'WEAKENED'
 }
 
 /** Passive ability or feature that is always active or trigger under certain conditions. */
@@ -212,6 +272,8 @@ export type ExpeditionState = {
   __typename?: 'ExpeditionState';
   /** User whose turn it is to act. */
   activeUser?: Maybe<User>;
+  /** States of characters in the expedition. */
+  characterStates: Array<CombatCreatureState>;
   /** Current status of the expedition. */
   status: ExpeditionStatus;
 };
@@ -230,10 +292,19 @@ export type JoinExpeditionInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  /** Creates a new character. */
+  addCharacter: Character;
   /** Creates a new expedition. */
   addExpedition: Expedition;
   /** Joins an existing expedition. */
   joinExpedition: Expedition;
+  /** Starts an existing expedition. */
+  startExpedition: Expedition;
+};
+
+
+export type MutationAddCharacterArgs = {
+  input: AddCharacterInput;
 };
 
 
@@ -244,6 +315,11 @@ export type MutationAddExpeditionArgs = {
 
 export type MutationJoinExpeditionArgs = {
   input: JoinExpeditionInput;
+};
+
+
+export type MutationStartExpeditionArgs = {
+  input: StartExpeditionInput;
 };
 
 export enum NarrativeAlignment {
@@ -312,6 +388,12 @@ export type SpeedScores = {
   walking: Scalars['Int']['output'];
 };
 
+/** Request to start an existing expedition. */
+export type StartExpeditionInput = {
+  /** Unique identifier of the expedition to start. */
+  expeditionId: Scalars['UUID']['input'];
+};
+
 /** Represents an user. */
 export type User = {
   __typename?: 'User';
@@ -322,6 +404,13 @@ export type User = {
   /** Name of the user. */
   name: Scalars['String']['output'];
 };
+
+export type AddCharacterMutationVariables = Exact<{
+  input: AddCharacterInput;
+}>;
+
+
+export type AddCharacterMutation = { __typename?: 'Mutation', addCharacter: { __typename?: 'Character', id: any } };
 
 export type AddExpeditionMutationVariables = Exact<{
   input: AddExpeditionInput;
@@ -337,6 +426,13 @@ export type JoinExpeditionMutationVariables = Exact<{
 
 export type JoinExpeditionMutation = { __typename?: 'Mutation', joinExpedition: { __typename?: 'Expedition', id: any } };
 
+export type StartExpeditionMutationVariables = Exact<{
+  input: StartExpeditionInput;
+}>;
+
+
+export type StartExpeditionMutation = { __typename?: 'Mutation', startExpedition: { __typename?: 'Expedition', id: any } };
+
 export type GetExpeditionsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   pageSize?: InputMaybe<Scalars['Int']['input']>;
@@ -350,9 +446,16 @@ export type GetExpeditionByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetExpeditionByIdQuery = { __typename?: 'Query', expeditionById?: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, userCreated: { __typename?: 'User', id: any, externalId: string, name: string }, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeUser?: { __typename?: 'User', id: any, externalId: string } | null }, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any, externalId: string, name: string }, character?: { __typename?: 'Character', id: any, name: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, class: CharacterClass, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> } | null }> } | null };
+export type GetExpeditionByIdQuery = { __typename?: 'Query', expeditionById?: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, userCreated: { __typename?: 'User', id: any, externalId: string, name: string }, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeUser?: { __typename?: 'User', id: any, externalId: string } | null, characterStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }> }, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any, externalId: string, name: string }, character?: { __typename?: 'Character', id: any, name: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, class: CharacterClass, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> } | null }> } | null };
 
 
+export const AddCharacterDocument = gql`
+    mutation AddCharacter($input: AddCharacterInput!) {
+  addCharacter(input: $input) {
+    id
+  }
+}
+    `;
 export const AddExpeditionDocument = gql`
     mutation AddExpedition($input: AddExpeditionInput!) {
   addExpedition(input: $input) {
@@ -363,6 +466,13 @@ export const AddExpeditionDocument = gql`
 export const JoinExpeditionDocument = gql`
     mutation JoinExpedition($input: JoinExpeditionInput!) {
   joinExpedition(input: $input) {
+    id
+  }
+}
+    `;
+export const StartExpeditionDocument = gql`
+    mutation StartExpedition($input: StartExpeditionInput!) {
+  startExpedition(input: $input) {
     id
   }
 }
@@ -411,6 +521,11 @@ export const GetExpeditionByIdDocument = gql`
       activeUser {
         id
         externalId
+      }
+      characterStates {
+        creatureId
+        status
+        currentHealth
       }
     }
     participants {
@@ -462,11 +577,17 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    AddCharacter(variables: AddCharacterMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AddCharacterMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddCharacterMutation>({ document: AddCharacterDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AddCharacter', 'mutation', variables);
+    },
     AddExpedition(variables: AddExpeditionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AddExpeditionMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<AddExpeditionMutation>({ document: AddExpeditionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AddExpedition', 'mutation', variables);
     },
     JoinExpedition(variables: JoinExpeditionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<JoinExpeditionMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<JoinExpeditionMutation>({ document: JoinExpeditionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'JoinExpedition', 'mutation', variables);
+    },
+    StartExpedition(variables: StartExpeditionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<StartExpeditionMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<StartExpeditionMutation>({ document: StartExpeditionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'StartExpedition', 'mutation', variables);
     },
     GetExpeditions(variables?: GetExpeditionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetExpeditionsQuery>({ document: GetExpeditionsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetExpeditions', 'query', variables);

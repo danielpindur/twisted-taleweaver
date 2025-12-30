@@ -16,6 +16,8 @@ public class ExpeditionStateByExpeditionIdDataLoader(
         var states = await expeditionStatesQueryHandler.ExecuteAsync(
             new ExpeditionStatesQuery() { ExpeditionIds = keys.ToList() });
 
-        return states.ToDictionary(x => x.ExpeditionId, y => y.ToContract());
+        return states.ToDictionary(
+            x => x.ExpeditionId,
+            y => y.ToContract(y.ExpeditionId));
     }
 }

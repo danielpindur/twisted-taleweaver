@@ -8,6 +8,13 @@ public class CharactersByIdQuery
     public required List<Guid> CharacterIds { get; set; }
 }
 
-public interface ICharactersQueryHandler : IQueryHandler<CharactersByIdQuery, IEnumerable<Character>>
+public class CharacterByIdQuery
+{
+    public Guid CharacterId { get; set; }
+}
+
+public interface ICharactersQueryHandler :
+    IQueryHandler<CharactersByIdQuery, IEnumerable<Character>>,
+    IQueryHandler<CharacterByIdQuery, Character?>
 {
 }

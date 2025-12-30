@@ -3,6 +3,7 @@ using CreatureTraitContract = TwistedTaleweaver.Gateway.Creatures.Contracts.Crea
 using CharacterContract = TwistedTaleweaver.Gateway.Creatures.Contracts.Character;
 using SpeedScoresContract =  TwistedTaleweaver.Gateway.Creatures.Contracts.SpeedScores;
 using AttributeScoresContract =  TwistedTaleweaver.Gateway.Creatures.Contracts.AttributeScores;
+using CombatCreatureStateContract = TwistedTaleweaver.Gateway.Creatures.Contracts.CombatCreatureState;
 
 namespace TwistedTaleweaver.Gateway.Creatures.Mappers;
 
@@ -70,5 +71,36 @@ internal static class CreaturesMapper
                 Wisdom = source.AttributeScores.Wisdom,
             }
         };
+    }
+    
+    public static Dictionary<Guid, List<CombatCreatureStateContract>> ToContracts(
+        this Dictionary<Guid, List<CombatCreatureState>> source)
+    {
+        var result = new Dictionary<Guid, List<CombatCreatureStateContract>>();
+
+        foreach (var kvp in source)
+        {
+            if (!result.ContainsKey(kvp.Key))
+            {
+                result.Add(kvp.Key, kvp.Value.ToContracts());
+            }
+        }
+        
+        return result;
+    }
+
+    public static CombatCreatureStateContract ToContract(this CombatCreatureState source)
+    {
+        return new CombatCreatureStateContract()
+        {
+            CreatureId = source.CreatureId,
+            Status = source.Status,
+            CurrentHealth = source.CurrentHealth,
+        };
+    }
+
+    public static List<CombatCreatureStateContract> ToContracts(this List<CombatCreatureState> source)
+    {
+        return source.Select(ToContract).ToList();
     }
 }

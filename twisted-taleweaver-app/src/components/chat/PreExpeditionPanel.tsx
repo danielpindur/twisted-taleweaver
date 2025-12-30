@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/useToast";
 import type { UserResource } from "@clerk/types";
 import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 import { useGraphQlClient } from "@/hooks/useGraphQlClient";
-import { ExpeditionStatus } from "@/__generated__/twisted-taleweaver-api/types";
+import { ExpeditionStatus, type StartExpeditionInput } from "@/__generated__/twisted-taleweaver-api/types";
 
 interface PreExpeditionPanelProps {
   expedition: ExpeditionViewModel;
@@ -29,14 +29,12 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
   const hasCharacter = currentParticipant && currentParticipant.character;
   const allHaveCharacters = expedition.participants.every(p => p.character);
 
-  /* const startExpeditionMutation = useMutation({
-    mutationFn: (expeditionId: string) =>
-      requestWithAuth(() =>
-        ExpeditionsService.postApiV1ExpeditionsBegin(expeditionId)
-      ),
+  const startExpeditionMutation = useMutation({
+    mutationFn: (input: StartExpeditionInput) =>
+      requestWithAuth((sdk) => sdk.StartExpedition({ input })),
 
-    onSuccess: (_, expeditionId) => {
-      queryClient.invalidateQueries({ queryKey: ["expedition", expeditionId] });
+    onSuccess: (_, input) => {
+      queryClient.invalidateQueries({ queryKey: ["expedition", input.expeditionId] });
     },
 
     onError: (_) => {
@@ -46,10 +44,13 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
         variant: "destructive",
       });
     },
-  }); */
+  });
 
   const handleStartExpedition = () => {
-    /* startExpeditionMutation.mutate(expedition.expeditionId); */
+    const input: StartExpeditionInput = {
+      expeditionId: expedition.id,
+    }
+    startExpeditionMutation.mutate(input);
   };
 
   return (
@@ -151,7 +152,7 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
         {/* Owner Actions */}
         {isOwner && isReady && (
           <div className="pt-4 mt-4 border-t border-border">
-            {/* <Button 
+            <Button 
               onClick={handleStartExpedition}
               className="w-full gap-2"
               variant="default"
@@ -176,7 +177,7 @@ export const PreExpeditionPanel = ({ expedition, user }: PreExpeditionPanelProps
                   ? "Waiting for all adventurers to create their characters..." 
                   : "All adventurers have joined. You may now begin the tale..."
               }
-            </p> */}
+            </p>
           </div>
         )}
 

@@ -8,7 +8,9 @@ public interface ICreaturesReader
 {
     Task<IEnumerable<CharacterDto>> GetCharactersAsync(List<Guid> characterIds);
 
-    Task<IEnumerable<CreatureTraitDto>> GetTraitsAsync(Guid creatureId);
+    Task<IEnumerable<CreatureTraitDto>> GetTraitsAsync(List<Guid> creatureIds);
+    
+    Task<IEnumerable<CreatureStateDto>> GetCharacterStatesByExpeditionsAsync(List<Guid> expeditionIds);
 }
 
 internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesReader
@@ -41,7 +43,7 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
             FROM characters ch
             INNER JOIN combat_creatures cc ON cc.creature_id = ch.creature_id
             INNER JOIN creatures c ON c.creature_id = ch.creature_id
-            WHERE ch.creature_id = ANY(@CharacterId)";
+            WHERE ch.creature_id = ANY(@CharacterIds)";
 
         return QueryAsync<CharacterDto>(sql, new
         {
@@ -49,7 +51,7 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
         });
     }
 
-    public Task<IEnumerable<CreatureTraitDto>> GetTraitsAsync(Guid creatureId)
+    public Task<IEnumerable<CreatureTraitDto>> GetTraitsAsync(List<Guid> creatureIds)
     {
         const string sql = @"
             SELECT 
@@ -58,11 +60,30 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
                 effect,
                 condition_description
             FROM creature_traits ct
-            WHERE ct.creature_id = @CreatureId";
+            WHERE ct.creature_id = ANY(@CreatureIds)";
 
         return QueryAsync<CreatureTraitDto>(sql, new
         {
-            CreatureId = creatureId
+            CreatureIds = creatureIds
+        });
+    }
+
+    public Task<IEnumerable<CreatureStateDto>> GetCharacterStatesByExpeditionsAsync(List<Guid> expeditionIds)
+    {
+        const string sql = @"
+            SELECT 
+                e.expedition_id,
+                ch.creature_id,
+                c.status_id AS status
+            FROM expeditions e
+            INNER JOIN expedition_participants ep ON e.expedition_id = ep.expedition_id
+            INNER JOIN characters ch ON ep.character_id = ch.creature_id
+            INNER JOIN creatures c ON c.creature_id = ch.creature_id
+            WHERE e.expedition_id = ANY(@ExpeditionIds)";
+
+        return QueryAsync<CreatureStateDto>(sql, new
+        {
+            ExpeditionIds = expeditionIds
         });
     }
 }

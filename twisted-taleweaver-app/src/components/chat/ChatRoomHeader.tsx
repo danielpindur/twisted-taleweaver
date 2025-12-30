@@ -3,11 +3,12 @@ import { ArrowLeft, Users } from "lucide-react";
 
 export interface ChatRoomHeaderProps {
   expeditionId: string;
+  expeditionName: string;
   onLeaveRoom: () => void;
   currentParticipants: number;
 };
 
-export const ChatRoomHeader = ({ expeditionId, onLeaveRoom, currentParticipants }: ChatRoomHeaderProps) => {
+export const ChatRoomHeader = ({ expeditionId, expeditionName, onLeaveRoom, currentParticipants }: ChatRoomHeaderProps) => {
 
   return (
     <div className="bg-card border-b border-border p-4 shadow-dark">
@@ -18,7 +19,7 @@ export const ChatRoomHeader = ({ expeditionId, onLeaveRoom, currentParticipants 
           </Button>
           <div>
             <h1 className="text-xl font-cinzel font-bold text-primary">
-              The Cursed Catacombs
+              {expeditionName}
             </h1>
             <p className="text-sm text-muted-foreground font-crimson">
               Room ID: {expeditionId} • Turn-based Adventure

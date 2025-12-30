@@ -13,7 +13,7 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 import { useToast } from "@/hooks/useToast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGraphQlClient } from "@/hooks/useGraphQlClient";
-import { CharacterClass, CreatureGender, CreatureType, NarrativeAlignment } from "@/__generated__/twisted-taleweaver-api/types";
+import { CharacterClass, CreatureGender, CreatureType, NarrativeAlignment, type AddCharacterInput } from "@/__generated__/twisted-taleweaver-api/types";
 
 export interface CharacterCreationFormProps {
   expeditionId: string;
@@ -32,7 +32,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [characterClass, setCharacterClass] = useState<ClassType>(CharacterClass.Barbarian);
+  const [characterClass, setCharacterClass] = useState<CharacterClass>(CharacterClass.Barbarian);
   const [characterGender, setCharacterGender] = useState<CreatureGender>(CreatureGender.Male);
   const [creatureType, setCreatureType] = useState<CreatureType>(CreatureType.Humanoid);
   const [narrativeAlignment, setNarrativeAlignment] = useState<NarrativeAlignment>(NarrativeAlignment.Unknown);
@@ -44,11 +44,9 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
   const [characterCharisma, setCharacterCharisma] = useState(defaultAttributePoints);
   const remainingPoints = totalStartingPoints - characterStrength - characterDexterity - characterConstitution - characterIntelligence - characterWisdom - characterCharisma;
 
-  /* const createCharacterMutation = useMutation({
-    mutationFn: (request: CharacterRequest) =>
-      requestWithAuth(() =>
-        CharactersService.postApiV1Characters(request)
-      ),
+  const createCharacterMutation = useMutation({
+    mutationFn: (input: AddCharacterInput) =>
+      requestWithAuth((sdk) => sdk.AddCharacter({ input })),
 
     onSuccess: (_, request) => {
       queryClient.invalidateQueries({ queryKey: ["expedition", request.expeditionId] });
@@ -62,10 +60,10 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
       
       setName("");
       setDescription("")
-      setCharacterClass(ClassType.BARBARIAN);
-      setCharacterGender(Gender.MALE);
-      setCreatureType(CreatureType.HUMANOID);
-      setNarrativeAlignment(NarrativeAlignment.UNKNOWN);
+      setCharacterClass(CharacterClass.Barbarian);
+      setCharacterGender(CreatureGender.Male);
+      setCreatureType(CreatureType.Humanoid);
+      setNarrativeAlignment(NarrativeAlignment.Unknown);
       setCharacterStrength(defaultAttributePoints);
       setCharacterDexterity(defaultAttributePoints);
       setCharacterConstitution(defaultAttributePoints);
@@ -81,7 +79,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
         variant: "destructive",
       });
     },
-  }); */
+  });
 
   const randomize = () => {
     setCharacterClass(getRandomEnumValue(CharacterClass));
@@ -149,7 +147,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
   }
 
   const handleSubmit = () => {
-    /* const request: CharacterRequest = {
+    const input: AddCharacterInput = {
       expeditionId: expeditionId,
       name: name || undefined,
       description: description || undefined,
@@ -166,7 +164,7 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
         charisma: characterCharisma
       }
     }
-    createCharacterMutation.mutate(request); */
+    createCharacterMutation.mutate(input);
   };
 
   return (
@@ -475,10 +473,10 @@ export const CharacterCreationForm = ({expeditionId}: CharacterCreationFormProps
           </div>
 
           <div className="flex gap-2 pt-4">
-            {/* <Button onClick={handleSubmit} className="flex-1" size="sm" disabled={createCharacterMutation.isPending || remainingPoints > 0}>
+            <Button onClick={handleSubmit} className="flex-1" size="sm" disabled={createCharacterMutation.isPending || remainingPoints > 0}>
               {createCharacterMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-3 w-3" />}
               {createCharacterMutation.isPending ? "Summoning Soul..." : "Forge the Character"}
-            </Button> */}
+            </Button>
           </div>
         </div>
       </DialogContent>

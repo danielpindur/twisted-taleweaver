@@ -55,4 +55,23 @@ public static class ExpeditionsMutations
 
         return expedition!.ToContract();
     }
+    
+    [GraphQLDescription("Starts an existing expedition.")]
+    [Authorize]
+    public static async Task<Expedition> StartExpeditionAsync(
+        StartExpeditionInput input,
+        [Service] IUserProvider userProvider,
+        [Service] IBeginExpeditionCommandHandler beginExpeditionCommandHandler,
+        [Service] IExpeditionByIdQueryHandler expeditionByIdQueryHandler)
+    {
+        var userId = await userProvider.GetUserIdAsync();
+
+        await beginExpeditionCommandHandler.ExecuteAsync(
+            new BeginExpeditionCommand() { ExpeditionId = input.ExpeditionId, UserId = userId });
+        
+        var expedition = await expeditionByIdQueryHandler.ExecuteAsync(
+            new ExpeditionByIdQuery() { ExpeditionId = input.ExpeditionId });
+
+        return expedition!.ToContract();
+    }
 }

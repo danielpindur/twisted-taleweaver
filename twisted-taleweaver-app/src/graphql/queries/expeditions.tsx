@@ -46,6 +46,11 @@ export const ExpeditionByIdQuery = gql(`
           id
           externalId
         }
+        characterStates {
+          creatureId
+          status
+          currentHealth
+        }
       }
       participants {
         user {

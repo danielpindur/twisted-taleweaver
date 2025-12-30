@@ -4,10 +4,11 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Heart, Shield, Star, Wind } from "lucide-react";
-import { getGenderSymbol } from "@/utils/CharacterUtils";
+import { getCreatureCurrentHealth, getGenderSymbol } from "@/utils/CharacterUtils";
 import { formatModifier, getAttributeModifier } from "@/utils/AttributeUtils";
-import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 import { ATTRIBUTE_KEYS } from "@/viewmodels/AttributeScoresViewModel";
+import { getHealthColor, getHealthPercentage } from "@/utils/HealthUtils";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
 export interface CharacterSidePanelContentProps {
   character: NonNullable<ExpeditionViewModel["participants"][number]["character"]>,
@@ -32,7 +33,7 @@ export const CharacterSidePanelContent = ({ character, expeditionState }: Charac
 
         {/* Stats */}
         <div className="space-y-2">
-        {/*   <div>
+          <div>
             <div className="flex justify-between text-sm mb-1">
               <span className="flex items-center gap-1 font-crimson">
                 <Heart className="h-4 w-4" />
@@ -44,7 +45,7 @@ export const CharacterSidePanelContent = ({ character, expeditionState }: Charac
               value={getHealthPercentage(getCreatureCurrentHealth(character, expeditionState), character.maxHealth)}
               className={`h-2 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(character, expeditionState), character.maxHealth))}`}
             />
-          </div> */}
+          </div>
           
           <div className="flex justify-between text-sm">
             <span className="flex items-center gap-1 font-crimson">

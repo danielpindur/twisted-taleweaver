@@ -24,9 +24,9 @@ import {
   Sword,
   Moon,
   Users2} from "lucide-react";
+import { CharacterClass, CreatureGender, CreatureStatus } from "@/__generated__/twisted-taleweaver-api/types";
 import type { LucideIcon } from "lucide-react";
 import type { UserResource } from "@clerk/types";
-import { CharacterClass, CreatureGender } from "@/__generated__/twisted-taleweaver-api/types";
 import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
 export const getGenderSymbol = (gender: CreatureGender) => {
@@ -39,21 +39,21 @@ export const getGenderSymbol = (gender: CreatureGender) => {
     }
 };
 
-/* export const getStatusColor = (status: CreatureStatus) => {
+export const getStatusColor = (status: CreatureStatus) => {
   switch (status) {
-    case CreatureStatus.ALIVE: return "text-health";
-    case CreatureStatus.INJURED: return "text-warning";
-    case CreatureStatus.UNCONSCIOUS: return "text-accent";
-    case CreatureStatus.DEAD: return "text-destructive";
-    case CreatureStatus.ENRAGED: return "text-red-600";
-    case CreatureStatus.TERRIFIED: return "text-purple-500";
-    case CreatureStatus.EMPOWERED: return "text-blue-500";
-    case CreatureStatus.WEAKENED: return "text-gray-500";
-    case CreatureStatus.STUNNED: return "text-yellow-500";
-    case CreatureStatus.CURSED: return "text-violet-600";
+    case CreatureStatus.Alive: return "text-health";
+    case CreatureStatus.Injured: return "text-warning";
+    case CreatureStatus.Unconscious: return "text-accent";
+    case CreatureStatus.Dead: return "text-destructive";
+    case CreatureStatus.Enraged: return "text-red-600";
+    case CreatureStatus.Terrified: return "text-purple-500";
+    case CreatureStatus.Empowered: return "text-blue-500";
+    case CreatureStatus.Weakened: return "text-gray-500";
+    case CreatureStatus.Stunned: return "text-yellow-500";
+    case CreatureStatus.Cursed: return "text-violet-600";
     default: return "text-foreground";
   }
-}; */
+};
 
 export const getClassIcon = (className: CharacterClass) => {
   const classIconMap: Record<CharacterClass, LucideIcon> = {
@@ -94,15 +94,14 @@ export const getUserParticipant = (participants: ExpeditionViewModel["participan
   return participants.find(p => p.user.externalId === user.id);
 };
 
-/* export const getCreatureStatus = (character: Character, expeditionState: ExpeditionViewModel["state"]) => {
-  const participantState = expeditionState.participants.find(p => p.creatureId === character.characterId)!;
+export const getCreatureStatus = (character: NonNullable<ExpeditionViewModel["participants"][number]["character"]>, expeditionState: ExpeditionViewModel["state"]) => {
+  const participantState = expeditionState.characterStates.find(p => p.creatureId === character.id)!;
 
   return participantState.status;
-}; */
+};
 
-/* export const getCreatureCurrentHealth = (character: Character, expeditionState: ExpeditionState) => {
-  const participantState = expeditionState.participants.find(p => p.creatureId === character.characterId)!;
+export const getCreatureCurrentHealth = (character: NonNullable<ExpeditionViewModel["participants"][number]["character"]>, expeditionState: ExpeditionViewModel["state"]) => {
+  const participantState = expeditionState.characterStates.find(p => p.creatureId === character.id)!;
 
   return participantState.currentHealth;
 };
- */

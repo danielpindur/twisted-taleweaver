@@ -59,6 +59,7 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
       <div className="h-screen bg-background flex flex-col">
         <ChatRoomHeader 
           expeditionId={expeditionId}
+          expeditionName={data.expeditionById.name}
           onLeaveRoom={onLeaveRoom}
           currentParticipants={data.expeditionById.currentParticipants} />
        

@@ -45,6 +45,16 @@ type Character {
   attributeScores: AttributeScores!
 }
 
+"Represents current state of a combat creature."
+type CombatCreatureState {
+  "Identifier of the creature this state data is related to."
+  creatureId: UUID!
+  "Current status of the creature."
+  status: CreatureStatus!
+  "Remaining hit points."
+  currentHealth: Int!
+}
+
 "Passive ability or feature that is always active or trigger under certain conditions."
 type CreatureTrait {
   "Name of the trait."
@@ -93,15 +103,21 @@ type ExpeditionParticipant {
 type ExpeditionState {
   "User whose turn it is to act."
   activeUser: User @cost(weight: "10")
+  "States of characters in the expedition."
+  characterStates: [CombatCreatureState!]! @cost(weight: "10")
   "Current status of the expedition."
   status: ExpeditionStatus!
 }
 
 type Mutation {
+  "Creates a new character."
+  addCharacter(input: AddCharacterInput!): Character! @cost(weight: "10")
   "Creates a new expedition."
   addExpedition(input: AddExpeditionInput!): Expedition! @authorize @cost(weight: "10")
   "Joins an existing expedition."
   joinExpedition(input: JoinExpeditionInput!): Expedition! @authorize @cost(weight: "10")
+  "Starts an existing expedition."
+  startExpedition(input: StartExpeditionInput!): Expedition! @authorize @cost(weight: "10")
 }
 
 "Represents a page of items using offset pagination."
@@ -151,6 +167,26 @@ type User {
   name: String!
 }
 
+"Request to create a new character in the expedition."
+input AddCharacterInput {
+  "Identifier of the expedition to create the character in."
+  expeditionId: UUID!
+  "Name of the character - if empty a name will be generated."
+  name: String
+  "Description of the expedition to drive the narrative - if empty a description will be generated."
+  description: String
+  "Class of the character."
+  class: CharacterClass!
+  "Gender of the character."
+  gender: CreatureGender!
+  "Type of a creature, that the character is."
+  creatureType: CreatureType!
+  "Narrative alignment of the character."
+  alignment: NarrativeAlignment!
+  "Attribute scores of the character."
+  attributeScores: AttributeScoresInput!
+}
+
 "Request to create a new expedition."
 input AddExpeditionInput {
   "Name of the expedition - if empty a name will be generated."
@@ -165,9 +201,31 @@ input AddExpeditionInput {
   maxParticipants: Int!
 }
 
+"Breakdown of a character's attribute scores that represents their physical and mental capabilities."
+input AttributeScoresInput {
+  "Strength represents a character's physical power and ability to exert force."
+  strength: Int!
+  "Dexterity represents a character's agility, reflexes, and balance."
+  dexterity: Int!
+  "Constitution represents a character's health, stamina, and resilience against physical challenges."
+  constitution: Int!
+  "Intelligence represents a character's mental acuity, knowledge, and reasoning ability."
+  intelligence: Int!
+  "Wisdom represents a character's perception, insight, and intuition about the world around them."
+  wisdom: Int!
+  "Charisma represents a character's charm, social skills, and ability to influence others."
+  charisma: Int!
+}
+
 "Request to join an existing expedition."
 input JoinExpeditionInput {
   "Unique identifier of the expedition to join."
+  expeditionId: UUID!
+}
+
+"Request to start an existing expedition."
+input StartExpeditionInput {
+  "Unique identifier of the expedition to start."
   expeditionId: UUID!
 }
 
@@ -214,6 +272,19 @@ enum CreatureGender {
   FEMALE
   NON_BINARY
   OTHER
+}
+
+enum CreatureStatus {
+  ALIVE
+  INJURED
+  UNCONSCIOUS
+  DEAD
+  ENRAGED
+  TERRIFIED
+  EMPOWERED
+  WEAKENED
+  STUNNED
+  CURSED
 }
 
 enum CreatureType {

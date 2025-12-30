@@ -5,10 +5,10 @@ import {
   User as UserIcon,
   UserCircle,
   Loader2 } from "lucide-react";
-import type { ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
 export interface NoCharacterSidePanelContentProps {
-  participant: ExpeditionParticipant
+  participant: ExpeditionViewModel["participants"][number];
 };
 
 export const NoCharacterSidePanelContent = ({ participant }: NoCharacterSidePanelContentProps) => {

@@ -119,8 +119,8 @@ builder
     .AddInMemorySubscriptions()
     .ModifyRequestOptions(options =>
     {
-        options.IncludeExceptionDetails = builder.Environment.IsDevelopment();
-        options.ExecutionTimeout = TimeSpan.FromSeconds(5);
+        options.IncludeExceptionDetails = true; //builder.Environment.IsDevelopment();
+        options.ExecutionTimeout = TimeSpan.FromSeconds(30);
     });
 
 builder.Services    

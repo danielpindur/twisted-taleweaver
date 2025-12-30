@@ -1,3 +1,5 @@
+using TwistedTaleweaver.Gateway.Creatures.Contracts;
+using TwistedTaleweaver.Gateway.Creatures.DataLoaders;
 using TwistedTaleweaver.Gateway.Users.Contracts;
 using TwistedTaleweaver.Gateway.Users.DataLoaders;
 
@@ -19,5 +21,15 @@ public static partial class ExpeditionStateNode
         
         var user = await dataLoader.LoadAsync(state.ActiveUserId.Value, cancellationToken);
         return user!;
+    }
+    
+    [GraphQLDescription("States of characters in the expedition.")]
+    public static async Task<List<CombatCreatureState>> GetCharacterStatesAsync(
+        [Parent] ExpeditionState state,
+        CharacterStatesByExpeditionIdDataLoader dataLoader,
+        CancellationToken cancellationToken)
+    {
+        var characterStates = await dataLoader.LoadAsync(state.ExpeditionId, cancellationToken);
+        return characterStates!;
     }
 }
