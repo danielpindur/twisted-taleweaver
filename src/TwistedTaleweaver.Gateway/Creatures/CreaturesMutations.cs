@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using TwistedTaleweaver.Api.Creatures.Commands;
 using TwistedTaleweaver.Api.Creatures.Queries;
 using TwistedTaleweaver.Api.Expeditions.Queries;
-using TwistedTaleweaver.Gateway.Authorization;
+using TwistedTaleweaver.Gateway.Auth;
 using TwistedTaleweaver.Gateway.Creatures.Contracts;
 using TwistedTaleweaver.Gateway.Creatures.Mappers;
 using TwistedTaleweaver.Gateway.Expeditions.Helpers;

@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 
 namespace TwistedTaleweaver.Api.Expeditions.Entities;
@@ -22,10 +21,4 @@ public class ExpeditionState
     /// Unique identifier or the user whose turn it is to act
     /// </summary>
     public Guid? ActiveUserId { get; set; }
-
-    /// <summary>
-    /// Current states of the characters participating in the expedition
-    /// </summary>
-    //[Required]
-    //public required List<CombatCreatureState> Participants { get; set; }
 }

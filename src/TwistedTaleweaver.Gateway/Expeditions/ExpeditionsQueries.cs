@@ -1,6 +1,6 @@
 using HotChocolate.Authorization;
 using TwistedTaleweaver.Api.Expeditions.Queries;
-using TwistedTaleweaver.Gateway.Authorization;
+using TwistedTaleweaver.Gateway.Auth;
 using TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
 using TwistedTaleweaver.Gateway.Common.Pagination.Mappers;
 using TwistedTaleweaver.Gateway.Expeditions.Mappers;

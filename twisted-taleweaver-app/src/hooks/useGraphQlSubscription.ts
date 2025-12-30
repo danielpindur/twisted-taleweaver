@@ -19,7 +19,7 @@ export function useGraphQlSubscription<T>({
   onError,
   onComplete,
 }: SubscriptionOptions<T>) {
-  const { getToken } = useAuth();
+  const { getToken, sessionId } = useAuth();
   const { connect } = useWebSocketClient();
 
   const stableVariables = useMemo(() => variables, [JSON.stringify(variables)]);
@@ -81,5 +81,5 @@ export function useGraphQlSubscription<T>({
       disposed = true;
       unsubscribe?.();
     };
-  }, [document, stableVariables, connect, getToken]);
+  }, [document, stableVariables, connect, getToken, sessionId]);
 }

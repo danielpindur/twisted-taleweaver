@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using TwistedTaleweaver.Api.Users.Commands;
 
-namespace TwistedTaleweaver.Gateway.Authorization;
+namespace TwistedTaleweaver.Gateway.Auth;
 
 public interface IUserProvider
 {

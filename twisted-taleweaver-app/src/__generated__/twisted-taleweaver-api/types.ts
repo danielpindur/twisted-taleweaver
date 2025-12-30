@@ -396,7 +396,15 @@ export type StartExpeditionInput = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  /** Notifies when the state of an expedition has changed. */
+  expeditionStateChanged: Expedition;
+  /** Notifies when the participants of an expedition have been updated. */
   participantsUpdated: Expedition;
+};
+
+
+export type SubscriptionExpeditionStateChangedArgs = {
+  expeditionId: Scalars['UUID']['input'];
 };
 
 
@@ -464,6 +472,13 @@ export type OnParticipantsChangedSubscriptionVariables = Exact<{
 
 
 export type OnParticipantsChangedSubscription = { __typename?: 'Subscription', participantsUpdated: { __typename?: 'Expedition', id: any, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any }, character?: { __typename?: 'Character', id: any } | null }> } };
+
+export type OnExpeditionStateChangedSubscriptionVariables = Exact<{
+  expeditionId: Scalars['UUID']['input'];
+}>;
+
+
+export type OnExpeditionStateChangedSubscription = { __typename?: 'Subscription', expeditionStateChanged: { __typename?: 'Expedition', id: any, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeUser?: { __typename?: 'User', id: any, externalId: string, name: string } | null, characterStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }> } } };
 
 
 export const AddCharacterDocument = gql`
@@ -601,6 +616,26 @@ export const OnParticipantsChangedDocument = gql`
   }
 }
     `;
+export const OnExpeditionStateChangedDocument = gql`
+    subscription OnExpeditionStateChanged($expeditionId: UUID!) {
+  expeditionStateChanged(expeditionId: $expeditionId) {
+    id
+    state {
+      status
+      activeUser {
+        id
+        externalId
+        name
+      }
+      characterStates {
+        creatureId
+        status
+        currentHealth
+      }
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string, variables?: any) => Promise<T>;
 
@@ -629,6 +664,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     OnParticipantsChanged(variables: OnParticipantsChangedSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<OnParticipantsChangedSubscription> {
       return withWrapper((wrappedRequestHeaders) => client.request<OnParticipantsChangedSubscription>({ document: OnParticipantsChangedDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'OnParticipantsChanged', 'subscription', variables);
+    },
+    OnExpeditionStateChanged(variables: OnExpeditionStateChangedSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<OnExpeditionStateChangedSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<OnExpeditionStateChangedSubscription>({ document: OnExpeditionStateChangedDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'OnExpeditionStateChanged', 'subscription', variables);
     }
   };
 }

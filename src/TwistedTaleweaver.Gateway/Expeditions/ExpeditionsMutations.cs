@@ -2,7 +2,7 @@ using HotChocolate.Authorization;
 using HotChocolate.Subscriptions;
 using TwistedTaleweaver.Api.Expeditions.Commands;
 using TwistedTaleweaver.Api.Expeditions.Queries;
-using TwistedTaleweaver.Gateway.Authorization;
+using TwistedTaleweaver.Gateway.Auth;
 using TwistedTaleweaver.Gateway.Expeditions.Contracts;
 using TwistedTaleweaver.Gateway.Expeditions.Helpers;
 using TwistedTaleweaver.Gateway.Expeditions.Mappers;
@@ -69,7 +69,8 @@ public static class ExpeditionsMutations
         StartExpeditionInput input,
         [Service] IUserProvider userProvider,
         [Service] IBeginExpeditionCommandHandler beginExpeditionCommandHandler,
-        [Service] IExpeditionByIdQueryHandler expeditionByIdQueryHandler)
+        [Service] IExpeditionByIdQueryHandler expeditionByIdQueryHandler,
+        [Service] ITopicEventSender topicEventSender)
     {
         var userId = await userProvider.GetUserIdAsync();
 
@@ -79,6 +80,10 @@ public static class ExpeditionsMutations
         var expedition = await expeditionByIdQueryHandler.ExecuteAsync(
             new ExpeditionByIdQuery() { ExpeditionId = input.ExpeditionId });
 
-        return expedition!.ToContract();
+        var expeditionContract = expedition!.ToContract();
+        
+        await topicEventSender.PublishExpeditionStateChanged(expeditionContract);
+        
+        return expeditionContract;
     }
 }

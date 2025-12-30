@@ -159,7 +159,10 @@ type SpeedScores {
 }
 
 type Subscription {
-  participantsUpdated(expeditionId: UUID!): Expedition! @cost(weight: "10")
+  "Notifies when the participants of an expedition have been updated."
+  participantsUpdated(expeditionId: UUID!): Expedition! @authorize @cost(weight: "10")
+  "Notifies when the state of an expedition has changed."
+  expeditionStateChanged(expeditionId: UUID!): Expedition! @authorize @cost(weight: "10")
 }
 
 "Represents an user."

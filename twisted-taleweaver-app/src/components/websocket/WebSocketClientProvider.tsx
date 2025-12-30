@@ -36,7 +36,7 @@ export const WebSocketClientProvider: React.FC<{ children: React.ReactNode }> = 
       const client = createClient({
         url: "ws://localhost:8081/graphql",
         connectionParams: {
-          Authorization: `Bearer ${token}`,
+          authorization: `Bearer ${token}`,
         },
         lazy: false,
         on: {

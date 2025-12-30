@@ -1,6 +1,6 @@
 import { gql } from "@/__generated__/twisted-taleweaver-api/gql";
 
-export const ExpeditionsQuery = gql(`
+export const OnParticipantsChangedSubscription = gql(`
   subscription OnParticipantsChanged($expeditionId: UUID!) {
     participantsUpdated(expeditionId: $expeditionId) {
       id
@@ -10,6 +10,27 @@ export const ExpeditionsQuery = gql(`
         }
         character {
             id
+        }
+      }
+    }
+  }
+`);
+
+export const OnExpeditionStateChangedSubscription = gql(`
+  subscription OnExpeditionStateChanged($expeditionId: UUID!) {
+    expeditionStateChanged(expeditionId: $expeditionId) {
+      id,
+      state {
+        status
+        activeUser {
+          id
+          externalId
+          name
+        }
+        characterStates {
+          creatureId
+          status
+          currentHealth
         }
       }
     }

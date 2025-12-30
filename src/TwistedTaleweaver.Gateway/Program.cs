@@ -1,17 +1,17 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
-using HotChocolate.Subscriptions;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.WebSockets;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Formatting.Compact;
 using TwistedTaleweaver.Core.Setup;
-using TwistedTaleweaver.Gateway.Authorization;
+using TwistedTaleweaver.Gateway.Auth;
 using TwistedTaleweaver.Gateway.Common.Errors;
-using TwistedTaleweaver.Gateway.Users.DataLoaders;
 using TwistedTaleweaver.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,9 +75,17 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+const string defaultScheme = nameof(defaultScheme);
+const string websocketScheme = nameof(websocketScheme);
+
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = defaultScheme;
+        options.DefaultAuthenticateScheme = defaultScheme;
+    })
+    .AddScheme<AuthenticationSchemeOptions, SkipWebSocketAuthenticationHandler>(websocketScheme, _ => { })
+    .AddJwtBearer(defaultScheme, options =>
     {
         options.Authority = builder.Configuration["Clerk:Authority"];
         options.Audience = builder.Configuration["Clerk:Audience"];
@@ -89,18 +97,25 @@ builder.Services
             ValidateIssuerSigningKey = true,
             NameClaimType = JwtRegisteredClaimNames.Sub
         };
-        options.Events = new JwtBearerEvents
+        options.ForwardDefaultSelector = context =>
         {
-            OnMessageReceived = ctx =>
-            {
-                var accessToken = ctx.Request.Query["access_token"];
-                if (!string.IsNullOrEmpty(accessToken))
-                {
-                    ctx.Token = accessToken;
-                }
+            var hasTokenFromWebsocket = context.Items.ContainsKey(AuthenticationSocketSessionInterceptor.WEBSOCKET_TOKEN);
 
-                return Task.CompletedTask;
+            if (!hasTokenFromWebsocket && context.WebSockets.IsWebSocketRequest)
+            {
+                return websocketScheme;
             }
+
+            return defaultScheme;
+        };
+        options.Events.OnMessageReceived = context =>
+        {
+            if (context.HttpContext.Items.TryGetValue(AuthenticationSocketSessionInterceptor.WEBSOCKET_TOKEN, out var token))
+            {
+                context.Token = token as string;
+            }
+
+            return Task.CompletedTask;
         };
     });
 
@@ -111,8 +126,11 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
+builder.Services.AddWebSockets(_ => { });
+
 builder
     .AddGraphQL()
+    .AddSocketSessionInterceptor<AuthenticationSocketSessionInterceptor>()
     .AddGatewayTypes()
     .AddErrorFilter<GatewayErrorFilter>()
     .AddAuthorization()

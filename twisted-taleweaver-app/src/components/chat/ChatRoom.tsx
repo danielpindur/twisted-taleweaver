@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChatRoomHeader} from "@/components/chat/ChatRoomHeader";
 import { ChatPanel } from "@/components/chat/ChatPanel";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
 import { getUserParticipant } from "@/utils/CharacterUtils"
@@ -9,6 +9,8 @@ import { CharacterSidePanel } from "@/components/chat/CharacterSidePanel";
 import { PartySidePanel } from "@/components/chat/PartySidePanel";
 import { useGraphQlClient } from "@/hooks/useGraphQlClient";
 import type { UserResource } from "@clerk/types";
+import { useGraphQlSubscription } from "@/hooks/useGraphQlSubscription";
+import { OnExpeditionStateChangedDocument, type GetExpeditionByIdQuery, type OnExpeditionStateChangedSubscription } from "@/__generated__/twisted-taleweaver-api/types";
 
 export interface ChatRoomProps {
   expeditionId: string;
@@ -18,6 +20,7 @@ export interface ChatRoomProps {
 
 export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => {
   const { requestWithAuth } = useGraphQlClient();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const { data, isLoading, isError } = useQuery({
@@ -26,6 +29,31 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
       return requestWithAuth((sdk) => sdk.GetExpeditionById({ id: expeditionId }));
     },
   });
+
+  useGraphQlSubscription<OnExpeditionStateChangedSubscription>({
+      document: OnExpeditionStateChangedDocument,
+      variables: { expeditionId: expeditionId },
+      onNext: (event) => {
+        const update = event.expeditionStateChanged;
+
+        queryClient.setQueryData(
+          ["expedition", expeditionId],
+          (old: GetExpeditionByIdQuery) => {
+            if (!old?.expeditionById) {
+              return old;
+            }
+
+            return {
+              ...old,
+              expeditionById: {
+                ...old.expeditionById,
+                state: update.state,
+              },
+            };
+          }
+        );
+      },
+    });
 
   //const [currentUser] = useState<Character>(mockCharacters[0]); // TODO: Get current user data
   const [partyPanelCollapsed, setPartyPanelCollapsed] = useState(false);
