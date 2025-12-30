@@ -1,4 +1,4 @@
-using TwistedTaleweaver.Domain.Creatures;
+using TwistedTaleweaver.Api.Creatures.Entities;
 
 namespace TwistedTaleweaver.Api.Expeditions.Entities;
 

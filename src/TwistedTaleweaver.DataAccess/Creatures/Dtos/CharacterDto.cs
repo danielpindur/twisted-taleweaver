@@ -1,4 +1,4 @@
-using TwistedTaleweaver.Domain.Creatures.Enums;
+using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 
 namespace TwistedTaleweaver.DataAccess.Creatures.Dtos;
 
@@ -14,7 +14,7 @@ public class CharacterDto
 
     public NarrativeAlignment Alignment { get; set; }
 
-    public Gender Gender { get; set; }
+    public CreatureGender Gender { get; set; }
 
     public int Strength { get; set; }
 
@@ -44,5 +44,5 @@ public class CharacterDto
 
     public int? TeleportationSpeed { get; init; }
 
-    public ClassType Class { get; set; }
+    public CharacterClass Class { get; set; }
 }

@@ -1,8 +1,8 @@
+using TwistedTaleweaver.Api.Creatures.Entities;
+using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Creatures.Dtos;
-using TwistedTaleweaver.Domain.Creatures;
-using TwistedTaleweaver.Domain.Creatures.Enums;
 
 namespace TwistedTaleweaver.DataAccess.Creatures.Writers;
 
@@ -14,7 +14,7 @@ public interface ICreaturesWriter
         CreatureStatus status,
         CreatureType type,
         NarrativeAlignment narrativeAlignment,
-        Gender gender,
+        CreatureGender gender,
         AttributeScores attributeScores);
 
     Task SaveCombatDetailsAsync(
@@ -25,13 +25,13 @@ public interface ICreaturesWriter
 
     Task SaveTraitsAsync(List<CreatureTraitDto> traits);
 
-    Task SaveCharacterDetailsAsync(Guid creatureId, ClassType classType);
+    Task SaveCharacterDetailsAsync(Guid creatureId, CharacterClass @class);
 }
 
 internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesWriter
 {
     public Task<Guid> CreateAsync(string name, string contextKeywords, CreatureStatus status, CreatureType type,
-        NarrativeAlignment narrativeAlignment, Gender gender, AttributeScores attributeScores)
+        NarrativeAlignment narrativeAlignment, CreatureGender gender, AttributeScores attributeScores)
     {
         const string sql = @"
             INSERT INTO creatures 
@@ -91,7 +91,7 @@ internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(
         return ExecuteAsync(sql, traits);
     }
 
-    public Task SaveCharacterDetailsAsync(Guid creatureId, ClassType classType)
+    public Task SaveCharacterDetailsAsync(Guid creatureId, CharacterClass @class)
     {
         const string sql = @"
             INSERT INTO characters 
@@ -102,7 +102,7 @@ internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(
         return ExecuteAsync(sql, new
         {
             CreatureId = creatureId,
-            ClassType = classType
+            ClassType = @class
         });
     }
 }

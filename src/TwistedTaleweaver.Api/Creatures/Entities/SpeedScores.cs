@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TwistedTaleweaver.Domain.Creatures;
+namespace TwistedTaleweaver.Api.Creatures.Entities;
 
 /// <summary>
 /// Represents how far a creature can move on its turn during combat
@@ -11,7 +11,6 @@ public class SpeedScores
     /// Default walking speed in feet per round
     /// </summary>
     [Range(0, 120)]
-    [Required]
     public int Walking { get; init; }
 
     /// <summary>

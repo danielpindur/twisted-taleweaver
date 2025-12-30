@@ -1,7 +1,6 @@
-using System.ComponentModel.DataAnnotations;
-using TwistedTaleweaver.Domain.Creatures.Enums;
+using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 
-namespace TwistedTaleweaver.Domain.Creatures;
+namespace TwistedTaleweaver.Api.Creatures.Entities;
 
 /// <summary>
 /// Represents an user's character within the system
@@ -11,12 +10,10 @@ public class Character : CombatCreature
     /// <summary>
     /// Identifier of the character
     /// </summary>
-    [Required]
     public Guid CharacterId { get; set; }
 
     /// <summary>
-    /// <inheritdoc cref="ClassType"/>
+    /// <inheritdoc cref="CharacterClass"/>
     /// </summary>
-    [Required]
-    public ClassType Class { get; set; }
+    public CharacterClass Class { get; set; }
 }

@@ -1,4 +1,4 @@
-namespace TwistedTaleweaver.Domain.Creatures.Enums;
+namespace TwistedTaleweaver.Api.Creatures.Entities.Enums;
 
 /// <summary>
 /// Defines the various statuses a creature can have within the system

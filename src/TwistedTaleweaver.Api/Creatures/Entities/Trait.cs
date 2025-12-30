@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TwistedTaleweaver.Domain.Creatures;
+namespace TwistedTaleweaver.Api.Creatures.Entities;
 
 /// <summary>
 /// Passive ability or feature that is always active or trigger under certain conditions
@@ -11,14 +11,12 @@ public class Trait
     /// Name of the trait
     /// </summary>
     [MaxLength(50)]
-    [Required]
     public required string Name { get; init; }
 
     /// <summary>
     /// Description of the trait's effect or purpose
     /// </summary>
     [MaxLength(255)]
-    [Required]
     public required string Effect { get; init; }
 
     /// <summary>

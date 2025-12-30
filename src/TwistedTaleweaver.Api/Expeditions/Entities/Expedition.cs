@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 
 namespace TwistedTaleweaver.Api.Expeditions.Entities;
@@ -15,11 +16,13 @@ public class Expedition
     /// <summary>
     /// Name of the expedition
     /// </summary>
+    [Length(1, 50)]
     public required string Name { get; set; }
 
     /// <summary>
     /// Description of the expedition to drive the narrative
     /// </summary>
+    [MinLength(1)]
     public required string Description { get; set; }
 
     /// <summary>
@@ -30,16 +33,19 @@ public class Expedition
     /// <summary>
     /// Minimum number of participants required to start the expedition
     /// </summary>
+    [Range(1, 10)]
     public int MinParticipants { get; set; }
 
     /// <summary>
     /// Maximum number of participants allowed in the expedition
     /// </summary>
+    [Range(1, 10)]
     public int MaxParticipants { get; set; }
 
     /// <summary>
     /// Current number of participants in the expedition
     /// </summary>
+    [Range(1, 10)]
     public int CurrentParticipants { get; set; }
 
     /// <summary>

@@ -1,6 +1,6 @@
+using TwistedTaleweaver.Api.Creatures.Entities;
+using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 using TwistedTaleweaver.Core.Commands;
-using TwistedTaleweaver.Domain.Creatures;
-using TwistedTaleweaver.Domain.Creatures.Enums;
 
 namespace TwistedTaleweaver.Api.Creatures.Commands;
 
@@ -14,9 +14,9 @@ public class CreateCharacterCommand
 
     public string? Description { get; set; }
 
-    public ClassType Class { get; set; }
+    public CharacterClass CharacterClass { get; set; }
 
-    public Gender Gender { get; set; }
+    public CreatureGender CreatureGender { get; set; }
 
     public CreatureType CreatureType { get; set; }
 

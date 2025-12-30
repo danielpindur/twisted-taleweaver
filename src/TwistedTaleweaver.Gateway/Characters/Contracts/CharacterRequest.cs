@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using TwistedTaleweaver.Domain.Creatures;
-using TwistedTaleweaver.Domain.Creatures.Enums;
+using TwistedTaleweaver.Api.Creatures.Entities;
+using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 
 namespace TwistedTaleweaver.Gateway.Characters.Contracts;
 
@@ -31,13 +31,13 @@ public class CharacterRequest
     /// <inheritdoc cref="ClassType"/>
     /// </summary>
     [Required]
-    public ClassType Class { get; set; }
+    public CharacterClass Class { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="Gender"/>
     /// </summary>
     [Required]
-    public Gender Gender { get; set; }
+    public CreatureGender Gender { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="CreatureType"/>

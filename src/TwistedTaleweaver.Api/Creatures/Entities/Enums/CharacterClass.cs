@@ -1,9 +1,9 @@
-namespace TwistedTaleweaver.Domain.Creatures.Enums;
+namespace TwistedTaleweaver.Api.Creatures.Entities.Enums;
 
 /// <summary>
 /// Determines what a character is trained to do, their special abilities, and how they contribute to the adventuring party
 /// </summary>
-public enum ClassType
+public enum CharacterClass
 {
     /// <summary>
     /// Savage warrior with unmatched strength and battle fury.

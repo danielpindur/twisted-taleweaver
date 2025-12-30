@@ -1,11 +1,11 @@
 using TwistedTaleweaver.Api.Creatures.Commands;
+using TwistedTaleweaver.Api.Creatures.Entities;
+using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.DataAccess.Creatures.Dtos;
 using TwistedTaleweaver.DataAccess.Creatures.Writers;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
-using TwistedTaleweaver.Domain.Creatures;
-using TwistedTaleweaver.Domain.Creatures.Enums;
 using TwistedTaleweaver.Integration.OpenAi.Adapters;
 using TwistedTaleweaver.Integration.OpenAi.Creatures;
 
@@ -26,7 +26,7 @@ internal class CreateCharacterCommandHandler(
         var generatedCharacter = await generationAdapter.GenerateCharacterAsync(
             command.Name, command.Name,
             expedition!.Description,
-            command.Class, command.Gender, command.CreatureType, command.Alignment,
+            command.CharacterClass, command.CreatureGender, command.CreatureType, command.Alignment,
             command.AttributeScores);
 
         await using var scope = new UnitOfWorkScope();
@@ -37,7 +37,7 @@ internal class CreateCharacterCommandHandler(
             CreatureStatus.Alive,
             command.CreatureType,
             command.Alignment,
-            command.Gender,
+            command.CreatureGender,
             command.AttributeScores);
 
         const int tempHeath = 100; // TODO: Figure out how to do health
@@ -57,7 +57,7 @@ internal class CreateCharacterCommandHandler(
                 ConditionDescription = x.ConditionForPerform.HasValue ? x.ConditionForPerform.ActualValue : null,
             }).ToList());
 
-        await creaturesWriter.SaveCharacterDetailsAsync(creatureId, command.Class);
+        await creaturesWriter.SaveCharacterDetailsAsync(creatureId, command.CharacterClass);
 
         await expeditionParticipantsWriter.SetCharacterIdAsync(command.ExpeditionId, command.UserId, creatureId);
 

@@ -1,4 +1,4 @@
-namespace TwistedTaleweaver.Domain.Creatures.Enums;
+namespace TwistedTaleweaver.Api.Creatures.Entities.Enums;
 
 /// <summary>
 /// Creature type (e.g., 'Aberration', 'Undead', 'Fiend')

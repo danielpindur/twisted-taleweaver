@@ -1,5 +1,5 @@
+using TwistedTaleweaver.Api.Creatures.Entities;
 using TwistedTaleweaver.Core.Queries;
-using TwistedTaleweaver.Domain.Creatures;
 
 namespace TwistedTaleweaver.Api.Creatures.Queries;
 

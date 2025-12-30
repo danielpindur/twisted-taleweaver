@@ -1,8 +1,8 @@
 using System.Text;
+using TwistedTaleweaver.Api.Creatures.Entities;
+using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 using TwistedTaleweaver.Core.Common.Extensions;
-using TwistedTaleweaver.Domain.Creatures;
-using TwistedTaleweaver.Domain.Creatures.Enums;
 using TwistedTaleweaver.Integration.OpenAi.Creatures;
 using TwistedTaleweaver.Integration.OpenAi.Expeditions;
 using TwistedTaleweaver.Integration.OpenAi.Expeditions.Enums;
@@ -20,8 +20,8 @@ public interface IGenerationAdapter
         string? characterName,
         string? characterDescription,
         string expeditionDescription,
-        ClassType classType,
-        Gender gender,
+        CharacterClass @class,
+        CreatureGender gender,
         CreatureType creatureType,
         NarrativeAlignment narrativeAlignment,
         AttributeScores attributeScores);
@@ -87,8 +87,8 @@ internal class GenerationAdapter(IEntityGenerator entityGenerator) : IGeneration
         string? characterName,
         string? characterDescription,
         string expeditionDescription,
-        ClassType classType,
-        Gender gender,
+        CharacterClass @class,
+        CreatureGender gender,
         CreatureType creatureType,
         NarrativeAlignment narrativeAlignment,
         AttributeScores attributeScores)
@@ -109,7 +109,7 @@ internal class GenerationAdapter(IEntityGenerator entityGenerator) : IGeneration
             sb.Append($"description: \"{description}\", ");
         }
 
-        sb.Append($"class:\"{classType.ToString()}\", gender:\"{gender.ToString()}\", creatureType:\"{creatureType.ToString()}\", narrativeAlignment:\"{narrativeAlignment.ToString()}\", ");
+        sb.Append($"class:\"{@class.ToString()}\", gender:\"{gender.ToString()}\", creatureType:\"{creatureType.ToString()}\", narrativeAlignment:\"{narrativeAlignment.ToString()}\", ");
         sb.Append($"attributeScores: {JsonSerializer.Serialize(attributeScores)} ");
 
         sb.Append($"for an expedition: \"{expeditionDescription}\"");
