@@ -5,18 +5,20 @@ import { NarrativeMessage } from "./NarrativeMessage";
 import { SystemMessage } from "./SystemMessage";
 import { CharacterMessage } from "./CharacterMessage";
 import { MonsterMessage } from "./MonsterMessage";
+import { MessageType, SenderType, type ChatMessage } from "@/__generated__/twisted-taleweaver-api/types";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
 export interface ChatMessagesProps {
-  /* messages: ChatMessage[],
-  participants: ExpeditionParticipant[],
+  messages: ChatMessage[],
+  participants: ExpeditionViewModel["participants"],
   loadMoreMessages: () => void,
   isLoadingError: boolean,
   isFetchingMoreMessages: boolean,
-  canFetchMoreMessages: boolean */
+  canFetchMoreMessages: boolean
 };
 
-export const ChatMessages = (/* { messages, participants, loadMoreMessages, isLoadingError, isFetchingMoreMessages, canFetchMoreMessages }: ChatMessagesProps */) => {
-  /* const messagesEndRef = useRef<HTMLDivElement>(null);
+export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadingError, isFetchingMoreMessages, canFetchMoreMessages }: ChatMessagesProps) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
@@ -52,14 +54,14 @@ export const ChatMessages = (/* { messages, participants, loadMoreMessages, isLo
 
   const getMessageDisplay = (message: ChatMessage) => {
     if (!message.sender){
-      if (message.type == MessageType.NARRATIVE) {
+      if (message.type == MessageType.Narrative) {
         return <NarrativeMessage message={message} />
       }
       else {
         return <SystemMessage message={message} />
       }
     }
-    else if (message.sender.senderType === SenderType.CHARACTER) {
+    else if (message.sender.senderType === SenderType.Character) {
       return <CharacterMessage message={message} participants={participants} />
     }
     else {
@@ -91,7 +93,7 @@ export const ChatMessages = (/* { messages, participants, loadMoreMessages, isLo
           )}
 
           {/* Load more indicator */}
-          /* {messages.length > 0 && isFetchingMoreMessages && (
+          {messages.length > 0 && isFetchingMoreMessages && (
             <div className="text-center py-2">
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
@@ -101,7 +103,7 @@ export const ChatMessages = (/* { messages, participants, loadMoreMessages, isLo
           )}
           
           {messages.map((message) => (
-            <div key={message.expeditionMessageId} className="space-y-2">
+            <div key={message.id} className="space-y-2">
               {getMessageDisplay(message)}
             </div>
           ))}
@@ -109,8 +111,8 @@ export const ChatMessages = (/* { messages, participants, loadMoreMessages, isLo
         </div>
       </div>
       
-      {/* Scroll to bottom button */
-      {/* !shouldScrollToBottom && (
+      {/* Scroll to bottom button */}
+      {!shouldScrollToBottom && (
         <Button
           onClick={scrollToBottom}
           className="absolute bottom-4 right-4 rounded-full h-10 w-10 p-0 shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground z-10"
@@ -120,5 +122,5 @@ export const ChatMessages = (/* { messages, participants, loadMoreMessages, isLo
         </Button>
       )}
     </div>
-  ); */ 
+  ); 
 };
