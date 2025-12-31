@@ -1,8 +1,8 @@
 import { gql } from "@/__generated__/twisted-taleweaver-api/gql";
 
 export const ExpeditionsQuery = gql(`
-  query GetExpeditions($page: Int = 1, $pageSize: Int = 20) {
-    expeditions(page: $page, pageSize: $pageSize) {
+  query GetExpeditions($input: OffsetInput!) {
+    expeditions(input: $input) {
       items {
         id
         name

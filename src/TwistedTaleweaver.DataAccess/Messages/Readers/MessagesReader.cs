@@ -6,12 +6,12 @@ namespace TwistedTaleweaver.DataAccess.Messages.Readers;
 
 public interface IMessagesReader
 {
-    Task<IEnumerable<MessageDto>> SearchAsync(Guid expeditionId, int? lastMessageId, int pageSize);
+    Task<IEnumerable<MessageDto>> SearchAsync(Guid expeditionId, long? lastMessageId, int pageSize);
 }
 
 internal class MessagesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IMessagesReader
 {
-    public Task<IEnumerable<MessageDto>> SearchAsync(Guid expeditionId, int? lastMessageId, int pageSize)
+    public Task<IEnumerable<MessageDto>> SearchAsync(Guid expeditionId, long? lastMessageId, int pageSize)
     {
         const string sql = @"
             SELECT 

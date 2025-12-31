@@ -1,5 +1,5 @@
+using HotChocolate.Authorization;
 using HotChocolate.Subscriptions;
-using Microsoft.AspNetCore.Authorization;
 using TwistedTaleweaver.Api.Creatures.Commands;
 using TwistedTaleweaver.Api.Creatures.Queries;
 using TwistedTaleweaver.Api.Expeditions.Queries;
@@ -55,7 +55,7 @@ public static class CreaturesMutations
         var expedition = await expeditionByIdQueryHandler.ExecuteAsync(
             new ExpeditionByIdQuery() { ExpeditionId = input.ExpeditionId });
 
-        await topicEventSender.PublishParticipantsChanged(expedition!.ToContract());
+        await topicEventSender.PublishParticipantsChangedAsync(expedition!.ToContract());
         
         return character!.ToContract();
     }

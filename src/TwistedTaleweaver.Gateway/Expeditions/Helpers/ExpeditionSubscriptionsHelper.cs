@@ -5,7 +5,7 @@ namespace TwistedTaleweaver.Gateway.Expeditions.Helpers;
 
 internal static class ExpeditionSubscriptionsHelper
 {
-    public static ValueTask PublishParticipantsChanged(
+    public static ValueTask PublishParticipantsChangedAsync(
         this ITopicEventSender topicEventSender, 
         Expedition expedition)
     {
@@ -13,7 +13,7 @@ internal static class ExpeditionSubscriptionsHelper
         return topicEventSender.SendAsync(topicName, expedition);
     }
     
-    public static ValueTask PublishExpeditionStateChanged(
+    public static ValueTask PublishExpeditionStateChangedAsync(
         this ITopicEventSender topicEventSender, 
         Expedition expedition)
     {

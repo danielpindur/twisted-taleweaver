@@ -29,10 +29,9 @@ public static class ExpeditionsQueries
     [GraphQLDescription("Retrieves a paginated list of expeditions.")]
     [Authorize]
     public static async Task<OffsetPage<ExpeditionContract>> GetExpeditionsAsync(
+        OffsetInput input,
         [Service] IExpeditionSearchQueryHandler expeditionSearchQueryHandler,
-        [Service] IUserProvider userProvider,
-        int page = 1,
-        int pageSize = 20)
+        [Service] IUserProvider userProvider)
     {
         var userId = await userProvider.GetUserIdAsync();
 
@@ -40,8 +39,8 @@ public static class ExpeditionsQueries
             new ExpeditionSearchQuery()
             {
                 UserId = userId,
-                PageNumber = page,
-                PageSize = pageSize
+                PageNumber = input.Page,
+                PageSize = input.PageSize
             });
 
         return paginatedExpeditions.ToContract(ExpeditionMapper.ToContract);

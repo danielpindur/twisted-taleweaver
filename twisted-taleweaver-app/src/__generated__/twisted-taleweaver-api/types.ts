@@ -15,6 +15,10 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** The `DateTime` scalar represents an ISO-8601 compliant date time type. */
+  DateTime: { input: any; output: any; }
+  /** The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1. */
+  Long: { input: any; output: any; }
   UUID: { input: any; output: any; }
 };
 
@@ -150,6 +154,21 @@ export enum CharacterClass {
   Wizard = 'WIZARD'
 }
 
+/** Represents a single chat message within the expedition. */
+export type ChatMessage = {
+  __typename?: 'ChatMessage';
+  /** The string content of the message. */
+  content: Scalars['String']['output'];
+  /** Unique identifier of the message. */
+  messageId: Scalars['Long']['output'];
+  /** The sender of the message. */
+  sender?: Maybe<MessageSender>;
+  /** Timestamp of when the message was created within the system. */
+  timestamp: Scalars['DateTime']['output'];
+  /** The type of the message. */
+  type: MessageType;
+};
+
 /** Represents current state of a combat creature. */
 export type CombatCreatureState = {
   __typename?: 'CombatCreatureState';
@@ -218,6 +237,17 @@ export enum CreatureType {
   Tidehunter = 'TIDEHUNTER',
   Undead = 'UNDEAD'
 }
+
+/** Represents a page of items in cursor-based pagination. */
+export type CursorPageOfChatMessageAndInt64 = {
+  __typename?: 'CursorPageOfChatMessageAndInt64';
+  /** The cursor pointing to the start of the page. */
+  endCursor?: Maybe<Scalars['Long']['output']>;
+  /** Indicates if there is a next page available. */
+  hasNextPage: Scalars['Boolean']['output'];
+  /** The items on the current page. */
+  items: Array<ChatMessage>;
+};
 
 /** Represents an expedition. */
 export type Expedition = {
@@ -290,6 +320,31 @@ export type JoinExpeditionInput = {
   expeditionId: Scalars['UUID']['input'];
 };
 
+/** Input for searching messages within an expedition. */
+export type MessageSearchInput = {
+  /** The cursor after which to start fetching items. */
+  after?: InputMaybe<Scalars['Long']['input']>;
+  /** Unique identifier of the expedition whose messages are being searched. */
+  expeditionId: Scalars['UUID']['input'];
+  /** Number of items to fetch. */
+  pageSize: Scalars['Int']['input'];
+};
+
+/** A sender of a action message. */
+export type MessageSender = {
+  __typename?: 'MessageSender';
+  /** Unique identifier of the creature. */
+  creatureId: Scalars['UUID']['output'];
+  /** Type of the action message sender. */
+  senderType: SenderType;
+};
+
+export enum MessageType {
+  Action = 'ACTION',
+  Narrative = 'NARRATIVE',
+  System = 'SYSTEM'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Creates a new character. */
@@ -337,6 +392,14 @@ export enum NarrativeAlignment {
   Unknown = 'UNKNOWN'
 }
 
+/** Input for offset pagination. */
+export type OffsetInput = {
+  /** Current page number (1-based). */
+  page: Scalars['Int']['input'];
+  /** Number of items per page. */
+  pageSize: Scalars['Int']['input'];
+};
+
 /** Represents a page of items using offset pagination. */
 export type OffsetPageOfExpedition = {
   __typename?: 'OffsetPageOfExpedition';
@@ -358,6 +421,8 @@ export type Query = {
   expeditionById?: Maybe<Expedition>;
   /** Retrieves a paginated list of expeditions. */
   expeditions: OffsetPageOfExpedition;
+  /** Retrieves a paginated list of messages for a given expedition. */
+  messages: CursorPageOfChatMessageAndInt64;
 };
 
 
@@ -367,9 +432,18 @@ export type QueryExpeditionByIdArgs = {
 
 
 export type QueryExpeditionsArgs = {
-  page?: Scalars['Int']['input'];
-  pageSize?: Scalars['Int']['input'];
+  input: OffsetInput;
 };
+
+
+export type QueryMessagesArgs = {
+  input: MessageSearchInput;
+};
+
+export enum SenderType {
+  Character = 'CHARACTER',
+  Monster = 'MONSTER'
+}
 
 /** Represents how far a creature can move on its turn during combat. */
 export type SpeedScores = {
@@ -398,12 +472,19 @@ export type Subscription = {
   __typename?: 'Subscription';
   /** Notifies when the state of an expedition has changed. */
   expeditionStateChanged: Expedition;
+  /** Notifies when a new message has been created in an expedition. */
+  messageCreated: ChatMessage;
   /** Notifies when the participants of an expedition have been updated. */
   participantsUpdated: Expedition;
 };
 
 
 export type SubscriptionExpeditionStateChangedArgs = {
+  expeditionId: Scalars['UUID']['input'];
+};
+
+
+export type SubscriptionMessageCreatedArgs = {
   expeditionId: Scalars['UUID']['input'];
 };
 
@@ -452,8 +533,7 @@ export type StartExpeditionMutationVariables = Exact<{
 export type StartExpeditionMutation = { __typename?: 'Mutation', startExpedition: { __typename?: 'Expedition', id: any } };
 
 export type GetExpeditionsQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  pageSize?: InputMaybe<Scalars['Int']['input']>;
+  input: OffsetInput;
 }>;
 
 
@@ -510,8 +590,8 @@ export const StartExpeditionDocument = gql`
 }
     `;
 export const GetExpeditionsDocument = gql`
-    query GetExpeditions($page: Int = 1, $pageSize: Int = 20) {
-  expeditions(page: $page, pageSize: $pageSize) {
+    query GetExpeditions($input: OffsetInput!) {
+  expeditions(input: $input) {
     items {
       id
       name
@@ -656,7 +736,7 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     StartExpedition(variables: StartExpeditionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<StartExpeditionMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<StartExpeditionMutation>({ document: StartExpeditionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'StartExpedition', 'mutation', variables);
     },
-    GetExpeditions(variables?: GetExpeditionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionsQuery> {
+    GetExpeditions(variables: GetExpeditionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetExpeditionsQuery>({ document: GetExpeditionsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetExpeditions', 'query', variables);
     },
     GetExpeditionById(variables: GetExpeditionByIdQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionByIdQuery> {

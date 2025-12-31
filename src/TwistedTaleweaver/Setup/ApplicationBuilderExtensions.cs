@@ -22,6 +22,7 @@ public static class ApplicationBuilderExtensions
         return builder.Services
             .AddCommandHandlers(assembly)
             .AddQueryHandlers(assembly)
-            .AddFluentValidation(assembly);
+            .AddFluentValidation(assembly)
+            .AddKafkaEventConsumers(assembly);
     }
 }

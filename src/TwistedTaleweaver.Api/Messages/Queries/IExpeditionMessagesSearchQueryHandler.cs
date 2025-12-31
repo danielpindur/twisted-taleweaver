@@ -7,11 +7,18 @@ public class ExpeditionMessagesSearchQuery
 {
     public Guid ExpeditionId { get; set; }
 
-    public int? LastExpeditionMessageId { get; set; }
+    public long? LastExpeditionMessageId { get; set; }
 
     public int PageSize { get; set; } = 20;
 }
 
-public interface IExpeditionMessagesSearchQueryHandler : IQueryHandler<ExpeditionMessagesSearchQuery, List<ChatMessage>>
+public class PaginatedMessagesSearchResult
+{
+    public required List<ChatMessage> Messages { get; set; }
+    
+    public bool HasNextPage { get; set;}
+}
+
+public interface IExpeditionMessagesSearchQueryHandler : IQueryHandler<ExpeditionMessagesSearchQuery, PaginatedMessagesSearchResult>
 {
 }

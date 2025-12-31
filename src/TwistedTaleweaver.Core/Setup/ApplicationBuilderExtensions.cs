@@ -1,7 +1,9 @@
 using System.Reflection;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using TwistedTaleweaver.Core.Commands;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
@@ -16,7 +18,8 @@ public static class ApplicationBuilderExtensions
         return builder.Services
             .AddLazyResolution()
             .AddUnitOfWork()
-            .AddKafkaProducer();
+            .AddKafkaProducer()
+            .AddKafkaEventDispatcher();
     }
 
     extension(IServiceCollection services)
@@ -83,6 +86,37 @@ public static class ApplicationBuilderExtensions
         private IServiceCollection AddKafkaProducer()
         {
             services.AddSingleton<IKafkaEventProducer, KafkaEventProducer>();
+            return services;
+        }
+
+        private IServiceCollection AddKafkaEventDispatcher()
+        {
+            services.AddSingleton<IKafkaEventDispatcher, KafkaEventDispatcher>();
+            return services;
+        }
+
+        public IServiceCollection AddKafkaEventConsumers(Assembly assembly)
+        {
+            services.Scan(scan => scan
+                .FromAssemblies(assembly)
+                    .AddClasses(classes => classes.AssignableTo(typeof(IKafkaEventConsumer<>)), false)
+                    .AsImplementedInterfaces()
+                    .WithTransientLifetime());
+            
+            return services;
+        }
+
+        public IServiceCollection SubscribeToEvent<T>() where T : class
+        {
+            services.AddHostedService<KafkaSubscriber<T>>(provider =>
+            {
+                var dispatcher = provider.GetRequiredService<IKafkaEventDispatcher>();
+                var logger = provider.GetRequiredService<ILogger<KafkaSubscriber<T>>>();
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                
+                return new KafkaSubscriber<T>(dispatcher, logger, configuration);
+            });
+
             return services;
         }
     }

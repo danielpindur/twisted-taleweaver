@@ -58,7 +58,7 @@ public static class ExpeditionsMutations
 
         var expeditionContract = expedition!.ToContract();
 
-        await topicEventSender.PublishParticipantsChanged(expeditionContract);
+        await topicEventSender.PublishParticipantsChangedAsync(expeditionContract);
 
         return expeditionContract;
     }
@@ -82,7 +82,7 @@ public static class ExpeditionsMutations
 
         var expeditionContract = expedition!.ToContract();
         
-        await topicEventSender.PublishExpeditionStateChanged(expeditionContract);
+        await topicEventSender.PublishExpeditionStateChangedAsync(expeditionContract);
         
         return expeditionContract;
     }

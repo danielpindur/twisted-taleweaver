@@ -1,12 +1,23 @@
 using TwistedTaleweaver.Api.Messages.Entities;
 using TwistedTaleweaver.Api.Messages.Entities.Enums;
 using TwistedTaleweaver.Api.Messages.Events;
+using TwistedTaleweaver.Api.Messages.Queries;
 using TwistedTaleweaver.DataAccess.Messages.Dtos;
 
 namespace TwistedTaleweaver.Messages.Mappers;
 
 internal static class MessagesMapper
 {
+    public static PaginatedMessagesSearchResult ToPaginatedResult(
+        this IEnumerable<MessageDto> messages, bool hasNextPage)
+    {
+        return new PaginatedMessagesSearchResult()
+        {
+            Messages = messages.ToChatMessages(),
+            HasNextPage = hasNextPage
+        };
+    }
+    
     public static List<ChatMessage> ToChatMessages(this IEnumerable<MessageDto> source)
     {
         return source.Select(ToChatMessage).ToList();

@@ -46,6 +46,20 @@ type Character {
   attributeScores: AttributeScores!
 }
 
+"Represents a single chat message within the expedition."
+type ChatMessage {
+  "Unique identifier of the message."
+  id: Long!
+  "The sender of the message."
+  sender: MessageSender
+  "The type of the message."
+  type: MessageType!
+  "The string content of the message."
+  content: String!
+  "Timestamp of when the message was created within the system."
+  timestamp: DateTime!
+}
+
 "Represents current state of a combat creature."
 type CombatCreatureState {
   "Identifier of the creature this state data is related to."
@@ -64,6 +78,16 @@ type CreatureTrait {
   effect: String!
   "Optional. Condition under which the trait is active or applies."
   conditionForPerform: String
+}
+
+"Represents a page of items in cursor-based pagination."
+type CursorPageOfChatMessageAndInt64 {
+  "The items on the current page."
+  items: [ChatMessage!]!
+  "The cursor pointing to the start of the page."
+  endCursor: Long
+  "Indicates if there is a next page available."
+  hasNextPage: Boolean!
 }
 
 "Represents an expedition."
@@ -110,9 +134,17 @@ type ExpeditionState {
   status: ExpeditionStatus!
 }
 
+"A sender of a action message."
+type MessageSender {
+  "Unique identifier of the creature."
+  creatureId: UUID!
+  "Type of the action message sender."
+  senderType: SenderType!
+}
+
 type Mutation {
   "Creates a new character."
-  addCharacter(input: AddCharacterInput!): Character! @cost(weight: "10")
+  addCharacter(input: AddCharacterInput!): Character! @authorize @cost(weight: "10")
   "Creates a new expedition."
   addExpedition(input: AddExpeditionInput!): Expedition! @authorize @cost(weight: "10")
   "Joins an existing expedition."
@@ -139,7 +171,9 @@ type Query {
   "Retrieves an expedition by its unique identifier."
   expeditionById(id: UUID!): Expedition @authorize @cost(weight: "10")
   "Retrieves a paginated list of expeditions."
-  expeditions(page: Int! = 1 pageSize: Int! = 20): OffsetPageOfExpedition! @authorize @cost(weight: "10")
+  expeditions(input: OffsetInput!): OffsetPageOfExpedition! @authorize @cost(weight: "10")
+  "Retrieves a paginated list of messages for a given expedition."
+  messages(input: MessageSearchInput!): CursorPageOfChatMessageAndInt64! @authorize @cost(weight: "10")
 }
 
 "Represents how far a creature can move on its turn during combat."
@@ -163,6 +197,8 @@ type Subscription {
   participantsUpdated(expeditionId: UUID!): Expedition! @authorize @cost(weight: "10")
   "Notifies when the state of an expedition has changed."
   expeditionStateChanged(expeditionId: UUID!): Expedition! @authorize @cost(weight: "10")
+  "Notifies when a new message has been created in an expedition."
+  messageCreated(expeditionId: UUID!): ChatMessage! @authorize @cost(weight: "10")
 }
 
 "Represents an user."
@@ -229,6 +265,24 @@ input AttributeScoresInput {
 input JoinExpeditionInput {
   "Unique identifier of the expedition to join."
   expeditionId: UUID!
+}
+
+"Input for searching messages within an expedition."
+input MessageSearchInput {
+  "Unique identifier of the expedition whose messages are being searched."
+  expeditionId: UUID!
+  "The cursor after which to start fetching items."
+  after: Long
+  "Number of items to fetch."
+  pageSize: Int!
+}
+
+"Input for offset pagination."
+input OffsetInput {
+  "Current page number (1-based)."
+  page: Int!
+  "Number of items per page."
+  pageSize: Int!
 }
 
 "Request to start an existing expedition."
@@ -340,6 +394,12 @@ enum ExpeditionStatus {
   COMPLETED
 }
 
+enum MessageType {
+  NARRATIVE
+  ACTION
+  SYSTEM
+}
+
 enum NarrativeAlignment {
   UNKNOWN
   LAWFUL_GOOD
@@ -355,6 +415,11 @@ enum NarrativeAlignment {
   TWISTED
 }
 
+enum SenderType {
+  CHARACTER
+  MONSTER
+}
+
 "The authorize directive."
 directive @authorize("The name of the authorization policy that determines access to the annotated resource." policy: String "Roles that are allowed to access the annotated resource." roles: [String!] "Defines when when the authorize directive shall be applied.By default the authorize directives are applied during the validation phase." apply: ApplyPolicy! = BEFORE_RESOLVER) repeatable on OBJECT | FIELD_DEFINITION
 
@@ -363,5 +428,11 @@ directive @cost("The `weight` argument defines what value to add to the overall 
 
 "The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
 directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
+
+"The `DateTime` scalar represents an ISO-8601 compliant date time type."
+scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
+
+"The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1."
+scalar Long
 
 scalar UUID @specifiedBy(url: "https:\/\/tools.ietf.org\/html\/rfc4122")

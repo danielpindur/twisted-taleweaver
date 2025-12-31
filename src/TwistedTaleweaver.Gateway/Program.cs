@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Formatting.Compact;
+using TwistedTaleweaver.Api.Messages.Events;
 using TwistedTaleweaver.Core.Setup;
 using TwistedTaleweaver.Gateway.Auth;
 using TwistedTaleweaver.Gateway.Common.Errors;
@@ -148,7 +150,9 @@ builder.Services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserProvider, UserIdProvider>();
 
-builder.AddCore();
+builder.AddCore()
+    .AddKafkaEventConsumers(Assembly.GetExecutingAssembly())
+    .SubscribeToEvent<MessageCreatedEvent>();
 builder.AddTwistedTaleweaver();
 
 var app = builder.Build();
