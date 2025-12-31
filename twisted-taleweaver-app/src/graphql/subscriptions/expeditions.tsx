@@ -19,19 +19,16 @@ export const OnParticipantsChangedSubscription = gql(`
 export const OnExpeditionStateChangedSubscription = gql(`
   subscription OnExpeditionStateChanged($expeditionId: UUID!) {
     expeditionStateChanged(expeditionId: $expeditionId) {
-      id,
-      state {
+      status
+      activeUser {
+        id
+        externalId
+        name
+      }
+      characterStates {
+        creatureId
         status
-        activeUser {
-          id
-          externalId
-          name
-        }
-        characterStates {
-          creatureId
-          status
-          currentHealth
-        }
+        currentHealth
       }
     }
   }

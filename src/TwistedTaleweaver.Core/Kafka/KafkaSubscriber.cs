@@ -55,19 +55,13 @@ public class KafkaSubscriber<T> : BackgroundService where T : class
         {
             try
             {
-                _logger.LogInformation("Waiting for Kafka message...");
-
                 var result = _consumer.Consume(stoppingToken);
-
-                _logger.LogInformation("Kafka message received on topic {Topic}, partition {Partition}, offset {Offset}.", result.Topic, result.Partition, result.Offset);
                 
                 var headers = result.Message.Headers;
                 if (!headers.TryGetLastBytes(KafkaConstants.EventTypeHeader, out var typeBytes))
                 {
                     throw new InvalidOperationException("Kafka message is missing EventType header.");
                 }
-
-                _logger.LogInformation("Type from header read successfully.");
                 
                 var headerTypeName = Encoding.UTF8.GetString(typeBytes);
 
@@ -76,8 +70,6 @@ public class KafkaSubscriber<T> : BackgroundService where T : class
                 {
                     throw new InvalidOperationException($"Kafka message EventType header '{headerTypeName}' does not match expected type '{eventType.FullName}'.");
                 }
-
-                _logger.LogInformation("Deserializing event of type: {EventType}", eventType.FullName);
                 
                 var @event = JsonSerializer.Deserialize(result.Message.Value, eventType, _serializerOptions);
                 if (@event == null)
@@ -85,15 +77,9 @@ public class KafkaSubscriber<T> : BackgroundService where T : class
                     throw new InvalidOperationException($"Failed to deserialize event of type: {eventType.FullName}");
                 }
                 
-                _logger.LogInformation("Dispatching event of type: {EventType}", eventType.FullName);
-
                 await _dispatcher.DispatchAsync(@event, stoppingToken);
 
-                _logger.LogInformation("Committing offset for message on topic {Topic}, partition {Partition}, offset {Offset}.", result.Topic, result.Partition, result.Offset);
-
-                _consumer.Commit(result);                
-
-                _logger.LogInformation("Kafka message of type {EventType} processed successfully.", eventType.FullName);
+                _consumer.Commit(result);
             }
             catch (ConsumeException e)
             {

@@ -471,7 +471,7 @@ export type StartExpeditionInput = {
 export type Subscription = {
   __typename?: 'Subscription';
   /** Notifies when the state of an expedition has changed. */
-  expeditionStateChanged: Expedition;
+  expeditionStateChanged: ExpeditionState;
   /** Notifies when a new message has been created in an expedition. */
   messageCreated: ChatMessage;
   /** Notifies when the participants of an expedition have been updated. */
@@ -565,7 +565,7 @@ export type OnExpeditionStateChangedSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnExpeditionStateChangedSubscription = { __typename?: 'Subscription', expeditionStateChanged: { __typename?: 'Expedition', id: any, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeUser?: { __typename?: 'User', id: any, externalId: string, name: string } | null, characterStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }> } } };
+export type OnExpeditionStateChangedSubscription = { __typename?: 'Subscription', expeditionStateChanged: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeUser?: { __typename?: 'User', id: any, externalId: string, name: string } | null, characterStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }> } };
 
 export type OnMessageCreatedSubscriptionVariables = Exact<{
   expeditionId: Scalars['UUID']['input'];
@@ -731,19 +731,16 @@ export const OnParticipantsChangedDocument = gql`
 export const OnExpeditionStateChangedDocument = gql`
     subscription OnExpeditionStateChanged($expeditionId: UUID!) {
   expeditionStateChanged(expeditionId: $expeditionId) {
-    id
-    state {
+    status
+    activeUser {
+      id
+      externalId
+      name
+    }
+    characterStates {
+      creatureId
       status
-      activeUser {
-        id
-        externalId
-        name
-      }
-      characterStates {
-        creatureId
-        status
-        currentHealth
-      }
+      currentHealth
     }
   }
 }

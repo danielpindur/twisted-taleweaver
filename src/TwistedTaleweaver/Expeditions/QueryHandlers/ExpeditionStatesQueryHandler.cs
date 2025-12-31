@@ -10,4 +10,12 @@ internal class ExpeditionStatesQueryHandler(IExpeditionsReader expeditionsReader
     {
         return expeditionsReader.GetStatesAsync(query.ExpeditionIds);
     }
+
+    public async Task<ExpeditionState> ExecuteAsync(ExpeditionStateQuery query)
+    {
+        var expeditionStateById = await ExecuteAsync(
+            new ExpeditionStatesQuery() { ExpeditionIds = [query.ExpeditionId] });
+
+        return expeditionStateById.Single();
+    }
 }

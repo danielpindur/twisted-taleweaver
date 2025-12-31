@@ -35,6 +35,8 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
 
   const { data, fetchNextPage, isFetchingNextPage, hasNextPage, isError } = useInfiniteQuery({
     queryKey: ["expedition", expedition.id, "messages"],
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
     initialPageParam: null as number | null,
     queryFn: ({ pageParam }) => {
       const input: MessageSearchInput = {

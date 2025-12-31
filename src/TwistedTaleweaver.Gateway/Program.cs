@@ -10,6 +10,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Formatting.Compact;
+using TwistedTaleweaver.Api.Expeditions.Events;
 using TwistedTaleweaver.Api.Messages.Events;
 using TwistedTaleweaver.Core.Setup;
 using TwistedTaleweaver.Gateway.Auth;
@@ -152,7 +153,8 @@ builder.Services.AddScoped<IUserProvider, UserIdProvider>();
 
 builder.AddCore()
     .AddKafkaEventConsumers(Assembly.GetExecutingAssembly())
-    .SubscribeToEvent<MessageCreatedEvent>();
+    .SubscribeToEvent<MessageCreatedEvent>()
+    .SubscribeToEvent<ExpeditionStateUpdatedEvent>();
 builder.AddTwistedTaleweaver();
 
 var app = builder.Build();

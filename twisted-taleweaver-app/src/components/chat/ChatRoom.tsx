@@ -25,6 +25,8 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["expedition", expeditionId],
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
     queryFn: () => {
       return requestWithAuth((sdk) => sdk.GetExpeditionById({ id: expeditionId }));
     },
@@ -34,7 +36,7 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
       document: OnExpeditionStateChangedDocument,
       variables: { expeditionId: expeditionId },
       onNext: (event) => {
-        const update = event.expeditionStateChanged;
+        const updatedState = event.expeditionStateChanged;
 
         queryClient.setQueryData(
           ["expedition", expeditionId],
@@ -47,7 +49,7 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
               ...old,
               expeditionById: {
                 ...old.expeditionById,
-                state: update.state,
+                state: updatedState,
               },
             };
           }

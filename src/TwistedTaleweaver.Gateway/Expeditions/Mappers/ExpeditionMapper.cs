@@ -1,4 +1,5 @@
 using TwistedTaleweaver.Api.Expeditions.Entities;
+using TwistedTaleweaver.Api.Expeditions.Events;
 using ExpeditionContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.Expedition;
 using ExpeditionParticipantContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionParticipant;
 using ExpeditionStateContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionState;
@@ -68,6 +69,17 @@ internal static class ExpeditionMapper
         {
             ExpeditionId = expeditionId,
             Status = source.Status,
+            ActiveUserId = source.ActiveUserId
+        };
+    }
+    
+    public static ExpeditionStateContract ToContract(this ExpeditionStateUpdatedEvent source)
+    {
+        return new ExpeditionStateContract()
+        {
+            ExpeditionId = source.ExpeditionId,
+            Status = source.Status,
+            ActiveUserId = source.ActiveUserId
         };
     }
 }

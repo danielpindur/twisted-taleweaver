@@ -15,9 +15,9 @@ internal static class ExpeditionSubscriptionsHelper
     
     public static ValueTask PublishExpeditionStateChangedAsync(
         this ITopicEventSender topicEventSender, 
-        Expedition expedition)
+        ExpeditionState expeditionState)
     {
-        var topicName = $"{nameof(ExpeditionsSubscriptions.ExpeditionStateChanged)}_{expedition.Id}";
-        return topicEventSender.SendAsync(topicName, expedition);
+        var topicName = $"{nameof(ExpeditionsSubscriptions.ExpeditionStateChanged)}_{expeditionState.ExpeditionId}";
+        return topicEventSender.SendAsync(topicName, expeditionState);
     }
 }

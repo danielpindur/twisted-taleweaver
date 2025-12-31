@@ -8,6 +8,13 @@ public class ExpeditionStatesQuery
     public required List<Guid> ExpeditionIds { get; set; }
 }
 
-public interface IExpeditionStatesQueryHandler : IQueryHandler<ExpeditionStatesQuery, IEnumerable<ExpeditionState>>
+public class ExpeditionStateQuery
+{
+    public Guid ExpeditionId { get; set; }
+}
+
+public interface IExpeditionStatesQueryHandler : 
+    IQueryHandler<ExpeditionStatesQuery, IEnumerable<ExpeditionState>>,
+    IQueryHandler<ExpeditionStateQuery, ExpeditionState>
 {
 }

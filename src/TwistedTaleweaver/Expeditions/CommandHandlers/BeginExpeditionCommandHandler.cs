@@ -11,6 +11,7 @@ namespace TwistedTaleweaver.Expeditions.CommandHandlers;
 internal class BeginExpeditionCommandHandler(
     IExpeditionsWriter expeditionsWriter,
     IMessagesWriter messagesWriter,
+    IExpeditionStateCommandHandler expeditionStateCommandHandler,
     IKafkaEventProducer kafkaEventProducer) : IBeginExpeditionCommandHandler
 {
     public async Task ExecuteAsync(BeginExpeditionCommand command)
@@ -20,14 +21,16 @@ internal class BeginExpeditionCommandHandler(
 
         await expeditionsWriter.StartAsync(command.ExpeditionId);
 
-        await SendExpeditionStartedMessageAsync(command);
+        await expeditionStateCommandHandler.ExecuteAsync(
+            new PublishUpdatedExpeditionStateCommand() { ExpeditionId = command.ExpeditionId });
+        await PublishExpeditionStartedMessageAsync(command.ExpeditionId);
 
         await scope.CompleteAsync();
     }
 
-    private async Task SendExpeditionStartedMessageAsync(BeginExpeditionCommand command)
+    private async Task PublishExpeditionStartedMessageAsync(Guid expeditionId)
     {
-        var messageDto = await messagesWriter.AddSystemMessageAsync(command.ExpeditionId, MessageConstants.ExpeditionStartSystemMessage);
+        var messageDto = await messagesWriter.AddSystemMessageAsync(expeditionId, MessageConstants.ExpeditionStartSystemMessage);
 
         await kafkaEventProducer.PublishAsync(messageDto.ToMessageCreatedEvent());
     }

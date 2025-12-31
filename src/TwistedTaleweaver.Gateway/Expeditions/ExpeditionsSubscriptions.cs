@@ -19,8 +19,8 @@ public static class ExpeditionsSubscriptions
     [Subscribe]
     [Authorize]
     [Topic($"{nameof(ExpeditionStateChanged)}_{{{nameof(expeditionId)}}}")]
-    public static Expedition ExpeditionStateChanged(Guid expeditionId, [EventMessage] Expedition expedition)
+    public static ExpeditionState ExpeditionStateChanged(Guid expeditionId, [EventMessage] ExpeditionState expeditionState)
     {
-        return expedition;
+        return expeditionState;
     }
 }

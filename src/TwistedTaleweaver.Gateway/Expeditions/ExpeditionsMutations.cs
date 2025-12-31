@@ -79,11 +79,7 @@ public static class ExpeditionsMutations
         
         var expedition = await expeditionByIdQueryHandler.ExecuteAsync(
             new ExpeditionByIdQuery() { ExpeditionId = input.ExpeditionId });
-
-        var expeditionContract = expedition!.ToContract();
         
-        await topicEventSender.PublishExpeditionStateChangedAsync(expeditionContract);
-        
-        return expeditionContract;
+        return expedition!.ToContract();
     }
 }
