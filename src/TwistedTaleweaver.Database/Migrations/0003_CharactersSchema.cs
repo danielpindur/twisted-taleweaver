@@ -109,13 +109,9 @@ public class CharactersSchema : Migration
             .WithColumn("name")
                 .AsString(100)
                 .NotNullable()
-            .WithColumn("context_keywords")
-                .AsString(255)
+            .WithColumn("description")
+                .AsString()
                 .NotNullable()
-            .WithColumn("status_id")
-                .AsByte()
-                .NotNullable()
-                .ForeignKey("creature_statuses", "status_id")
             .WithColumn("type_id")
                 .AsByte()
                 .NotNullable()
@@ -168,7 +164,11 @@ public class CharactersSchema : Migration
                 .NotNullable()
             .WithColumn("condition_description")
                 .AsString(255)
-                .Nullable(); ;
+                .Nullable();
+        
+        Create.Index("idx_creature_traits_creature_id")
+            .OnTable("creature_traits")
+            .OnColumn("creature_id");
 
         Create.Table("combat_creatures")
             .WithColumn("creature_id")
@@ -251,12 +251,39 @@ public class CharactersSchema : Migration
                 .AsGuid()
                 .Nullable()
                 .ForeignKey("characters", "creature_id");
+        
+        Create.Table("creature_state_changes")
+            .WithColumn("change_id")
+                .AsGuid()
+                .PrimaryKey()
+                .WithDefault(SystemMethods.NewGuid)
+            .WithColumn("creature_id")
+                .AsGuid()
+                .NotNullable()
+                .ForeignKey("creatures", "creature_id")
+            .WithColumn("status_id")
+                .AsByte()
+                .NotNullable()
+                .ForeignKey("creature_statuses", "status_id")
+            .WithColumn("health_change")
+                .AsInt16()
+                .Nullable()
+            .WithColumn("changed_at")
+                .AsDateTimeOffset()
+                .NotNullable()
+                .WithDefault(SystemMethods.CurrentDateTimeOffset);
+        
+        Create.Index("idx_creature_state_changes_creature_id_changed_at")
+            .OnTable("creature_state_changes")
+                .OnColumn("creature_id").Ascending()
+                .OnColumn("changed_at").Ascending();
     }
 
     public override void Down()
     {
         Delete.Column("character_id").FromTable("expedition_participants");
 
+        Delete.Table("creature_state_changes");
         Delete.Table("characters");
         Delete.Table("character_class_types");
         Delete.Table("combat_creatures");

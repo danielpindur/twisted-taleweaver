@@ -46,6 +46,7 @@ internal static class CreaturesMapper
         {
             Id = source.CharacterId,
             Name = source.Name,
+            Description = source.Description,
             Gender = source.Gender,
             CreatureType = source.CreatureType,
             Alignment = source.Alignment,

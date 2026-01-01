@@ -16,7 +16,7 @@ public static class CharactersMapper
         {
             CharacterId = source.CreatureId,
             Name = source.Name,
-            ContextKeywords = source.ContextKeywords,
+            Description = source.Description,
             Gender = source.Gender,
             CreatureType = source.CreatureType,
             Alignment = source.Alignment,

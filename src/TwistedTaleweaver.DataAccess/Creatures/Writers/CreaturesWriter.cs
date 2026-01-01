@@ -10,7 +10,7 @@ public interface ICreaturesWriter
 {
     Task<Guid> CreateAsync(
         string name,
-        string contextKeywords,
+        string description,
         CreatureStatus status,
         CreatureType type,
         NarrativeAlignment narrativeAlignment,
@@ -30,20 +30,20 @@ public interface ICreaturesWriter
 
 internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesWriter
 {
-    public Task<Guid> CreateAsync(string name, string contextKeywords, CreatureStatus status, CreatureType type,
+    public Task<Guid> CreateAsync(string name, string description, CreatureStatus status, CreatureType type,
         NarrativeAlignment narrativeAlignment, CreatureGender gender, AttributeScores attributeScores)
     {
         const string sql = @"
             INSERT INTO creatures 
-            (name, context_keywords, status_id, type_id, alignment_id, strength, dexterity, constitution, intelligence, wisdom, charisma, gender_id)
+            (name, description, type_id, alignment_id, strength, dexterity, constitution, intelligence, wisdom, charisma, gender_id)
             VALUES 
-            (@Name, @ContextKeywords, @Status, @Type, @NarrativeAlignment, @Strength, @Dexterity, @Constitution, @Intelligence, @Wisdom, @Charisma, @Gender)
+            (@Name, @Description, @Type, @NarrativeAlignment, @Strength, @Dexterity, @Constitution, @Intelligence, @Wisdom, @Charisma, @Gender)
             RETURNING creature_id";
 
         return ExecuteWithOutputAsync<Guid>(sql, new
         {
             Name = name,
-            ContextKeywords = contextKeywords,
+            Description = description,
             Status = status,
             Type = type,
             NarrativeAlignment = narrativeAlignment,

@@ -8,12 +8,15 @@ namespace TwistedTaleweaver.Integration.OpenAi.Generators;
 
 internal interface IEntityGenerator
 {
-    Task<TEntity> GenerateEntityAsync<TEntity>(string prompt);
+    Task<TEntity> GenerateEntityAsync<TEntity>(string prompt, string systemContext, IEnumerable<string>? previousAssistantMessages = null);
 }
 
 internal class EntityGenerator(OpenAIResponseClient responseClient) : IEntityGenerator
 {
-    public async Task<TEntity> GenerateEntityAsync<TEntity>(string prompt)
+    public async Task<TEntity> GenerateEntityAsync<TEntity>(
+        string prompt,
+        string systemContext,
+        IEnumerable<string>? previousAssistantMessages = null)
     {
         var settings = new SystemTextJsonSchemaGeneratorSettings()
         {
@@ -41,8 +44,13 @@ internal class EntityGenerator(OpenAIResponseClient responseClient) : IEntityGen
         var responseItems = new List<ResponseItem>
         {
             ResponseItem.CreateUserMessageItem(prompt),
-            ResponseItem.CreateSystemMessageItem(TwistedTaleweaverContextHelper.ExpeditionGenerationContext)
+            ResponseItem.CreateSystemMessageItem(systemContext),
         };
+
+        if (previousAssistantMessages is not null)
+        {
+            responseItems.AddRange(previousAssistantMessages.Select(x => ResponseItem.CreateAssistantMessageItem(x)));
+        }
 
         var response = await responseClient.CreateResponseAsync(responseItems, options);
 

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TwistedTaleweaver.Core.Setup;
 using TwistedTaleweaver.DataAccess.Setup;
+using TwistedTaleweaver.GameEngine.Events;
 using TwistedTaleweaver.Integration.Clerk.Setup;
 using TwistedTaleweaver.Integration.OpenAi.Setup;
 
@@ -23,6 +24,7 @@ public static class ApplicationBuilderExtensions
             .AddCommandHandlers(assembly)
             .AddQueryHandlers(assembly)
             .AddFluentValidation(assembly)
-            .AddKafkaEventConsumers(assembly);
+            .AddKafkaEventConsumers(assembly)
+            .SubscribeToEvent<ExpeditionActionEvent>();
     }
 }

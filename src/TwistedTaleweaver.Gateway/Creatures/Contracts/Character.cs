@@ -10,6 +10,9 @@ public class Character
     
     [GraphQLDescription("The name of the character.")]
     public required string Name { get; set; }
+
+    [GraphQLDescription("Description of the character (e.g., backstory, lore).")]
+    public required string Description { get; set; }
     
     [GraphQLDescription("Gender of the character.")]
     public CreatureGender Gender { get; set; }

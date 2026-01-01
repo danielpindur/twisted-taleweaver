@@ -20,10 +20,10 @@ public abstract class Creature
     public required AttributeScores AttributeScores { get; set; }
 
     /// <summary>
-    /// Context string for AI generation (e.g. flavor/lore)
+    /// Description of the entity (e.g., backstory, lore)
     /// </summary>
-    [MaxLength(255)]
-    public required string ContextKeywords { get; set; }
+    [MinLength(1)]
+    public required string Description { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="CreatureGender"/>

@@ -58,7 +58,7 @@ public class ExpeditionsSchema : Migration
                 .AsString(100)
                 .NotNullable()
             .WithColumn("description")
-                .AsString(int.MaxValue)
+                .AsString()
                 .NotNullable()
             .WithColumn("status_id")
                 .AsByte()
@@ -100,7 +100,11 @@ public class ExpeditionsSchema : Migration
 
         Create.Index("idx_expeditions_status_id")
             .OnTable("expeditions")
-                .OnColumn("status_id").Ascending();
+                .OnColumn("status_id");
+        
+        Create.Index("idx_expeditions_created_by_user_id")
+            .OnTable("expeditions")
+                .OnColumn("created_by_user_id");
 
         Create.Table("expedition_participants")
             .WithColumn("expedition_id")
@@ -118,7 +122,11 @@ public class ExpeditionsSchema : Migration
 
         Create.PrimaryKey("PK_expedition_participants")
             .OnTable("expedition_participants")
-            .Columns("expedition_id", "user_id");
+            .Columns("expedition_id");
+        
+        Create.Index("idx_expedition_participants_user_id")
+            .OnTable("expedition_participants")
+                .OnColumn("user_id");
     }
 
     public override void Down()

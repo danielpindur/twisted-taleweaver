@@ -17,4 +17,10 @@ internal class CharactersQueryHandler(ICreaturesReader creaturesReader) : IChara
     {
         return (await ExecuteAsync(new CharactersByIdQuery() { CharacterIds = [query.CharacterId] })).SingleOrDefault();
     }
+
+    public async Task<IEnumerable<Character>> ExecuteAsync(CharactersByExpeditionIdQuery query)
+    {
+        var dtos = await creaturesReader.GetCharactersAsync(query.ExpeditionId);
+        return dtos.ToEntities();
+    }
 }

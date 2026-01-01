@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using TwistedTaleweaver.Domain.Common;
 
-namespace TwistedTaleweaver.Integration.OpenAi.Creatures;
+namespace TwistedTaleweaver.Integration.OpenAi.Creatures.Entities;
 
 /// <summary>
 /// Passive ability or feature that is always active or trigger under certain conditions

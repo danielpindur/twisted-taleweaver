@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using TwistedTaleweaver.Domain.Common;
 
-namespace TwistedTaleweaver.Integration.OpenAi.Creatures;
+namespace TwistedTaleweaver.Integration.OpenAi.Creatures.Entities;
 
 /// <summary>
 /// Represents how far a creature can move on its turn during combat

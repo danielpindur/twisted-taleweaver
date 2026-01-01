@@ -61,6 +61,7 @@ export const ExpeditionByIdQuery = gql(`
         character {
           id
           name
+          description
           gender
           creatureType
           alignment

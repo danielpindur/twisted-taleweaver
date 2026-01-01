@@ -24,7 +24,7 @@ internal class MessagesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(p
             FROM messages m
             WHERE m.expedition_id = @ExpeditionId
                 AND (@LastMessageId IS NULL OR m.message_id < @LastMessageId)
-            ORDER BY m.message_id DESC
+            ORDER BY m.message_id
             LIMIT @PageSize";
 
         return QueryAsync<MessageDto>(sql, new

@@ -8,7 +8,7 @@ public class CharacterDto
 
     public required string Name { get; set; }
 
-    public required string ContextKeywords { get; set; }
+    public required string Description { get; set; }
 
     public CreatureType CreatureType { get; set; }
 

@@ -1,18 +1,17 @@
 using TwistedTaleweaver.Api.Creatures.Commands;
-using TwistedTaleweaver.Api.Creatures.Entities;
 using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 using TwistedTaleweaver.Core.Database;
+using TwistedTaleweaver.Creatures.Mappers;
 using TwistedTaleweaver.DataAccess.Creatures.Dtos;
 using TwistedTaleweaver.DataAccess.Creatures.Writers;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
-using TwistedTaleweaver.Integration.OpenAi.Adapters;
 using TwistedTaleweaver.Integration.OpenAi.Creatures;
 
 namespace TwistedTaleweaver.Creatures.CommandHandlers;
 
 internal class CreateCharacterCommandHandler(
-    IGenerationAdapter generationAdapter,
+    ICharacterGenerationAdapter characterGenerationAdapter,
     IExpeditionsReader expeditionsReader,
     ICreaturesWriter creaturesWriter,
     IExpeditionParticipantsWriter expeditionParticipantsWriter) : ICreateCharacterCommandHandler
@@ -23,30 +22,35 @@ internal class CreateCharacterCommandHandler(
 
         var expedition = await expeditionsReader.GetByIdAsync(command.ExpeditionId);
 
-        var generatedCharacter = await generationAdapter.GenerateCharacterAsync(
-            command.Name, command.Name,
-            expedition!.Description,
-            command.CharacterClass, command.CreatureGender, command.CreatureType, command.Alignment,
-            command.AttributeScores);
+        var generatedCharacter = await characterGenerationAdapter.GenerateAsync(
+            new CharacterGenerationCommand()
+            {
+                CharacterName = command.Name,
+                CharacterDescription = command.Description,
+                ExpeditionDescription = expedition!.Description,
+                CharacterClass = command.CharacterClass,
+                Gender = command.CreatureGender,
+                CreatureType = command.CreatureType,
+                NarrativeAlignment = command.Alignment,
+                AttributeScores = command.AttributeScores
+            });
 
         await using var scope = new UnitOfWorkScope();
 
         var creatureId = await creaturesWriter.CreateAsync(
             generatedCharacter.Name,
-            generatedCharacter.CharacterContextKeywords,
+            generatedCharacter.Description,
             CreatureStatus.Alive,
             command.CreatureType,
             command.Alignment,
             command.CreatureGender,
             command.AttributeScores);
 
-        const int tempHeath = 100; // TODO: Figure out how to do health
-
         await creaturesWriter.SaveCombatDetailsAsync(
             creatureId,
-            tempHeath,
+            generatedCharacter.MaxHealth,
             generatedCharacter.ArmorClass,
-            ToEntity(generatedCharacter.SpeedScores));
+            generatedCharacter.SpeedScores.ToEntity());
 
         await creaturesWriter.SaveTraitsAsync(generatedCharacter.Traits
             .Select(x => new CreatureTraitDto()
@@ -66,20 +70,6 @@ internal class CreateCharacterCommandHandler(
         return new CreateCharacterResult
         {
             CharacterId = creatureId
-        };
-    }
-
-    // extract to static class
-    private static SpeedScores ToEntity(GeneratedSpeedScores source)
-    {
-        return new SpeedScores()
-        {
-            Walking = source.Walking,
-            Climbing = source.Climbing.HasValue ? source.Climbing.ActualValue : null,
-            Swimming = source.Swimming.HasValue ? source.Swimming.ActualValue : null,
-            Burrowing = source.Burrowing.HasValue ? source.Burrowing.ActualValue : null,
-            Flying = source.Flying.HasValue ? source.Flying.ActualValue : null,
-            Teleportation = source.Teleportation.HasValue ? source.Teleportation.ActualValue : null
         };
     }
 }

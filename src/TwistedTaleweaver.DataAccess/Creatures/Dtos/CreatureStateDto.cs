@@ -8,5 +8,7 @@ public class CreatureStateDto
     
     public Guid CreatureId { get; set; }
     
-    public CreatureStatus Status { get; set; }
+    public CreatureStatus? Status { get; set; }
+    
+    public int CurrentHealth { get; set;}
 }

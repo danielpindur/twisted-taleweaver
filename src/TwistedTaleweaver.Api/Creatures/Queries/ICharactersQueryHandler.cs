@@ -13,8 +13,14 @@ public class CharacterByIdQuery
     public Guid CharacterId { get; set; }
 }
 
+public class CharactersByExpeditionIdQuery
+{
+    public Guid ExpeditionId { get; set; }
+}
+
 public interface ICharactersQueryHandler :
     IQueryHandler<CharactersByIdQuery, IEnumerable<Character>>,
+    IQueryHandler<CharactersByExpeditionIdQuery, IEnumerable<Character>>,
     IQueryHandler<CharacterByIdQuery, Character?>
 {
 }

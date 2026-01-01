@@ -2,13 +2,13 @@ using FluentValidation;
 using TwistedTaleweaver.Api.Expeditions.Commands;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
-using TwistedTaleweaver.Integration.OpenAi.Adapters;
+using TwistedTaleweaver.Integration.OpenAi.Expeditions;
 
 namespace TwistedTaleweaver.Expeditions.CommandHandlers;
 
 internal class CreateExpeditionCommandHandler(
     IValidator<CreateExpeditionCommand> createExpeditionCommandValidator,
-    IGenerationAdapter generationAdapter,
+    IExpeditionGenerationAdapter expeditionGenerationAdapter,
     IExpeditionsWriter expeditionsWriter,
     IExpeditionParticipantsWriter expeditionParticipantsWriter) : ICreateExpeditionCommandHandler
 {
@@ -16,7 +16,13 @@ internal class CreateExpeditionCommandHandler(
     {
         await createExpeditionCommandValidator.ValidateAndThrowAsync(command);
 
-        var generatedExpedition = await generationAdapter.GenerateExpeditionAsync(command.Difficulty, command.Name, command.Description);
+        var generatedExpedition = await expeditionGenerationAdapter.GenerateAsync(
+            new ExpeditionGenerationCommand()
+            {
+                ExpeditionName = command.Name,
+                ExpeditionDescription = command.Description,
+                Difficulty = command.Difficulty
+            });
 
         await using var scope = new UnitOfWorkScope();
 

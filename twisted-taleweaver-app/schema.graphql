@@ -28,6 +28,8 @@ type Character {
   id: UUID!
   "The name of the character."
   name: String!
+  "Description of the character (e.g., backstory, lore)."
+  description: String!
   "Gender of the character."
   gender: CreatureGender!
   "Type of a creature, that the character is."

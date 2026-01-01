@@ -45,6 +45,12 @@ public class MessagesSchema : Migration
                 .AsDateTimeOffset()
                 .NotNullable()
                 .WithDefault(SystemMethods.CurrentDateTimeOffset);
+        
+        Create.Index("idx_messages_expedition_created_at")
+            .OnTable("messages")
+                .OnColumn("expedition_id").Ascending()
+                .OnColumn("created_at").Ascending()
+                .OnColumn("type_id").Ascending();
     }
 
     public override void Down()

@@ -130,12 +130,16 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                     {participant.character.name}
                   </DialogTitle>
                   <DialogDescription className="text-sm text-muted-foreground">
-                    Character details and abilities
+                    {participant.character.description}
                   </DialogDescription>
                 </DialogHeader>
                 
                 <ScrollArea className="max-h-[75vh] pr-4">
+                  
                   <div className="space-y-4">
+
+                    <Separator />
+
                     {/* Character Info */}
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>

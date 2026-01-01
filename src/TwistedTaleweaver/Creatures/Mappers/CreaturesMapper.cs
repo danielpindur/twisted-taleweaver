@@ -1,5 +1,7 @@
 using TwistedTaleweaver.Api.Creatures.Entities;
 using TwistedTaleweaver.DataAccess.Creatures.Dtos;
+using TwistedTaleweaver.Integration.OpenAi.Creatures;
+using TwistedTaleweaver.Integration.OpenAi.Creatures.Entities;
 
 namespace TwistedTaleweaver.Creatures.Mappers;
 
@@ -17,6 +19,19 @@ public static class CreaturesMapper
             Name = source.TraitName,
             Effect = source.Effect,
             ConditionForPerform = source.ConditionDescription
+        };
+    }
+    
+    public static SpeedScores ToEntity(this GeneratedSpeedScores source)
+    {
+        return new SpeedScores()
+        {
+            Walking = source.Walking,
+            Climbing = source.Climbing.HasValue ? source.Climbing.ActualValue : null,
+            Swimming = source.Swimming.HasValue ? source.Swimming.ActualValue : null,
+            Burrowing = source.Burrowing.HasValue ? source.Burrowing.ActualValue : null,
+            Flying = source.Flying.HasValue ? source.Flying.ActualValue : null,
+            Teleportation = source.Teleportation.HasValue ? source.Teleportation.ActualValue : null
         };
     }
 }

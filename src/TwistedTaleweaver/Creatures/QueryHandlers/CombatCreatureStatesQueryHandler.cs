@@ -1,4 +1,5 @@
 using TwistedTaleweaver.Api.Creatures.Entities;
+using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 using TwistedTaleweaver.Api.Creatures.Queries;
 using TwistedTaleweaver.DataAccess.Creatures.Readers;
 
@@ -17,8 +18,8 @@ internal class CombatCreatureStatesQueryHandler(ICreaturesReader creaturesReader
                 y => y.Select(z => new CombatCreatureState()
                 {
                     CreatureId = z.CreatureId,
-                    Status = z.Status,
-                    CurrentHealth = 10
+                    Status = z.Status ?? CreatureStatus.Alive,
+                    CurrentHealth = z.CurrentHealth
                 }).ToList());
 
         foreach (var expeditionId in query.ExpeditionIds)

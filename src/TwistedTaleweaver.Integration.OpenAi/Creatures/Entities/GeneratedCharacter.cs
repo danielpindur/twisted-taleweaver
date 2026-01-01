@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-namespace TwistedTaleweaver.Integration.OpenAi.Creatures;
+
+namespace TwistedTaleweaver.Integration.OpenAi.Creatures.Entities;
 
 /// <summary>
 /// Generated playable character
@@ -13,10 +14,11 @@ public class GeneratedCharacter
     public required string Name { get; set; }
 
     /// <summary>
-    /// Summary context string to drive AI generation - contains information not contained in other properties
+    /// Description to drive AI generation (e.g., backstory, lore) - contains information not contained in other properties
     /// </summary>
-    [MaxLength(255)]
-    public required string CharacterContextKeywords { get; set; }
+    [MaxLength(500)]
+    [Required]
+    public required string Description { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="GeneratedTrait"/>
@@ -34,4 +36,10 @@ public class GeneratedCharacter
     /// <inheritdoc cref="GeneratedSpeedScores"/>
     /// </summary>
     public required GeneratedSpeedScores SpeedScores { get; set; }
+    
+    /// <summary>
+    /// Maximum health points of the character - depends on character class and constitution attribute
+    /// </summary>
+    [Range(294, 1000)]
+    public int MaxHealth { get; set;}
 }

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TwistedTaleweaver.Integration.OpenAi.Expeditions;
+namespace TwistedTaleweaver.Integration.OpenAi.Expeditions.Entities;
 
 /// <summary>
 /// Generated expedition entity

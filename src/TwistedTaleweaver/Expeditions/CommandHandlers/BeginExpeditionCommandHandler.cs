@@ -2,15 +2,15 @@ using TwistedTaleweaver.Api.Expeditions.Commands;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
-using TwistedTaleweaver.DataAccess.Messages.Writers;
+using TwistedTaleweaver.GameEngine.Events;
 using TwistedTaleweaver.Messages;
-using TwistedTaleweaver.Messages.Mappers;
+using TwistedTaleweaver.Messages.CommandHandlers;
 
 namespace TwistedTaleweaver.Expeditions.CommandHandlers;
 
 internal class BeginExpeditionCommandHandler(
     IExpeditionsWriter expeditionsWriter,
-    IMessagesWriter messagesWriter,
+    IChatMessagesCommandHandler chatMessagesCommandHandler,
     IExpeditionStateCommandHandler expeditionStateCommandHandler,
     IKafkaEventProducer kafkaEventProducer) : IBeginExpeditionCommandHandler
 {
@@ -21,17 +21,32 @@ internal class BeginExpeditionCommandHandler(
 
         await expeditionsWriter.StartAsync(command.ExpeditionId);
 
-        await expeditionStateCommandHandler.ExecuteAsync(
-            new PublishUpdatedExpeditionStateCommand() { ExpeditionId = command.ExpeditionId });
+        // TODO: Probably needs outbox pattern
+        await expeditionStateCommandHandler.ExecuteAsync(new PublishUpdatedExpeditionStateCommand() { ExpeditionId = command.ExpeditionId });
         await PublishExpeditionStartedMessageAsync(command.ExpeditionId);
+        await PublishExpeditionActionAsync(command.ExpeditionId);
 
         await scope.CompleteAsync();
     }
 
-    private async Task PublishExpeditionStartedMessageAsync(Guid expeditionId)
+    private Task PublishExpeditionStartedMessageAsync(Guid expeditionId)
     {
-        var messageDto = await messagesWriter.AddSystemMessageAsync(expeditionId, MessageConstants.ExpeditionStartSystemMessage);
-
-        await kafkaEventProducer.PublishAsync(messageDto.ToMessageCreatedEvent());
+        return chatMessagesCommandHandler.ExecuteAsync(new AddSystemMessageCommand()
+        {
+            ExpeditionId = expeditionId,
+            Content = MessageConstants.ExpeditionStartSystemMessage
+        });
     }
+
+    private async Task PublishExpeditionActionAsync(Guid expeditionId)
+    {
+        var action = new ExpeditionActionEvent()
+        {
+            ExpeditionId = expeditionId,
+            ExpeditionEventSource = ExpeditionEventSource.CharacterAction,
+            ExpeditionEventType = ExpeditionEventType.ExpeditionStarted
+        };
+
+        await kafkaEventProducer.PublishAsync(action);
+    } 
 }

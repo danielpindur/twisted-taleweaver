@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace TwistedTaleweaver.Integration.OpenAi.Expeditions.Enums;
+namespace TwistedTaleweaver.Integration.OpenAi.Expeditions.Entities.Enums;
 
 internal enum ExpeditionSetting
 {
