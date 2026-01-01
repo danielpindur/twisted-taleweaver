@@ -14,7 +14,7 @@ public static class CharactersMapper
     {
         return new Character()
         {
-            CharacterId = source.CreatureId,
+            CreatureId = source.CreatureId,
             Name = source.Name,
             Description = source.Description,
             Gender = source.Gender,

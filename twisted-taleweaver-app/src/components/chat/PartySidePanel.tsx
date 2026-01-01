@@ -29,11 +29,11 @@ export interface PartySidePanelProps {
   expeditionState: ExpeditionViewModel["state"],
   expeditionOwner: ExpeditionViewModel["userCreated"],
   panelCollapsed: boolean,
-  activeUser: ExpeditionViewModel["state"]["activeUser"], 
+  activeCreature: ExpeditionViewModel["state"]["activeCreature"], 
   setPanelCollapsed: (collapsed: boolean) => void;
 };
 
-export const PartySidePanel = ({ participants, expeditionState, expeditionOwner, panelCollapsed, activeUser, setPanelCollapsed }: PartySidePanelProps) => {
+export const PartySidePanel = ({ participants, expeditionState, expeditionOwner, panelCollapsed, activeCreature, setPanelCollapsed }: PartySidePanelProps) => {
   const [needsScrollPadding, setNeedsScrollPadding] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +80,7 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
           participant.character ? 
             <Dialog key={participant.user.id}>
               <DialogTrigger asChild>
-                <Card className={`bg-muted border cursor-pointer hover:bg-muted/80 transition-colors ${canParticipantAct(participant, activeUser) ? 'border-primary shadow-glow' : 'border-border'}`}>
+                <Card className={`bg-muted border cursor-pointer hover:bg-muted/80 transition-colors ${canParticipantAct(participant, activeCreature) ? 'border-primary shadow-glow' : 'border-border'}`}>
                   <CardContent className="p-3">
                     <div className="flex items-center justify-between mb-2">
                       <div>

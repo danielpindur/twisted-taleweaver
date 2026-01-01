@@ -14,7 +14,7 @@ public interface IExpeditionsReader
 
     Task<IEnumerable<ExpeditionWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize);
     
-    Task<IEnumerable<ExpeditionState>> GetStatesAsync(List<Guid> expeditionIds);
+    Task<IEnumerable<ExpeditionStatusDto>> GetStatusesAsync(List<Guid> expeditionIds);
 }
 
 internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
@@ -84,7 +84,7 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
         });
     }
 
-    public Task<IEnumerable<ExpeditionState>> GetStatesAsync(List<Guid> expeditionIds)
+    public Task<IEnumerable<ExpeditionStatusDto>> GetStatusesAsync(List<Guid> expeditionIds)
     {
         const string sql = @"
             SELECT 
@@ -93,7 +93,7 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
             FROM expeditions e
             WHERE e.expedition_id = ANY(@ExpeditionIds)";
 
-        return QueryAsync<ExpeditionState>(sql, new
+        return QueryAsync<ExpeditionStatusDto>(sql, new
         {
             ExpeditionIds = expeditionIds
         });

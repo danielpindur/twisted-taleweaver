@@ -72,6 +72,14 @@ type CombatCreatureState {
   currentHealth: Int!
 }
 
+"Represents a creature."
+type Creature {
+  "Unique identifier of the creature."
+  id: UUID!
+  "The name of the creature."
+  name: String!
+}
+
 "Passive ability or feature that is always active or trigger under certain conditions."
 type CreatureTrait {
   "Name of the trait."
@@ -128,8 +136,8 @@ type ExpeditionParticipant {
 
 "Information regarding the state the expedition is in."
 type ExpeditionState {
-  "User whose turn it is to act."
-  activeUser: User @cost(weight: "10")
+  "Creature whose turn it is to act."
+  activeCreature: Creature @cost(weight: "10")
   "States of characters in the expedition."
   characterStates: [CombatCreatureState!]! @cost(weight: "10")
   "Current status of the expedition."

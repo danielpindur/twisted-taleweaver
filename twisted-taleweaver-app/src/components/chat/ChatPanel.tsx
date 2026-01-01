@@ -116,16 +116,14 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
             isFetchingMoreMessages={isFetchingNextPage} 
             canFetchMoreMessages={hasNextPage} />}
 
-          <TurnIndicator 
-            participants={expedition.participants} 
-            expeditionState={expedition.state} />
+          <TurnIndicator expeditionState={expedition.state} />
 
           {/* Message Input */}
           <div className="bg-card border-t border-border p-4 space-y-3">
             <ChatInput 
               handleSendMessage={handleSendMessage} 
-              disabled={expedition.state.activeUser?.externalId !== user.id}
-              currentTurnParticipant={getCurrentTurnParticipant(expedition.participants, expedition.state.activeUser)}
+              disabled={getCurrentTurnParticipant(expedition.participants, expedition.state.activeCreature)?.user.externalId !== user.id}
+              currentTurnParticipant={getCurrentTurnParticipant(expedition.participants, expedition.state.activeCreature)}
             />
           </div>
         </>

@@ -34,4 +34,31 @@ public static class CreaturesMapper
             Teleportation = source.Teleportation.HasValue ? source.Teleportation.ActualValue : null
         };
     }
+    
+    public static IEnumerable<Creature> ToEntities(this IEnumerable<CreatureDto> source)
+    {
+        return source.Select(ToEntity);
+    }
+    
+    public static Creature ToEntity(this CreatureDto source)
+    {
+        return new Creature()
+        {
+            CreatureId = source.CreatureId,
+            Name = source.Name,
+            Description = source.Description,
+            Gender = source.Gender,
+            CreatureType = source.CreatureType,
+            Alignment = source.Alignment,
+            AttributeScores = new AttributeScores()
+            {
+                Strength = source.Strength,
+                Dexterity = source.Dexterity,
+                Constitution = source.Constitution,
+                Intelligence = source.Intelligence,
+                Wisdom = source.Wisdom,
+                Charisma = source.Charisma,
+            }
+        };
+    }
 }

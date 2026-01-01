@@ -4,7 +4,14 @@ namespace TwistedTaleweaver.GameEngine.Events;
 
 public enum ExpeditionEventType
 {
+    /// <summary>
+    /// Expedition was started -> generate narrative
+    /// </summary>
     ExpeditionStarted = 1,
+    
+    /// <summary>
+    /// Narrative was generated -> we need next actor to take it's turn
+    /// </summary>
     NarrativeGenerated
 }
 

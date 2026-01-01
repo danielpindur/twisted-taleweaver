@@ -4,6 +4,7 @@ using CharacterContract = TwistedTaleweaver.Gateway.Creatures.Contracts.Characte
 using SpeedScoresContract =  TwistedTaleweaver.Gateway.Creatures.Contracts.SpeedScores;
 using AttributeScoresContract =  TwistedTaleweaver.Gateway.Creatures.Contracts.AttributeScores;
 using CombatCreatureStateContract = TwistedTaleweaver.Gateway.Creatures.Contracts.CombatCreatureState;
+using CreatureContract = TwistedTaleweaver.Gateway.Creatures.Contracts.Creature;
 
 namespace TwistedTaleweaver.Gateway.Creatures.Mappers;
 
@@ -44,7 +45,7 @@ internal static class CreaturesMapper
     {
         return new CharacterContract()
         {
-            Id = source.CharacterId,
+            Id = source.CreatureId,
             Name = source.Name,
             Description = source.Description,
             Gender = source.Gender,
@@ -103,5 +104,14 @@ internal static class CreaturesMapper
     public static List<CombatCreatureStateContract> ToContracts(this List<CombatCreatureState> source)
     {
         return source.Select(ToContract).ToList();
+    }
+
+    public static CreatureContract ToContract(this Creature source)
+    {
+        return new CreatureContract()
+        {
+            Id = source.CreatureId,
+            Name = source.Name,
+        };
     }
 }

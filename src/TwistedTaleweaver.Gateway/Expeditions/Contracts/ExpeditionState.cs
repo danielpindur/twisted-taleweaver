@@ -12,5 +12,5 @@ public class ExpeditionState
     public ExpeditionStatus Status { get; init; }
     
     [GraphQLIgnore]
-    public Guid? ActiveUserId { get; init; }
+    public Guid? ActiveCreatureId { get; init; }
 }

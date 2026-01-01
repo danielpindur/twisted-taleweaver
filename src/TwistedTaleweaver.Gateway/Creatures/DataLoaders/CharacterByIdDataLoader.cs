@@ -16,6 +16,6 @@ public class CharacterByIdDataLoader(
         var characters = await charactersQueryHandler.ExecuteAsync(
             new CharactersByIdQuery() { CharacterIds = keys.ToList() });
 
-        return characters.ToDictionary(x => x.CharacterId, y => y.ToContract());
+        return characters.ToDictionary(x => x.CreatureId, y => y.ToContract());
     }
 }

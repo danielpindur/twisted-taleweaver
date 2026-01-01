@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
-import type { ExpeditionParticipant } from "@/generated/twisted-taleweaver-api";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
 
 export interface ChatInputProps {
   handleSendMessage: (message: string) => void;
   disabled: boolean;
-  currentTurnParticipant?: ExpeditionParticipant;
+  currentTurnParticipant?: ExpeditionViewModel["participants"][number];
 };
 
 export const ChatInput = ({ handleSendMessage, disabled, currentTurnParticipant }: ChatInputProps) => {

@@ -42,9 +42,9 @@ export const ExpeditionByIdQuery = gql(`
       }
       state {
         status
-        activeUser {
+        activeCreature {
           id
-          externalId
+          name
         }
         characterStates {
           creatureId

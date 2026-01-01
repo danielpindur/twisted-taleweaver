@@ -10,5 +10,5 @@ public class ExpeditionStateUpdatedEvent
     
     public ExpeditionStatus Status { get; set; }
 
-    public Guid? ActiveUserId { get; set; }
+    public Guid? ActiveCreatureId { get; set; }
 }

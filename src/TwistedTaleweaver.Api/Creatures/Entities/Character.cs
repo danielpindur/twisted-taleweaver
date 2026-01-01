@@ -8,11 +8,6 @@ namespace TwistedTaleweaver.Api.Creatures.Entities;
 public class Character : CombatCreature
 {
     /// <summary>
-    /// Identifier of the character
-    /// </summary>
-    public Guid CharacterId { get; set; }
-
-    /// <summary>
     /// <inheritdoc cref="CharacterClass"/>
     /// </summary>
     public CharacterClass Class { get; set; }

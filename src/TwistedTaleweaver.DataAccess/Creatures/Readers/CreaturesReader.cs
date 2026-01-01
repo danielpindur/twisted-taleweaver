@@ -13,6 +13,8 @@ public interface ICreaturesReader
     Task<IEnumerable<CreatureTraitDto>> GetTraitsAsync(List<Guid> creatureIds);
     
     Task<IEnumerable<CreatureStateDto>> GetCharacterStatesByExpeditionsAsync(List<Guid> expeditionIds);
+    
+    Task<IEnumerable<CreatureDto>> GetCreaturesAsync(List<Guid> creatureIds);
 }
 
 internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesReader
@@ -145,6 +147,31 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
         return QueryAsync<CreatureStateDto>(sql, new
         {
             ExpeditionIds = expeditionIds
+        });
+    }
+
+    public Task<IEnumerable<CreatureDto>> GetCreaturesAsync(List<Guid> creatureIds)
+    {
+        const string sql = @"
+            SELECT 
+                c.creature_id,
+                c.name,
+                c.description,
+                c.type_id AS creature_type,
+                c.alignment_id AS alignment,
+                c.gender_id AS gender,
+                c.strength,
+                c.dexterity,
+                c.intelligence,
+                c.wisdom,
+                c.constitution,
+                c.charisma
+            FROM creatures c
+            WHERE c.creature_id = ANY(@CreatureIds)";
+
+        return QueryAsync<CreatureDto>(sql, new
+        {
+            CreatureIds = creatureIds
         });
     }
 }

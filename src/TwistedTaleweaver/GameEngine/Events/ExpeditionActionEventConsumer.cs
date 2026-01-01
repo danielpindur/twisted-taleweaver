@@ -2,6 +2,8 @@ using Microsoft.Extensions.Logging;
 using TwistedTaleweaver.Api.Creatures.Queries;
 using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
+using TwistedTaleweaver.Expeditions.CommandHandlers;
+using TwistedTaleweaver.GameEngine.CommandHandlers;
 using TwistedTaleweaver.Integration.OpenAi.Creatures.Mappers;
 using TwistedTaleweaver.Integration.OpenAi.Expeditions.Mappers;
 using TwistedTaleweaver.Integration.OpenAi.Messages;
@@ -17,7 +19,9 @@ internal class ExpeditionActionEventConsumer(
     INarrativeGenerationAdapter narrativeGenerationAdapter,
     ICharactersQueryHandler charactersQueryHandler,
     ICreatureTraitsQueryHandler creatureTraitsQueryHandler,
-    ICombatCreatureStatesQueryHandler combatCreatureStatesQueryHandler) : IKafkaEventConsumer<ExpeditionActionEvent>
+    ICombatCreatureStatesQueryHandler combatCreatureStatesQueryHandler,
+    ITurnOrderCommandHandler turnOrderCommandHandler,
+    IExpeditionStateCommandHandler expeditionStateCommandHandler) : IKafkaEventConsumer<ExpeditionActionEvent>
 {
     public Task ConsumeAsync(ExpeditionActionEvent @event, CancellationToken cancellationToken)
     {
@@ -47,7 +51,7 @@ internal class ExpeditionActionEventConsumer(
         var characters = (await charactersQueryHandler.ExecuteAsync(
             new CharactersByExpeditionIdQuery() { ExpeditionId = expedition.ExpeditionId })).ToList();
         
-        var characterIds = characters.Select(c => c.CharacterId).ToList();
+        var characterIds = characters.Select(c => c.CreatureId).ToList();
         
         var traitsByCharacterId = await creatureTraitsQueryHandler.ExecuteAsync(
             new CreatureTraitsQuery() { CreatureIds = characterIds });
@@ -86,6 +90,7 @@ internal class ExpeditionActionEventConsumer(
 
     private async Task ProcessNarrativeGenerated(ExpeditionActionEvent @event)
     {
-        
+        await turnOrderCommandHandler.ExecuteAsync(new AdvanceTurnOrderCommand() { ExpeditionId = @event.ExpeditionId });
+        await expeditionStateCommandHandler.ExecuteAsync(new PublishUpdatedExpeditionStateCommand() { ExpeditionId = @event.ExpeditionId });
     }
 }

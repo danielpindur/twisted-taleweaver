@@ -100,7 +100,7 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
             expeditionState={data.expeditionById.state}
             panelCollapsed={partyPanelCollapsed}
             setPanelCollapsed={setPartyPanelCollapsed}
-            activeUser={data.expeditionById.state.activeUser} />
+            activeCreature={data.expeditionById.state.activeCreature} />
           
           <ChatPanel 
             expedition={data.expeditionById}

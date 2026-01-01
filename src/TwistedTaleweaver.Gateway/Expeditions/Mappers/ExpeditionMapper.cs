@@ -69,7 +69,7 @@ internal static class ExpeditionMapper
         {
             ExpeditionId = expeditionId,
             Status = source.Status,
-            ActiveUserId = source.ActiveUserId
+            ActiveCreatureId = source.ActiveCreatureId
         };
     }
     
@@ -79,7 +79,7 @@ internal static class ExpeditionMapper
         {
             ExpeditionId = source.ExpeditionId,
             Status = source.Status,
-            ActiveUserId = source.ActiveUserId
+            ActiveCreatureId = source.ActiveCreatureId
         };
     }
 }

@@ -2,6 +2,7 @@ using TwistedTaleweaver.Api.Expeditions.Commands;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
+using TwistedTaleweaver.GameEngine.CommandHandlers;
 using TwistedTaleweaver.GameEngine.Events;
 using TwistedTaleweaver.Messages;
 using TwistedTaleweaver.Messages.CommandHandlers;
@@ -12,6 +13,7 @@ internal class BeginExpeditionCommandHandler(
     IExpeditionsWriter expeditionsWriter,
     IChatMessagesCommandHandler chatMessagesCommandHandler,
     IExpeditionStateCommandHandler expeditionStateCommandHandler,
+    ITurnOrderCommandHandler turnOrderCommandHandler,
     IKafkaEventProducer kafkaEventProducer) : IBeginExpeditionCommandHandler
 {
     public async Task ExecuteAsync(BeginExpeditionCommand command)
@@ -20,8 +22,9 @@ internal class BeginExpeditionCommandHandler(
         await using var scope = new UnitOfWorkScope();
 
         await expeditionsWriter.StartAsync(command.ExpeditionId);
+        await turnOrderCommandHandler.ExecuteAsync(new ConfigureTurnOrderCommand() { ExpeditionId = command.ExpeditionId });
 
-        // TODO: Probably needs outbox pattern
+        // TODO: Needs outbox pattern
         await expeditionStateCommandHandler.ExecuteAsync(new PublishUpdatedExpeditionStateCommand() { ExpeditionId = command.ExpeditionId });
         await PublishExpeditionStartedMessageAsync(command.ExpeditionId);
         await PublishExpeditionActionAsync(command.ExpeditionId);

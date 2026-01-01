@@ -18,7 +18,7 @@ public class ExpeditionState
     public ExpeditionStatus Status { get; set; }
 
     /// <summary>
-    /// Unique identifier or the user whose turn it is to act
+    /// Unique identifier or the creature, whose turn it is to act.
     /// </summary>
-    public Guid? ActiveUserId { get; set; }
+    public Guid? ActiveCreatureId { get; set; }
 }

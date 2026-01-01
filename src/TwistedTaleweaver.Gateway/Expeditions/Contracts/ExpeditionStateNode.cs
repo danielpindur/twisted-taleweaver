@@ -1,27 +1,26 @@
 using TwistedTaleweaver.Gateway.Creatures.Contracts;
 using TwistedTaleweaver.Gateway.Creatures.DataLoaders;
-using TwistedTaleweaver.Gateway.Users.Contracts;
-using TwistedTaleweaver.Gateway.Users.DataLoaders;
+using TwistedTaleweaver.Gateway.Expeditions.DataLoaders;
 
 namespace TwistedTaleweaver.Gateway.Expeditions.Contracts;
 
 [ObjectType<ExpeditionState>]
 public static partial class ExpeditionStateNode
 {
-    [GraphQLDescription("User whose turn it is to act.")]
-    public static async Task<User?> GetActiveUserAsync(
+    [GraphQLDescription("Creature whose turn it is to act.")]
+    public static async Task<Creature?> GetActiveCreatureAsync(
         [Parent] ExpeditionState state,
-        UserByIdDataLoader dataLoader,
+        CreatureByIdDataLoader dataLoader,
         CancellationToken cancellationToken)
     {
-        if (!state.ActiveUserId.HasValue)
+        if (!state.ActiveCreatureId.HasValue)
         {
             return null;
         }
         
-        var user = await dataLoader.LoadAsync(state.ActiveUserId.Value, cancellationToken);
-        return user ?? 
-               throw new InvalidOperationException($"Active user not found with ID {state.ActiveUserId.Value}");
+        var creature = await dataLoader.LoadAsync(state.ActiveCreatureId.Value, cancellationToken);
+        return creature ?? 
+               throw new InvalidOperationException($"Active creature not found with ID {state.ActiveCreatureId.Value}");
     }
     
     [GraphQLDescription("States of characters in the expedition.")]

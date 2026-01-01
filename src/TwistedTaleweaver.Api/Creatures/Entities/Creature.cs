@@ -6,8 +6,13 @@ namespace TwistedTaleweaver.Api.Creatures.Entities;
 /// <summary>
 /// Shared base class for all creatures
 /// </summary>
-public abstract class Creature
+public class Creature
 {
+    /// <summary>
+    /// Identifier of the creature
+    /// </summary>
+    public Guid CreatureId { get; set; }
+    
     /// <summary>
     /// Name of the entity (e.g., monster name, character title)
     /// </summary>

@@ -11,7 +11,7 @@ internal static class ExpeditionStateMapper
         {
             ExpeditionId = source.ExpeditionId,
             Status = source.Status,
-            ActiveUserId = source.ActiveUserId,
+            ActiveCreatureId = source.ActiveCreatureId,
         };
     }
 }

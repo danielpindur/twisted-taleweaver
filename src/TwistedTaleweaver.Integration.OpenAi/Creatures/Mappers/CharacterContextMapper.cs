@@ -18,8 +18,8 @@ public static class CharacterContextMapper
         Dictionary<Guid, List<CreatureTrait>> traitsByCharacterId,
         Dictionary<Guid, CombatCreatureState> stateByCharacterId)
     {
-        var state = stateByCharacterId[source.CharacterId];
-        var traits = traitsByCharacterId[source.CharacterId];
+        var state = stateByCharacterId[source.CreatureId];
+        var traits = traitsByCharacterId[source.CreatureId];
 
         return new CharacterContext()
         {
