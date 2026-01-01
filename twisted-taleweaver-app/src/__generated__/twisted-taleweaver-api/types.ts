@@ -56,6 +56,14 @@ export type AddExpeditionInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Input for adding a new message to an expedition. */
+export type AddMessageInput = {
+  /** Content of the message to be added. */
+  content: Scalars['String']['input'];
+  /** Unique identifier of the expedition to which the message is being added. */
+  expeditionId: Scalars['UUID']['input'];
+};
+
 /** Defines when a policy shall be executed. */
 export enum ApplyPolicy {
   /** After the resolver was executed. */
@@ -362,6 +370,8 @@ export type Mutation = {
   addCharacter: Character;
   /** Creates a new expedition. */
   addExpedition: Expedition;
+  /** Creates a new message in an expedition. */
+  addMessage: ChatMessage;
   /** Joins an existing expedition. */
   joinExpedition: Expedition;
   /** Starts an existing expedition. */
@@ -376,6 +386,11 @@ export type MutationAddCharacterArgs = {
 
 export type MutationAddExpeditionArgs = {
   input: AddExpeditionInput;
+};
+
+
+export type MutationAddMessageArgs = {
+  input: AddMessageInput;
 };
 
 
@@ -543,6 +558,13 @@ export type StartExpeditionMutationVariables = Exact<{
 
 export type StartExpeditionMutation = { __typename?: 'Mutation', startExpedition: { __typename?: 'Expedition', id: any } };
 
+export type AddMessageMutationVariables = Exact<{
+  input: AddMessageInput;
+}>;
+
+
+export type AddMessageMutation = { __typename?: 'Mutation', addMessage: { __typename?: 'ChatMessage', id: any } };
+
 export type GetExpeditionsQueryVariables = Exact<{
   input: OffsetInput;
 }>;
@@ -610,6 +632,13 @@ export const JoinExpeditionDocument = gql`
 export const StartExpeditionDocument = gql`
     mutation StartExpedition($input: StartExpeditionInput!) {
   startExpedition(input: $input) {
+    id
+  }
+}
+    `;
+export const AddMessageDocument = gql`
+    mutation AddMessage($input: AddMessageInput!) {
+  addMessage(input: $input) {
     id
   }
 }
@@ -789,6 +818,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     StartExpedition(variables: StartExpeditionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<StartExpeditionMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<StartExpeditionMutation>({ document: StartExpeditionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'StartExpedition', 'mutation', variables);
+    },
+    AddMessage(variables: AddMessageMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AddMessageMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AddMessageMutation>({ document: AddMessageDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AddMessage', 'mutation', variables);
     },
     GetExpeditions(variables: GetExpeditionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetExpeditionsQuery>({ document: GetExpeditionsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetExpeditions', 'query', variables);

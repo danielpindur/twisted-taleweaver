@@ -27,11 +27,6 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
 
   const [isInCombat] = useState(expedition.state.status === ExpeditionStatus.Started); // TODO: Get from game state
   const [combatMonsters] = useState<Monster[]>(mockMonsters); // TODO: Get from combat state
- 
-  // TODO: Implement actual message sending API call
-  const handleSendMessage = (messageToSend: string) => {
-    
-  };
 
   const { data, fetchNextPage, isFetchingNextPage, hasNextPage, isError } = useInfiniteQuery({
     queryKey: ["expedition", expedition.id, "messages"],
@@ -121,8 +116,8 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
           {/* Message Input */}
           <div className="bg-card border-t border-border p-4 space-y-3">
             <ChatInput 
-              handleSendMessage={handleSendMessage} 
-              disabled={getCurrentTurnParticipant(expedition.participants, expedition.state.activeCreature)?.user.externalId !== user.id}
+              expeditionId={expedition.id}
+              user={user}
               currentTurnParticipant={getCurrentTurnParticipant(expedition.participants, expedition.state.activeCreature)}
             />
           </div>

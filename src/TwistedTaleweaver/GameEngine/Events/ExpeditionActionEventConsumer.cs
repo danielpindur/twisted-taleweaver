@@ -15,7 +15,7 @@ internal class ExpeditionActionEventConsumer(
     ILogger<ExpeditionActionEventConsumer> logger,
     IExpeditionsReader expeditionsReader,
     IKafkaEventProducer kafkaEventProducer,
-    IChatMessagesCommandHandler chatMessagesCommandHandler,
+    IInternalChatMessagesCommandHandler chatMessagesCommandHandler,
     INarrativeGenerationAdapter narrativeGenerationAdapter,
     ICharactersQueryHandler charactersQueryHandler,
     ICreatureTraitsQueryHandler creatureTraitsQueryHandler,

@@ -13,17 +13,17 @@ internal static class MessagesMapper
     {
         return new PaginatedMessagesSearchResult()
         {
-            Messages = messages.ToChatMessages(),
+            Messages = messages.ToEntities(),
             HasNextPage = hasNextPage
         };
     }
     
-    public static List<ChatMessage> ToChatMessages(this IEnumerable<MessageDto> source)
+    public static List<ChatMessage> ToEntities(this IEnumerable<MessageDto> source)
     {
-        return source.Select(ToChatMessage).ToList();
+        return source.Select(ToEntity).ToList();
     }
 
-    public static ChatMessage ToChatMessage(this MessageDto source)
+    public static ChatMessage ToEntity(this MessageDto source)
     {
         return new ChatMessage()
         {

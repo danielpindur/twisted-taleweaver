@@ -1,15 +1,15 @@
 import { formatTime } from "@/utils/TimeUtils";
 import { getClassIcon } from "@/utils/CharacterUtils";
-import type { ExpeditionParticipant } from "@/generated/twisted-taleweaver-api/models/ExpeditionParticipant";
-import type { ChatMessage } from "@/generated/twisted-taleweaver-api/models/ChatMessage";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
+import type { ChatMessage } from "@/__generated__/twisted-taleweaver-api/types";
 
 export interface CharacterMessageProps {
   message: ChatMessage,
-  participants: ExpeditionParticipant[]
+  participants: ExpeditionViewModel["participants"]
 };
 
 export const CharacterMessage = ({ message, participants }: CharacterMessageProps) => {
-  var messageSender = participants.find(p => p.character?.characterId == message.sender?.creatureId)!;
+  var messageSender = participants.find(p => p.character?.id == message.sender?.creatureId)!;
   var ClassIcon = getClassIcon(messageSender.character!.class);
 
   return(

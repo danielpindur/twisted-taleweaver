@@ -16,9 +16,15 @@ internal class AdvanceTurnOrderCommand
     public Guid ExpeditionId { get; set; }
 }
 
+internal class ActionTakenCommand
+{
+    public Guid ExpeditionId { get; set; }
+}
+
 internal interface ITurnOrderCommandHandler :
     ICommandHandler<ConfigureTurnOrderCommand>,
-    ICommandHandler<AdvanceTurnOrderCommand>
+    ICommandHandler<AdvanceTurnOrderCommand>,
+    ICommandHandler<ActionTakenCommand>
 {
 }
 
@@ -46,6 +52,13 @@ internal class TurnOrderCommandHandler(
     {
         var turnOrder = await expeditionTurnOrdersReader.GetByExpeditionAsync(command.ExpeditionId);
         turnOrder.NextTurn();
+        await expeditionTurnOrdersWriter.Save(turnOrder);
+    }
+
+    public async Task ExecuteAsync(ActionTakenCommand command)
+    {
+        var turnOrder = await expeditionTurnOrdersReader.GetByExpeditionAsync(command.ExpeditionId);
+        turnOrder.ActionTaken();
         await expeditionTurnOrdersWriter.Save(turnOrder);
     }
 }

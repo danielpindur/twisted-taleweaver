@@ -161,6 +161,8 @@ type Mutation {
   joinExpedition(input: JoinExpeditionInput!): Expedition! @authorize @cost(weight: "10")
   "Starts an existing expedition."
   startExpedition(input: StartExpeditionInput!): Expedition! @authorize @cost(weight: "10")
+  "Creates a new message in an expedition."
+  addMessage(input: AddMessageInput!): ChatMessage! @authorize @cost(weight: "10")
 }
 
 "Represents a page of items using offset pagination."
@@ -253,6 +255,14 @@ input AddExpeditionInput {
   minParticipants: Int!
   "Maximum number of participants allowed in the expedition."
   maxParticipants: Int!
+}
+
+"Input for adding a new message to an expedition."
+input AddMessageInput {
+  "Unique identifier of the expedition to which the message is being added."
+  expeditionId: UUID!
+  "Content of the message to be added."
+  content: String!
 }
 
 "Breakdown of a character's attribute scores that represents their physical and mental capabilities."

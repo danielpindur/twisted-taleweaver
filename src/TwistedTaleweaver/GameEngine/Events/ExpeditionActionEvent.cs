@@ -12,7 +12,12 @@ public enum ExpeditionEventType
     /// <summary>
     /// Narrative was generated -> we need next actor to take it's turn
     /// </summary>
-    NarrativeGenerated
+    NarrativeGenerated,
+    
+    /// <summary>
+    /// An action has been read from the character message
+    /// </summary>
+    CharacterActionRequested
 }
 
 public enum ExpeditionEventSource

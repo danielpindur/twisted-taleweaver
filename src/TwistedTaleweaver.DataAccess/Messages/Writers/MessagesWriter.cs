@@ -10,6 +10,8 @@ public interface IMessagesWriter
     Task<MessageDto> AddSystemMessageAsync(Guid expeditionId, string content);
     
     Task<MessageDto> AddNarrativeMessageAsync(Guid expeditionId, string content);
+    
+    Task<MessageDto> AddCharacterMessageAsync(Guid expeditionId, string content, Guid characterId);
 }
 
 internal class MessagesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IMessagesWriter
@@ -43,6 +45,23 @@ internal class MessagesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(p
             ExpeditionId = expeditionId,
             Content = content,
             Type = MessageType.Narrative
+        });
+    }
+
+    public Task<MessageDto> AddCharacterMessageAsync(Guid expeditionId, string content, Guid characterId)
+    {
+        const string sql = @"
+            INSERT INTO messages
+            (expedition_id, type_id, sender_character_id, content)
+            VALUES (@ExpeditionId, @Type, @CharacterId, @Content)
+            RETURNING message_id, expedition_id, type_id AS type, sender_character_id, content, created_at";
+
+        return ExecuteWithOutputAsync<MessageDto>(sql, new
+        {
+            ExpeditionId = expeditionId,
+            Content = content,
+            Type = MessageType.Action,
+            CharacterId = characterId
         });
     }
 }

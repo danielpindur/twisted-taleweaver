@@ -11,7 +11,7 @@ namespace TwistedTaleweaver.Expeditions.CommandHandlers;
 
 internal class BeginExpeditionCommandHandler(
     IExpeditionsWriter expeditionsWriter,
-    IChatMessagesCommandHandler chatMessagesCommandHandler,
+    IInternalChatMessagesCommandHandler chatMessagesCommandHandler,
     IExpeditionStateCommandHandler expeditionStateCommandHandler,
     ITurnOrderCommandHandler turnOrderCommandHandler,
     IKafkaEventProducer kafkaEventProducer) : IBeginExpeditionCommandHandler
