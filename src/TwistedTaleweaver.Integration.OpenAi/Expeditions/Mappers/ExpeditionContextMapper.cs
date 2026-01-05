@@ -9,6 +9,7 @@ public static class ExpeditionContextMapper
     {
         return new ExpeditionContext()
         {
+            ExpeditionId = source.ExpeditionId,
             Name = source.Name,
             Description = source.Description,
             Difficulty = source.Difficulty,

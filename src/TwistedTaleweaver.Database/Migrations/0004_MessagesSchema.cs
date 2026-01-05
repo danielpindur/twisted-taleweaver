@@ -19,7 +19,8 @@ public class MessagesSchema : Migration
         Insert.IntoTable("message_types")
             .Row(new { type_id = 1, type_name = "Narrative" })
             .Row(new { type_id = 2, type_name = "Action" })
-            .Row(new { type_id = 3, type_name = "System" });
+            .Row(new { type_id = 3, type_name = "System" })
+            .Row(new { type_id = 4, type_name = "ActionAdjudication" });
 
         Create.Table("messages")
             .WithColumn("message_id")

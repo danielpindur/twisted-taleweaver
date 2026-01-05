@@ -360,6 +360,7 @@ export type MessageSender = {
 
 export enum MessageType {
   Action = 'ACTION',
+  ActionAdjudication = 'ACTION_ADJUDICATION',
   Narrative = 'NARRATIVE',
   System = 'SYSTEM'
 }

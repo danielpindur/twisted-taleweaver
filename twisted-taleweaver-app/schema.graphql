@@ -418,6 +418,7 @@ enum MessageType {
   NARRATIVE
   ACTION
   SYSTEM
+  ACTION_ADJUDICATION
 }
 
 enum NarrativeAlignment {

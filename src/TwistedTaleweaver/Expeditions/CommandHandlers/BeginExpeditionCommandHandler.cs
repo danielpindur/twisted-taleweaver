@@ -3,6 +3,7 @@ using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
 using TwistedTaleweaver.GameEngine.CommandHandlers;
+using TwistedTaleweaver.GameEngine.Entities.Enums;
 using TwistedTaleweaver.GameEngine.Events;
 using TwistedTaleweaver.Messages;
 using TwistedTaleweaver.Messages.CommandHandlers;

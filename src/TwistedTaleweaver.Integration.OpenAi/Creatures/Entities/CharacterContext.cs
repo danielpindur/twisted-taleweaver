@@ -5,6 +5,8 @@ namespace TwistedTaleweaver.Integration.OpenAi.Creatures.Entities;
 
 public class CharacterContext
 {
+    public Guid CreatureId { get; set; }
+    
     public required string Name { get; set; }
     
     public required string Description { get; set; }

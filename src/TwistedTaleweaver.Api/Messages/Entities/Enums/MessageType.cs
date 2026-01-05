@@ -18,5 +18,10 @@ public enum MessageType
     /// <summary>
     /// System messages - expedition starting, roll results, etc.
     /// </summary>
-    System
+    System,
+    
+    /// <summary>
+    /// Messages representing the adjudication of an action taken by a character or monster
+    /// </summary>
+    ActionAdjudication
 }

@@ -67,6 +67,11 @@ public class ExpeditionTurnOrder
     {
         AwaitingAction = false;
     }
+
+    public void RetakeAction()
+    {
+        AwaitingAction = true;
+    }
     
     public void NextTurn()
     {

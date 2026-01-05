@@ -1,6 +1,6 @@
+import type { ChatMessage } from "@/__generated__/twisted-taleweaver-api/graphql";
 import { formatTime } from "@/utils/TimeUtils";
 import { BookOpen } from "lucide-react";
-import type { ChatMessage } from "@/generated/twisted-taleweaver-api/models/ChatMessage";
 
 export interface NarrativeMessageProps {
   message: ChatMessage
@@ -19,7 +19,7 @@ export const NarrativeMessage = ({ message }: NarrativeMessageProps) => {
           {formatTime(new Date(message.timestamp))}
         </span>
       </div>
-      <p className="font-crimson text-taleweaver-foreground italic">
+      <p className="font-crimson text-taleweaver-foreground italic" style={{ whiteSpace: "pre-line" }}>
         {message.content}
       </p>
     </div>

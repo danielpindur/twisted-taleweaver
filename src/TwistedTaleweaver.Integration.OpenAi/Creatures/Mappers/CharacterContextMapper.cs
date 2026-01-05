@@ -23,6 +23,7 @@ public static class CharacterContextMapper
 
         return new CharacterContext()
         {
+            CreatureId = source.CreatureId,
             Name = source.Name,
             Description = source.Description,
             CreatureGender = source.Gender,

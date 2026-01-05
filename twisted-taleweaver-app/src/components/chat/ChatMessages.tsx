@@ -7,6 +7,7 @@ import { CharacterMessage } from "./CharacterMessage";
 import { MonsterMessage } from "./MonsterMessage";
 import { MessageType, SenderType, type ChatMessage } from "@/__generated__/twisted-taleweaver-api/types";
 import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
+import { ActionAdjudicationMessage } from "./ActionAdjudicationMessage";
 
 export interface ChatMessagesProps {
   messages: ChatMessage[],
@@ -56,6 +57,9 @@ export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadi
     if (!message.sender){
       if (message.type == MessageType.Narrative) {
         return <NarrativeMessage message={message} />
+      }
+      else if (message.type == MessageType.ActionAdjudication) {
+        return <ActionAdjudicationMessage message={message} />
       }
       else {
         return <SystemMessage message={message} />

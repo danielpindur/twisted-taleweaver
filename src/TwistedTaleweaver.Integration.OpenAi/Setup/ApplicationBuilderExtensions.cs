@@ -24,6 +24,7 @@ public static class ApplicationBuilderExtensions
         builder.Services.AddSingleton<IExpeditionGenerationAdapter, ExpeditionGenerationAdapter>();
         builder.Services.AddSingleton<ICharacterGenerationAdapter, CharacterGenerationAdapter>();
         builder.Services.AddSingleton<INarrativeGenerationAdapter, NarrativeGenerationAdapter>();
+        builder.Services.AddSingleton<IActionAdjudicationGenerationAdapter, ActionAdjudicationAdjudicationGenerationAdapter>();
 
         return builder.Services;
     }

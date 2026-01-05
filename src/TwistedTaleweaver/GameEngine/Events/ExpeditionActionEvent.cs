@@ -1,30 +1,8 @@
 using TwistedTaleweaver.Core.Kafka.Attributes;
+using TwistedTaleweaver.GameEngine.Entities;
+using TwistedTaleweaver.GameEngine.Entities.Enums;
 
 namespace TwistedTaleweaver.GameEngine.Events;
-
-public enum ExpeditionEventType
-{
-    /// <summary>
-    /// Expedition was started -> generate narrative
-    /// </summary>
-    ExpeditionStarted = 1,
-    
-    /// <summary>
-    /// Narrative was generated -> we need next actor to take it's turn
-    /// </summary>
-    NarrativeGenerated,
-    
-    /// <summary>
-    /// An action has been read from the character message
-    /// </summary>
-    CharacterActionRequested
-}
-
-public enum ExpeditionEventSource
-{
-    System = 1,
-    CharacterAction
-}
 
 public class ExpeditionActionEvent
 {
@@ -36,4 +14,8 @@ public class ExpeditionActionEvent
     public ExpeditionEventType ExpeditionEventType { get; set; }
     
     public ExpeditionEventSource ExpeditionEventSource { get; set; }
+    
+    public long? SourceMessageId { get; set; }
+    
+    public ActionAdjudication? ActionAdjudication { get; set; }
 }

@@ -21,10 +21,16 @@ internal class ActionTakenCommand
     public Guid ExpeditionId { get; set; }
 }
 
+internal class RetakeActionCommand
+{
+    public Guid ExpeditionId { get; set; }
+}
+
 internal interface ITurnOrderCommandHandler :
     ICommandHandler<ConfigureTurnOrderCommand>,
     ICommandHandler<AdvanceTurnOrderCommand>,
-    ICommandHandler<ActionTakenCommand>
+    ICommandHandler<ActionTakenCommand>,
+    ICommandHandler<RetakeActionCommand>
 {
 }
 
@@ -59,6 +65,13 @@ internal class TurnOrderCommandHandler(
     {
         var turnOrder = await expeditionTurnOrdersReader.GetByExpeditionAsync(command.ExpeditionId);
         turnOrder.ActionTaken();
+        await expeditionTurnOrdersWriter.Save(turnOrder);
+    }
+
+    public async Task ExecuteAsync(RetakeActionCommand command)
+    {
+        var turnOrder = await expeditionTurnOrdersReader.GetByExpeditionAsync(command.ExpeditionId);
+        turnOrder.RetakeAction();
         await expeditionTurnOrdersWriter.Save(turnOrder);
     }
 }
