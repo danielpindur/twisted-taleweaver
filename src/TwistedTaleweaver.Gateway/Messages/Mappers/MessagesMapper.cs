@@ -14,7 +14,7 @@ internal static class MessagesMapper
         return new CursorPage<ChatMessageContract, long>()
         {
             Items = source.Messages.ToContracts(),
-            EndCursor = source.Messages.LastOrDefault()?.MessageId,
+            EndCursor = source.Messages.FirstOrDefault()?.MessageId,
             HasNextPage = source.HasNextPage
         };
     }

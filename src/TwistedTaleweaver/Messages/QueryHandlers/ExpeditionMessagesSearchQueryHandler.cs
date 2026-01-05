@@ -13,7 +13,8 @@ internal class ExpeditionMessagesSearchQueryHandler(IMessagesReader messagesRead
         
         var hasNextPage = messages.Count > query.PageSize;
         var items = messages.Take(query.PageSize).ToList();
-
+        items.Reverse();
+        
         return items.ToPaginatedResult(hasNextPage);
     }
 }

@@ -53,4 +53,9 @@ internal static class TwistedTaleweaverContextHelper
         + "what traits are relevant, and how risky the attempt is. "
         + "Output structured data only. No prose. No embellishment. No character voice.";
 
+    public const string ActionOutcomeContext =
+        "You are resolving the mechanical outcome of a player action in a dark fantasy roleplaying game. "
+        + "This is a SYSTEM-LEVEL resolution step. "
+        + "Do NOT write narrative prose. "
+        + "Do NOT roleplay. Do NOT invent new rules. Output structured data only.";
 }

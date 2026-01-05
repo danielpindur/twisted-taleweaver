@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.WebSockets;
 using Microsoft.Extensions.Diagnostics.HealthChecks;

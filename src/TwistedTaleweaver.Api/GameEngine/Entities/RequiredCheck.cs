@@ -1,7 +1,7 @@
 using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 using TwistedTaleweaver.Api.GameEngine.Entities.Enums;
 
-namespace TwistedTaleweaver.GameEngine.Entities;
+namespace TwistedTaleweaver.Api.GameEngine.Entities;
 
 public class RequiredCheck
 {

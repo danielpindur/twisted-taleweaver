@@ -1,6 +1,5 @@
 using TwistedTaleweaver.Api.Creatures.Entities;
 using TwistedTaleweaver.DataAccess.Creatures.Dtos;
-using TwistedTaleweaver.Integration.OpenAi.Creatures;
 using TwistedTaleweaver.Integration.OpenAi.Creatures.Entities;
 
 namespace TwistedTaleweaver.Creatures.Mappers;

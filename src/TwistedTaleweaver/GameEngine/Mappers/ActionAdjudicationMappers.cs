@@ -1,7 +1,7 @@
 using TwistedTaleweaver.GameEngine.Entities;
 using TwistedTaleweaver.Integration.OpenAi.Messages.Entities;
 using GeneratedRequiredCheck = TwistedTaleweaver.Integration.OpenAi.Messages.Entities.RequiredCheck;
-using RequiredCheck = TwistedTaleweaver.GameEngine.Entities.RequiredCheck;
+using RequiredCheck = TwistedTaleweaver.Api.GameEngine.Entities.RequiredCheck;
 
 namespace TwistedTaleweaver.GameEngine.Mappers;
 

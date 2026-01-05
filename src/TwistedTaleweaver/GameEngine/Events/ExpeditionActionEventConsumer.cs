@@ -151,18 +151,24 @@ internal class ExpeditionActionEventConsumer(
                 ExpeditionId = @event.ExpeditionId
             });
 
-        await turnOrderCommandHandler.ExecuteAsync(new RetakeActionCommand() { ExpeditionId = @event.ExpeditionId });
-        
-        var action = new ExpeditionActionEvent()
+        if (actionAdjudication.IsActionPossible)
         {
-            ExpeditionId = @event.ExpeditionId,
-            ExpeditionEventSource = ExpeditionEventSource.System,
-            ExpeditionEventType = ExpeditionEventType.AllowedActionAdjudicationGenerated,
-            SourceMessageId = message.MessageId,
-            ActionAdjudication = actionAdjudication.ToActionAdjudication(characterPerformingAction.CreatureId)
-        };
+            var action = new ExpeditionActionEvent()
+            {
+                ExpeditionId = @event.ExpeditionId,
+                ExpeditionEventSource = ExpeditionEventSource.System,
+                ExpeditionEventType = ExpeditionEventType.AllowedActionAdjudicationGenerated,
+                SourceMessageId = message.MessageId,
+                ActionAdjudication = actionAdjudication.ToActionAdjudication(characterPerformingAction.CreatureId)
+            };
 
-        await kafkaEventProducer.PublishAsync(action);
+            await kafkaEventProducer.PublishAsync(action);
+        }
+        else
+        {
+            await turnOrderCommandHandler.ExecuteAsync(new RetakeActionCommand() { ExpeditionId = @event.ExpeditionId });
+            await expeditionStateCommandHandler.ExecuteAsync(new PublishUpdatedExpeditionStateCommand() { ExpeditionId = @event.ExpeditionId });
+        }
         
         await scope.CompleteAsync();
     }
@@ -174,7 +180,8 @@ internal class ExpeditionActionEventConsumer(
         return actionAdjudicationCommandHandler.ExecuteAsync(new ProcessActionAdjudicationCommand()
         {
             ExpeditionId = @event.ExpeditionId,
-            ActionAdjudication = actionAdjudication
+            ActionAdjudication = actionAdjudication,
+            ActionAdjudicationMessageId = @event.SourceMessageId ??  throw new InvalidOperationException("SourceMessageId is required for ActionAdjudication events."),
         });
     }
     

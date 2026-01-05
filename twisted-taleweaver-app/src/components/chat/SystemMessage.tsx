@@ -1,6 +1,6 @@
+import type { ChatMessage } from "@/__generated__/twisted-taleweaver-api/types";
 import { formatTime } from "@/utils/TimeUtils";
 import { Eye } from "lucide-react";
-import type { ChatMessage } from "@/generated/twisted-taleweaver-api/models/ChatMessage";
 
 export interface SystemMessageProps {
   message: ChatMessage

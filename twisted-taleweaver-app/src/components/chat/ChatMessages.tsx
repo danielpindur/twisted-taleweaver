@@ -22,6 +22,8 @@ export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadi
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
+  const isPrependingRef = useRef(false);
+  const prevScrollHeightRef = useRef<number | null>(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
   const [hasMounted, setHasMounted] = useState(false);
   const isFirstLoad = !hasMounted && messages.length > 0;
@@ -44,6 +46,11 @@ export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadi
     
     // Load more messages when scrolled to top
     if (scrollTop === 0 && !isFetchingMoreMessages && canFetchMoreMessages) {
+      if (scrollAreaRef.current) {
+        prevScrollHeightRef.current = scrollAreaRef.current.scrollHeight;
+        isPrependingRef.current = true;
+      }
+
       loadMoreMessages();
     }
   }, [isFetchingMoreMessages, canFetchMoreMessages, loadMoreMessages]);
@@ -52,6 +59,23 @@ export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadi
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     setShouldScrollToBottom(true);
   };
+
+  useLayoutEffect(() => {
+    if (
+      isPrependingRef.current &&
+      scrollAreaRef.current &&
+      prevScrollHeightRef.current !== null
+    ) {
+      const newScrollHeight = scrollAreaRef.current.scrollHeight;
+      const heightDiff = newScrollHeight - prevScrollHeightRef.current;
+
+      scrollAreaRef.current.scrollTop = heightDiff;
+
+      isPrependingRef.current = false;
+      prevScrollHeightRef.current = null;
+    }
+  }, [messages]);
+
 
   const getMessageDisplay = (message: ChatMessage) => {
     if (!message.sender){

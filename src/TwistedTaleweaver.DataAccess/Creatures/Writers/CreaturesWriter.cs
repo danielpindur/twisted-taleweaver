@@ -26,6 +26,8 @@ public interface ICreaturesWriter
     Task SaveTraitsAsync(List<CreatureTraitDto> traits);
 
     Task SaveCharacterDetailsAsync(Guid creatureId, CharacterClass @class);
+    
+    Task SaveStateUpdatesAsync(List<CreatureStateUpdate> creatureStateUpdates);
 }
 
 internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesWriter
@@ -104,5 +106,16 @@ internal class CreaturesWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(
             CreatureId = creatureId,
             ClassType = @class
         });
+    }
+
+    public Task SaveStateUpdatesAsync(List<CreatureStateUpdate> creatureStateUpdates)
+    {
+        const string sql = @"
+            INSERT INTO creature_state_changes 
+            (creature_id, status_id, health_change)
+            VALUES 
+            (@CreatureId, @Status, @HealthUpdate)";
+
+        return ExecuteAsync(sql, creatureStateUpdates);
     }
 }

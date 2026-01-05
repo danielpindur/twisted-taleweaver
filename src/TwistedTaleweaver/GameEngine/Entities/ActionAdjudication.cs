@@ -1,3 +1,5 @@
+using TwistedTaleweaver.Api.GameEngine.Entities;
+
 namespace TwistedTaleweaver.GameEngine.Entities;
 
 public class ActionAdjudication

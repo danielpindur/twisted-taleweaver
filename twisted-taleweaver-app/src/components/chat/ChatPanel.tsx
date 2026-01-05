@@ -104,7 +104,7 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
         <>
           {/* <CombatEncounterTopPanel isInCombat={isInCombat} combatMonsters={combatMonsters} /> */} 
           {<ChatMessages 
-            messages={data?.pages.flatMap(p => p.messages.items) ?? []} 
+            messages={data?.pages.slice().reverse().flatMap(p => p.messages.items) ?? []} 
             participants={expedition.participants} 
             loadMoreMessages={fetchNextPage}
             isLoadingError={isError}

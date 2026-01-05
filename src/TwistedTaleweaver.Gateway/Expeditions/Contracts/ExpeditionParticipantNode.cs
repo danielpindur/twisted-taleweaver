@@ -1,4 +1,3 @@
-using TwistedTaleweaver.Api.Creatures.Entities;
 using TwistedTaleweaver.Gateway.Creatures.DataLoaders;
 using TwistedTaleweaver.Gateway.Users.Contracts;
 using TwistedTaleweaver.Gateway.Users.DataLoaders;
