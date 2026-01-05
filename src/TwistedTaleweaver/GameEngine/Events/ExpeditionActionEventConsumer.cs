@@ -24,7 +24,8 @@ internal class ExpeditionActionEventConsumer(
     ITurnOrderCommandHandler turnOrderCommandHandler,
     IExpeditionStateCommandHandler expeditionStateCommandHandler,
     IActionAdjudicationGenerationAdapter actionAdjudicationGenerationAdapter,
-    IMessagesReader messagesReader) : IKafkaEventConsumer<ExpeditionActionEvent>
+    IMessagesReader messagesReader,
+    IActionAdjudicationCommandHandler actionAdjudicationCommandHandler) : IKafkaEventConsumer<ExpeditionActionEvent>
 {
     public Task ConsumeAsync(ExpeditionActionEvent @event, CancellationToken cancellationToken)
     {
@@ -46,6 +47,11 @@ internal class ExpeditionActionEventConsumer(
         if (@event.ExpeditionEventType == ExpeditionEventType.AllowedActionAdjudicationGenerated)
         {
             return ProcessAllowedActionAdjudicationGenerated(@event);
+        }
+
+        if (@event.ExpeditionEventType == ExpeditionEventType.ActionAdjudicationProcessed)
+        {
+            return ProcessActionAdjudicationProcessed(@event);
         }
 
         logger.LogError("Unsupported expedition action event type: {EventType}", @event.ExpeditionEventType);
@@ -124,11 +130,13 @@ internal class ExpeditionActionEventConsumer(
         var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
             new GetCharacterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
 
+        var characterPerformingAction = characterContexts.Single(x => x.CreatureId == actionMessage.SenderCharacterId);
+        
         var actionAdjudication = await actionAdjudicationGenerationAdapter.GenerateAsync(
             new ActionAdjudicationGenerationCommand()
             {
                 ActionText = actionMessage.Content,
-                CharacterPerformingAction = characterContexts.Single(x => x.CreatureId == actionMessage.SenderCharacterId),
+                CharacterPerformingAction = characterPerformingAction,
                 Expedition = expeditionContext,
                 OtherCharacters = characterContexts.Where(x => x.CreatureId != actionMessage.SenderCharacterId).ToList(),
                 PreviousNarrativeTexts = previousNarrativeMessages
@@ -151,7 +159,7 @@ internal class ExpeditionActionEventConsumer(
             ExpeditionEventSource = ExpeditionEventSource.System,
             ExpeditionEventType = ExpeditionEventType.AllowedActionAdjudicationGenerated,
             SourceMessageId = message.MessageId,
-            ActionAdjudication = actionAdjudication.ToActionAdjudication()
+            ActionAdjudication = actionAdjudication.ToActionAdjudication(characterPerformingAction.CreatureId)
         };
 
         await kafkaEventProducer.PublishAsync(action);
@@ -161,6 +169,59 @@ internal class ExpeditionActionEventConsumer(
     
     private Task ProcessAllowedActionAdjudicationGenerated(ExpeditionActionEvent @event)
     {
-        return Task.CompletedTask;
+        var actionAdjudication = @event.ActionAdjudication ?? throw new InvalidOperationException("ActionAdjudication is required for AllowedActionAdjudication events.");
+
+        return actionAdjudicationCommandHandler.ExecuteAsync(new ProcessActionAdjudicationCommand()
+        {
+            ExpeditionId = @event.ExpeditionId,
+            ActionAdjudication = actionAdjudication
+        });
+    }
+    
+    private async Task ProcessActionAdjudicationProcessed(ExpeditionActionEvent @event)
+    {
+        var adjudicationSystemMessageId = @event.SourceMessageId ?? throw new InvalidOperationException("SourceMessageId is required for ActionAdjudication events.");
+        
+        var expeditionContext = await expeditionContextQueryHandler.ExecuteAsync(
+            new ExpeditionContextQuery() { ExpeditionId = @event.ExpeditionId });
+
+        var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
+            new GetCharacterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
+        
+        var previousNarrativeMessages = await messagesReader.GetContents(
+            @event.ExpeditionId, 
+            MessageType.Narrative,
+            adjudicationSystemMessageId);
+        
+        var actionMessagesSinceLastNarration = await messagesReader.GetContentsSinceLastNarrativeAsync(@event.ExpeditionId);
+        
+        var generatedNarrative = await narrativeGenerationAdapter.GenerateAsync(
+            new NarrativeGenerationCommand()
+            {
+                Expedition = expeditionContext,
+                PreviousNarrativeTexts = previousNarrativeMessages,
+                ActionMessagesSinceLastNarration = actionMessagesSinceLastNarration,
+                Characters = characterContexts
+            });
+        
+        await using var scope = new UnitOfWorkScope();
+        
+        var message = await chatMessagesCommandHandler.ExecuteAsync(
+            new AddNarrativeMessageCommand()
+            {
+                ExpeditionId = @event.ExpeditionId, 
+                Content = generatedNarrative.Content
+            });
+        
+        var action = new ExpeditionActionEvent()
+        {
+            ExpeditionId = @event.ExpeditionId,
+            ExpeditionEventSource = ExpeditionEventSource.System,
+            ExpeditionEventType = ExpeditionEventType.NarrativeGenerated,
+            SourceMessageId = message.MessageId
+        };
+        await kafkaEventProducer.PublishAsync(action);
+        
+        await scope.CompleteAsync();
     }
 }

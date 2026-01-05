@@ -2,6 +2,7 @@ using System.Text;
 using TwistedTaleweaver.Api.Messages.Commands;
 using TwistedTaleweaver.Api.Messages.Entities;
 using TwistedTaleweaver.Core.Commands;
+using TwistedTaleweaver.Core.Common.Extensions;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
@@ -140,7 +141,7 @@ internal class ChatMessagesCommandHandler(
             sb.AppendLine("**Required Checks:**");
             foreach (var check in adjudication.RequiredChecks)
             {
-                sb.AppendLine($"**{check.Attribute} ({check.Difficulty}):** *{check.Justification}*");
+                sb.AppendLine($"**{check.Attribute} ({check.Difficulty} - {check.NumberOfDicesToRoll}{check.DiceToRoll.ToDescription()}):** *{check.Justification}*");
             }
             sb.AppendLine();
         }

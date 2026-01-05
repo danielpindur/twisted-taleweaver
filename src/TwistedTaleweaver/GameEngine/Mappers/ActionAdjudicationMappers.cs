@@ -7,10 +7,11 @@ namespace TwistedTaleweaver.GameEngine.Mappers;
 
 internal static class ActionAdjudicationMappers
 {
-    public static ActionAdjudication ToActionAdjudication(this GeneratedActionAdjudication source)
+    public static ActionAdjudication ToActionAdjudication(this GeneratedActionAdjudication source, Guid creatureId)
     {
         return new ActionAdjudication()
         {
+            CreatureId = creatureId,
             RequiredChecks = source.RequiredChecks.ToRequiredChecks()
         };
     }
@@ -25,7 +26,9 @@ internal static class ActionAdjudicationMappers
         return new RequiredCheck()
         {
             Attribute = source.Attribute,
-            Difficulty = source.Difficulty
+            ValueToBeat = source.ValueToBeatWithRoll,
+            DiceType = source.DiceToRoll,
+            DiceCount = source.NumberOfDicesToRoll
         };
     }
 }

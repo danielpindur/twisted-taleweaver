@@ -12,7 +12,7 @@ export const SystemMessage = ({ message }: SystemMessageProps) => {
     <div className="bg-muted/50 p-2 rounded-md border border-border">
       <div className="flex items-center gap-2">
         <Eye className="h-3 w-3 text-muted-foreground" />
-        <span className="text-sm font-crimson text-muted-foreground">
+        <span className="text-sm font-crimson text-muted-foreground" style={{ whiteSpace: "pre-line" }}>
           {message.content}
         </span>
         <span className="text-xs text-muted-foreground ml-auto">

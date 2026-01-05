@@ -20,5 +20,10 @@ public enum ExpeditionEventType
     /// <summary>
     /// An action adjudication message was generated -> we need to process the results
     /// </summary>
-    AllowedActionAdjudicationGenerated
+    AllowedActionAdjudicationGenerated,
+    
+    /// <summary>
+    /// Action adjudication was processed, narrative can be generated
+    /// </summary>
+    ActionAdjudicationProcessed,
 }
