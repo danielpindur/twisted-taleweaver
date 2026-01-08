@@ -16,13 +16,13 @@ internal interface IExpeditionStateCommandHandler : ICommandHandler<PublishUpdat
 
 internal class ExpeditionStateCommandHandler(
     IExpeditionStatesQueryHandler expeditionStatesQueryHandler,
-    IKafkaEventProducer kafkaEventProducer) : IExpeditionStateCommandHandler
+    IKafkaEventPublisher kafkaEventPublisher) : IExpeditionStateCommandHandler
 {
     public async Task ExecuteAsync(PublishUpdatedExpeditionStateCommand command)
     {
         var expeditionState = await expeditionStatesQueryHandler.ExecuteAsync(
             new ExpeditionStateQuery() { ExpeditionId = command.ExpeditionId });
         
-        await kafkaEventProducer.PublishAsync(expeditionState.ToExpeditionStateUpdatedEvent());
+        await kafkaEventPublisher.PublishAsync(expeditionState.ToExpeditionStateUpdatedEvent());
     }
 }

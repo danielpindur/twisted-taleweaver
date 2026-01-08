@@ -15,7 +15,7 @@ internal class BeginExpeditionCommandHandler(
     IInternalChatMessagesCommandHandler chatMessagesCommandHandler,
     IExpeditionStateCommandHandler expeditionStateCommandHandler,
     ITurnOrderCommandHandler turnOrderCommandHandler,
-    IKafkaEventProducer kafkaEventProducer) : IBeginExpeditionCommandHandler
+    IKafkaEventPublisher kafkaEventPublisher) : IBeginExpeditionCommandHandler
 {
     public async Task ExecuteAsync(BeginExpeditionCommand command)
     {
@@ -51,6 +51,6 @@ internal class BeginExpeditionCommandHandler(
             ExpeditionEventType = ExpeditionEventType.ExpeditionStarted
         };
 
-        await kafkaEventProducer.PublishAsync(action);
+        await kafkaEventPublisher.PublishAsync(action);
     } 
 }

@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using TwistedTaleweaver.Core.Commands;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
+using TwistedTaleweaver.Core.Kafka.DataAccess.Readers;
+using TwistedTaleweaver.Core.Kafka.DataAccess.Writers;
 using TwistedTaleweaver.Core.Queries;
 
 namespace TwistedTaleweaver.Core.Setup;
@@ -85,7 +87,11 @@ public static class ApplicationBuilderExtensions
 
         private IServiceCollection AddKafkaProducer()
         {
-            services.AddSingleton<IKafkaEventProducer, KafkaEventProducer>();
+            services.AddTransient<IOutboxEntriesReader, OutboxEntriesReader>();
+            services.AddTransient<IOutboxEntriesWriter, OutboxEntriesWriter>();
+            services.AddTransient<IKafkaEventPublisher, KafkaEventPublisher>();
+            services.AddHostedService<KafkaOutboxPublisher>();
+            
             return services;
         }
 

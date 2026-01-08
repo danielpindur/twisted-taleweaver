@@ -9,7 +9,9 @@ public interface IUnitOfWorkProvider : IDisposable, IAsyncDisposable
     IUnitOfWork CreateOperationUnitOfWork();
     
     IUnitOfWork? GetActiveUnitOfWork();
-
+    
+    bool IsInActiveTransaction { get; }
+    
     Task CloseUnitOfWorkAsync();
 
     Task CommitUnitOfWorkAsync();
@@ -99,6 +101,9 @@ internal class UnitOfWorkProvider(IDbConnectionFactory connectionFactory) : IUni
         return UnitsOfWork.TryPeek(out var unitOfWork) ? unitOfWork.UnitOfWork : null;
     }
 
+    public bool IsInActiveTransaction => UnitsOfWork.TryPeek(out var unitOfWork) &&
+                                         unitOfWork.UnitOfWork.ScopeOption == UnitOfWorkScopeOption.Required;
+    
     public async Task CloseUnitOfWorkAsync()
     {
         var stack = UnitsOfWork;

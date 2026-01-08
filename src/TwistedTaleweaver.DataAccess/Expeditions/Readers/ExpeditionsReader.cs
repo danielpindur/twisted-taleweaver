@@ -1,7 +1,6 @@
 using TwistedTaleweaver.Api.Expeditions.Entities;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Pagination;
-using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Expeditions.Dtos;
 
 namespace TwistedTaleweaver.DataAccess.Expeditions.Readers;

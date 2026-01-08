@@ -49,7 +49,7 @@ internal interface IInternalChatMessagesCommandHandler :
 internal class ChatMessagesCommandHandler(
     IMessagesWriter messagesWriter,
     IExpeditionParticipantsReader expeditionParticipantsReader,
-    IKafkaEventProducer kafkaEventProducer,
+    IKafkaEventPublisher kafkaEventPublisher,
     ITurnOrderCommandHandler turnOrderCommandHandler,
     IExpeditionStateCommandHandler expeditionStateCommandHandler) : IInternalChatMessagesCommandHandler
 {
@@ -57,7 +57,7 @@ internal class ChatMessagesCommandHandler(
     {
         var messageDto = await messagesWriter.AddSystemMessageAsync(command.ExpeditionId, command.Content);
 
-        await kafkaEventProducer.PublishAsync(messageDto.ToMessageCreatedEvent());
+        await kafkaEventPublisher.PublishAsync(messageDto.ToMessageCreatedEvent());
 
         return messageDto.ToEntity();
     }
@@ -66,7 +66,7 @@ internal class ChatMessagesCommandHandler(
     {
         var messageDto = await messagesWriter.AddNarrativeMessageAsync(command.ExpeditionId, command.Content);
 
-        await kafkaEventProducer.PublishAsync(messageDto.ToMessageCreatedEvent());
+        await kafkaEventPublisher.PublishAsync(messageDto.ToMessageCreatedEvent());
         
         return messageDto.ToEntity();
     }
@@ -79,7 +79,7 @@ internal class ChatMessagesCommandHandler(
         await using var scope = new UnitOfWorkScope();
         
         var messageDto = await messagesWriter.AddCharacterMessageAsync(command.ExpeditionId, command.Content, character.CharacterId!.Value);
-        await kafkaEventProducer.PublishAsync(messageDto.ToMessageCreatedEvent());
+        await kafkaEventPublisher.PublishAsync(messageDto.ToMessageCreatedEvent());
         
         await turnOrderCommandHandler.ExecuteAsync(new ActionTakenCommand() { ExpeditionId = command.ExpeditionId });
         await expeditionStateCommandHandler.ExecuteAsync(new PublishUpdatedExpeditionStateCommand() { ExpeditionId = command.ExpeditionId });
@@ -91,7 +91,7 @@ internal class ChatMessagesCommandHandler(
             ExpeditionEventType = ExpeditionEventType.CharacterActionRequested,
             SourceMessageId = messageDto.MessageId
         };
-        await kafkaEventProducer.PublishAsync(action);
+        await kafkaEventPublisher.PublishAsync(action);
         
         await scope.CompleteAsync();
         
@@ -104,7 +104,7 @@ internal class ChatMessagesCommandHandler(
         
         var messageDto = await messagesWriter.AddctionAdjudicationMessage(command.ExpeditionId, content);
 
-        await kafkaEventProducer.PublishAsync(messageDto.ToMessageCreatedEvent());
+        await kafkaEventPublisher.PublishAsync(messageDto.ToMessageCreatedEvent());
         
         return messageDto.ToEntity();
     }

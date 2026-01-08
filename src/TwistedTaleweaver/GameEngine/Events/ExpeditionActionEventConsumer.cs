@@ -17,7 +17,7 @@ namespace TwistedTaleweaver.GameEngine.Events;
 internal class ExpeditionActionEventConsumer(
     ILogger<ExpeditionActionEventConsumer> logger,
     IExpeditionContextQueryHandler expeditionContextQueryHandler,
-    IKafkaEventProducer kafkaEventProducer,
+    IKafkaEventPublisher kafkaEventPublisher,
     ICharacterContextsQueryHandler characterContextsQueryHandler,
     IInternalChatMessagesCommandHandler chatMessagesCommandHandler,
     INarrativeGenerationAdapter narrativeGenerationAdapter,
@@ -93,7 +93,7 @@ internal class ExpeditionActionEventConsumer(
             SourceMessageId = message.MessageId
         };
 
-        await kafkaEventProducer.PublishAsync(action);
+        await kafkaEventPublisher.PublishAsync(action);
         
         await scope.CompleteAsync();
     }
@@ -162,7 +162,7 @@ internal class ExpeditionActionEventConsumer(
                 ActionAdjudication = actionAdjudication.ToActionAdjudication(characterPerformingAction.CreatureId)
             };
 
-            await kafkaEventProducer.PublishAsync(action);
+            await kafkaEventPublisher.PublishAsync(action);
         }
         else
         {
@@ -227,7 +227,7 @@ internal class ExpeditionActionEventConsumer(
             ExpeditionEventType = ExpeditionEventType.NarrativeGenerated,
             SourceMessageId = message.MessageId
         };
-        await kafkaEventProducer.PublishAsync(action);
+        await kafkaEventPublisher.PublishAsync(action);
         
         await scope.CompleteAsync();
     }

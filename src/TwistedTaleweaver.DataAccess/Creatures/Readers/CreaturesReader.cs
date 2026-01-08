@@ -1,5 +1,4 @@
 using TwistedTaleweaver.Core.Database;
-using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Creatures.Dtos;
 
 namespace TwistedTaleweaver.DataAccess.Creatures.Readers;

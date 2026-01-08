@@ -43,7 +43,7 @@ internal class ActionAdjudicationCommandHandler(
     IInternalChatMessagesCommandHandler messagesCommandHandler,
     IUpdateCreaturesStateCommandHandler updateCreaturesStateCommandHandler,
     IMessagesReader messagesReader,
-    IKafkaEventProducer kafkaEventProducer) : IActionAdjudicationCommandHandler
+    IKafkaEventPublisher kafkaEventPublisher) : IActionAdjudicationCommandHandler
 {
     public async Task ExecuteAsync(ProcessActionAdjudicationCommand command)
     {
@@ -85,7 +85,7 @@ internal class ActionAdjudicationCommandHandler(
             ExpeditionEventType = ExpeditionEventType.ActionAdjudicationProcessed,
             SourceMessageId = message.MessageId
         };
-        await kafkaEventProducer.PublishAsync(action);
+        await kafkaEventPublisher.PublishAsync(action);
         
         await scope.CompleteAsync();
     }

@@ -1,9 +1,8 @@
+using System.Data;
 using Dapper;
-using Npgsql;
-using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Database.Enums;
 
-namespace TwistedTaleweaver.DataAccess.Common;
+namespace TwistedTaleweaver.Core.Database;
 
 public abstract class DatabaseAccessor(IUnitOfWorkProvider unitOfWorkProvider) : IDatabaseAccessor
 {
@@ -38,27 +37,16 @@ public abstract class DatabaseAccessor(IUnitOfWorkProvider unitOfWorkProvider) :
         }
     }
     
-    private NpgsqlConnection GetConnection()
+    private IDbConnection GetConnection()
     {
         var unitOfWork = GetUnitOfWork();
-        
-        return unitOfWork.Connection.Value as NpgsqlConnection
-               ?? throw new InvalidOperationException("The database connection is not a valid NpgsqlConnection.");
+        return unitOfWork.Connection.Value;
     }
 
-    private NpgsqlTransaction? GetTransaction(TransactionMode mode)
+    private IDbTransaction? GetTransaction(TransactionMode mode)
     {
         var unitOfWork = GetUnitOfWork();
-        
-        var transaction = unitOfWork.GetTransaction(mode);
-
-        if (transaction == null)
-        {
-            return null;
-        }
-
-        return transaction as NpgsqlTransaction
-            ?? throw new InvalidOperationException("The database transaction is not a valid NpgsqlTransaction.");
+        return unitOfWork.GetTransaction(mode);
     }
 
     public async Task<T?> QuerySingleOrDefaultAsync<T>(string sql, object? param = null)

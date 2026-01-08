@@ -1,7 +1,6 @@
 using TwistedTaleweaver.Api.Creatures.Entities;
 using TwistedTaleweaver.Api.Creatures.Entities.Enums;
 using TwistedTaleweaver.Core.Database;
-using TwistedTaleweaver.DataAccess.Common;
 using TwistedTaleweaver.DataAccess.Creatures.Dtos;
 
 namespace TwistedTaleweaver.DataAccess.Creatures.Writers;
