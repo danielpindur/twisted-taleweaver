@@ -12,6 +12,7 @@ internal static class ExpeditionStateMapper
             ExpeditionId = source.ExpeditionId,
             Status = source.Status,
             ActiveCreatureId = source.ActiveCreatureId,
+            Monsters = source.Monsters
         };
     }
 }

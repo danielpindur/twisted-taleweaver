@@ -4,7 +4,7 @@ using TwistedTaleweaver.Gateway.Creatures.Mappers;
 
 namespace TwistedTaleweaver.Gateway.Creatures.DataLoaders;
 
-public class CharacterStatesByExpeditionIdDataLoader(
+public class CreatureStatesByExpeditionIdDataLoader(
     IBatchScheduler batchScheduler,
     DataLoaderOptions options,
     ICombatCreatureStatesQueryHandler combatCreatureStatesQueryHandler)
@@ -13,9 +13,9 @@ public class CharacterStatesByExpeditionIdDataLoader(
     protected override async Task<IReadOnlyDictionary<Guid, List<CombatCreatureState>>> LoadBatchAsync(
         IReadOnlyList<Guid> keys, CancellationToken cancellationToken)
     {
-        var characterStatesByExpeditionId = await combatCreatureStatesQueryHandler.ExecuteAsync(
+        var creatureStatesByExpeditionId = await combatCreatureStatesQueryHandler.ExecuteAsync(
             new CharactersStatesQuery() { ExpeditionIds = keys.ToList() });
 
-        return characterStatesByExpeditionId.ToContracts();
+        return creatureStatesByExpeditionId.ToContracts();
     }
 }

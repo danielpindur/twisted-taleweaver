@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { getCreatureCurrentHealth, getCreatureStatus, getGenderSymbol, getStatusColor } from "@/utils/CharacterUtils";
+import { getCharacterCurrentHealth, getCharacterStatus, getGenderSymbol, getStatusColor } from "@/utils/CharacterUtils";
 import { getHealthPercentage, getHealthColor } from "@/utils/HealthUtils";
 import { formatModifier, getAttributeModifier } from "@/utils/AttributeUtils";
 import { canParticipantAct } from "@/utils/TurnUtils"
@@ -92,8 +92,8 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                           {participant.character.creatureType} {getGenderSymbol(participant.character.gender)}
                         </div>
                       </div>
-                      <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
-                        {getCreatureStatus(participant.character, expeditionState)}
+                      <Badge variant="outline" className={getStatusColor(getCharacterStatus(participant.character, expeditionState))}>
+                        {getCharacterStatus(participant.character, expeditionState)}
                       </Badge>
                     </div>
                     
@@ -104,11 +104,11 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                           <Heart className="h-3 w-3" />
                           Health
                         </span>
-                        <span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span>
+                        <span>{getCharacterCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span>
                       </div>
                       <Progress 
-                        value={getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)} 
-                        className={`h-2 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
+                        value={getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)} 
+                        className={`h-2 ${getHealthColor(getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
                       />
                     </div>
 
@@ -166,11 +166,11 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                             <Heart className="h-4 w-4" />
                             Health
                           </span>
-                          {<span>{getCreatureCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span>}
+                          {<span>{getCharacterCurrentHealth(participant.character, expeditionState)}/{participant.character.maxHealth}</span>}
                         </div>
                         <Progress 
-                          value={getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)}
-                          className={`h-3 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
+                          value={getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)}
+                          className={`h-3 ${getHealthColor(getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
                         />
                       </div>
 
@@ -184,8 +184,8 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                         </div>
                         <div className="flex justify-between">
                           <span className="font-crimson">Status</span>
-                          <Badge variant="outline" className={getStatusColor(getCreatureStatus(participant.character, expeditionState))}>
-                            {getCreatureStatus(participant.character, expeditionState)}
+                          <Badge variant="outline" className={getStatusColor(getCharacterStatus(participant.character, expeditionState))}>
+                            {getCharacterStatus(participant.character, expeditionState)}
                           </Badge>
                         </div>
                       </div>

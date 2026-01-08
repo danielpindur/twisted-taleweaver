@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useInfiniteQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { PreExpeditionPanel } from "./PreExpeditionPanel";
 import { TurnIndicator } from "./TurnIndicator";
@@ -7,14 +6,10 @@ import { ChatMessages } from "./ChatMessages";
 import { getCurrentTurnParticipant } from "@/utils/TurnUtils"
 import type { UserResource } from "@clerk/types";
 import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
-
-import type { Monster } from "@/interfaces/Monster";
-
-// TODO: Replace with actual API data
-import { mockMonsters } from "@/mock/MockMonsters";
 import { ExpeditionStatus, OnMessageCreatedDocument, type GetMessagesQuery, type MessageSearchInput, type OnMessageCreatedSubscription } from "@/__generated__/twisted-taleweaver-api/types";
 import { useGraphQlClient } from "@/hooks/useGraphQlClient";
 import { useGraphQlSubscription } from "@/hooks/useGraphQlSubscription";
+import { CombatEncounterTopPanel } from "./CombatEncounterTopPanel";
 
 export interface ChatPanelProps {
   expedition: ExpeditionViewModel,
@@ -24,9 +19,6 @@ export interface ChatPanelProps {
 export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
   const { requestWithAuth } = useGraphQlClient();
   const queryClient = useQueryClient();
-
-  const [isInCombat] = useState(expedition.state.status === ExpeditionStatus.Started); // TODO: Get from game state
-  const [combatMonsters] = useState<Monster[]>(mockMonsters); // TODO: Get from combat state
 
   const { data, fetchNextPage, isFetchingNextPage, hasNextPage, isError } = useInfiniteQuery({
     queryKey: ["expedition", expedition.id, "messages"],
@@ -102,14 +94,15 @@ export const ChatPanel = ({ expedition, user }: ChatPanelProps) => {
         />
       ) : (
         <>
-          {/* <CombatEncounterTopPanel isInCombat={isInCombat} combatMonsters={combatMonsters} /> */} 
-          {<ChatMessages 
+          <CombatEncounterTopPanel monsters={expedition.state.monsters} expeditionState={expedition.state} /> 
+          <ChatMessages 
             messages={data?.pages.slice().reverse().flatMap(p => p.messages.items) ?? []} 
             participants={expedition.participants} 
+            monsters={expedition.state.monsters}
             loadMoreMessages={fetchNextPage}
             isLoadingError={isError}
             isFetchingMoreMessages={isFetchingNextPage} 
-            canFetchMoreMessages={hasNextPage} />}
+            canFetchMoreMessages={hasNextPage} />
 
           <TurnIndicator expeditionState={expedition.state} />
 

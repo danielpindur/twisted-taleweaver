@@ -11,11 +11,13 @@ public interface ICreaturesReader
     
     Task<IEnumerable<CreatureTraitDto>> GetTraitsAsync(List<Guid> creatureIds);
     
-    Task<IEnumerable<CreatureStateDto>> GetCharacterStatesByExpeditionsAsync(List<Guid> expeditionIds);
+    Task<IEnumerable<CreatureStateDto>> GetCreatureStatesByExpeditionsAsync(List<Guid> expeditionIds);
     
     Task<IEnumerable<CreatureDto>> GetCreaturesAsync(List<Guid> creatureIds);
     
     Task<CharacterDto> GetCharacterAsync(Guid characterId);
+    
+    Task<IEnumerable<MonsterDto>> GetMonstersAsync(List<Guid> expeditionIds);
 }
 
 internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesReader
@@ -111,7 +113,7 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
         });
     }
 
-    public Task<IEnumerable<CreatureStateDto>> GetCharacterStatesByExpeditionsAsync(List<Guid> expeditionIds)
+    public Task<IEnumerable<CreatureStateDto>> GetCreatureStatesByExpeditionsAsync(List<Guid> expeditionIds)
     {
         const string sql = @"
             SELECT
@@ -143,7 +145,37 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
                 e.expedition_id,
                 c.creature_id,
                 cc.max_health,
-                last_status.status_id";
+                last_status.status_id
+                
+            UNION ALL
+            
+            SELECT
+                m.expedition_id,
+                c.creature_id,
+                cc.max_health
+                    + COALESCE(SUM(csc.health_change), 0) AS current_health,
+                last_status.status_id AS status
+            FROM monsters m
+            INNER JOIN creatures c
+                ON c.creature_id = m.creature_id
+            INNER JOIN combat_creatures cc
+                ON cc.creature_id = c.creature_id
+            LEFT JOIN creature_state_changes csc
+                ON csc.creature_id = c.creature_id
+            LEFT JOIN LATERAL (
+                SELECT csc2.status_id
+                FROM creature_state_changes csc2
+                WHERE csc2.creature_id = c.creature_id
+                ORDER BY csc2.changed_at DESC
+                LIMIT 1
+            ) last_status ON TRUE
+            WHERE m.expedition_id = ANY(@ExpeditionIds)
+            GROUP BY
+                m.expedition_id,
+                c.creature_id,
+                cc.max_health,
+                last_status.status_id
+            HAVING cc.max_health + COALESCE(SUM(csc.health_change), 0) > 0";
 
         return QueryAsync<CreatureStateDto>(sql, new
         {
@@ -209,6 +241,43 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
         return QuerySingleAsync<CharacterDto>(sql, new
         {
             CreatureId = characterId
+        });
+    }
+
+    public Task<IEnumerable<MonsterDto>> GetMonstersAsync(List<Guid> expeditionIds)
+    {
+        const string sql = @"
+            SELECT 
+                c.creature_id,
+                c.name,
+                c.description,
+                c.type_id AS creature_type,
+                c.alignment_id AS alignment,
+                c.gender_id AS gender,
+                c.strength,
+                c.dexterity,
+                c.intelligence,
+                c.wisdom,
+                c.constitution,
+                c.charisma,
+                cc.max_health,
+                cc.armor_class,
+                cc.walking_speed,
+                cc.flying_speed,
+                cc.swimming_speed,
+                cc.climbing_speed,
+                cc.burrowing_speed,
+                cc.teleportation_speed,
+                m.challenge_rating,
+                m.expedition_id
+            FROM monsters m
+            INNER JOIN combat_creatures cc ON cc.creature_id = m.creature_id
+            INNER JOIN creatures c ON c.creature_id = cc.creature_id
+            WHERE m.expedition_id = ANY(@ExpeditionIds)";
+
+        return QueryAsync<MonsterDto>(sql, new
+        {
+            ExpeditionIds = expeditionIds
         });
     }
 }

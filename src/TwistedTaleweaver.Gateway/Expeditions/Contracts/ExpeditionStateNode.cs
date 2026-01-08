@@ -23,14 +23,14 @@ public static partial class ExpeditionStateNode
                throw new InvalidOperationException($"Active creature not found with ID {state.ActiveCreatureId.Value}");
     }
     
-    [GraphQLDescription("States of characters in the expedition.")]
-    public static async Task<List<CombatCreatureState>> GetCharacterStatesAsync(
+    [GraphQLDescription("States of creatures in the expedition.")]
+    public static async Task<List<CombatCreatureState>> GetCreatureStatesAsync(
         [Parent] ExpeditionState state,
-        CharacterStatesByExpeditionIdDataLoader dataLoader,
+        CreatureStatesByExpeditionIdDataLoader dataLoader,
         CancellationToken cancellationToken)
     {
-        var characterStates = await dataLoader.LoadAsync(state.ExpeditionId, cancellationToken);
-        return characterStates ?? 
-               throw new InvalidOperationException($"Character states not found for expedition with ID {state.ExpeditionId}");
+        var creatureStates = await dataLoader.LoadAsync(state.ExpeditionId, cancellationToken);
+        return creatureStates ?? 
+               throw new InvalidOperationException($"Creature states not found for expedition with ID {state.ExpeditionId}");
     }
 }

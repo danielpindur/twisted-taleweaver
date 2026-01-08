@@ -1,3 +1,4 @@
+using TwistedTaleweaver.Api.Creatures.Entities;
 using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 using TwistedTaleweaver.Core.Kafka.Attributes;
 
@@ -11,4 +12,6 @@ public class ExpeditionStateUpdatedEvent
     public ExpeditionStatus Status { get; set; }
 
     public Guid? ActiveCreatureId { get; set; }
+    
+    public required List<Monster> Monsters { get; set; }
 }

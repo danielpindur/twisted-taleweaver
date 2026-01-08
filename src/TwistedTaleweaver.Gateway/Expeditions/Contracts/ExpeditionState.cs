@@ -1,4 +1,5 @@
 using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
+using TwistedTaleweaver.Gateway.Creatures.Contracts;
 
 namespace TwistedTaleweaver.Gateway.Expeditions.Contracts;
 
@@ -13,4 +14,7 @@ public class ExpeditionState
     
     [GraphQLIgnore]
     public Guid? ActiveCreatureId { get; init; }
+    
+    [GraphQLDescription("List of monsters currently present in the expedition.")]
+    public required List<Monster> Monsters { get; init; }
 }

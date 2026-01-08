@@ -321,8 +321,10 @@ export type ExpeditionState = {
   __typename?: 'ExpeditionState';
   /** Creature whose turn it is to act. */
   activeCreature?: Maybe<Creature>;
-  /** States of characters in the expedition. */
-  characterStates: Array<CombatCreatureState>;
+  /** States of creatures in the expedition. */
+  creatureStates: Array<CombatCreatureState>;
+  /** List of monsters currently present in the expedition. */
+  monsters: Array<Monster>;
   /** Current status of the expedition. */
   status: ExpeditionStatus;
 };
@@ -364,6 +366,35 @@ export enum MessageType {
   Narrative = 'NARRATIVE',
   System = 'SYSTEM'
 }
+
+/** Represents a monster the players have to face. */
+export type Monster = {
+  __typename?: 'Monster';
+  /** Narrative alignment of the monster. */
+  alignment: NarrativeAlignment;
+  /** Armor class of the monster. */
+  armorClass: Scalars['Int']['output'];
+  /** Attribute scores of the monster. */
+  attributeScores: AttributeScores;
+  /** Class of the monster. */
+  challengeRating: Scalars['Int']['output'];
+  /** Type of a creature, that the monster is. */
+  creatureType: CreatureType;
+  /** Description of the monster (e.g., backstory, lore). */
+  description: Scalars['String']['output'];
+  /** Gender of the monster. */
+  gender: CreatureGender;
+  /** Unique identifier of the monster. */
+  id: Scalars['UUID']['output'];
+  /** Maximum health points of the monster. */
+  maxHealth: Scalars['Int']['output'];
+  /** The name of the monster. */
+  name: Scalars['String']['output'];
+  /** Speed scores of the monster. */
+  speedScores: SpeedScores;
+  /** The traits of the monster. */
+  traits: Array<CreatureTrait>;
+};
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -578,7 +609,7 @@ export type GetExpeditionByIdQueryVariables = Exact<{
 }>;
 
 
-export type GetExpeditionByIdQuery = { __typename?: 'Query', expeditionById?: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, userCreated: { __typename?: 'User', id: any, externalId: string, name: string }, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeCreature?: { __typename?: 'Creature', id: any, name: string } | null, characterStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }> }, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any, externalId: string, name: string }, character?: { __typename?: 'Character', id: any, name: string, description: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, class: CharacterClass, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> } | null }> } | null };
+export type GetExpeditionByIdQuery = { __typename?: 'Query', expeditionById?: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, userCreated: { __typename?: 'User', id: any, externalId: string, name: string }, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeCreature?: { __typename?: 'Creature', id: any, name: string } | null, creatureStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }>, monsters: Array<{ __typename?: 'Monster', id: any, name: string, description: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, challengeRating: number, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> }> }, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any, externalId: string, name: string }, character?: { __typename?: 'Character', id: any, name: string, description: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, class: CharacterClass, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> } | null }> } | null };
 
 export type GetMessagesQueryVariables = Exact<{
   input: MessageSearchInput;
@@ -599,7 +630,7 @@ export type OnExpeditionStateChangedSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnExpeditionStateChangedSubscription = { __typename?: 'Subscription', expeditionStateChanged: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeCreature?: { __typename?: 'Creature', id: any, name: string } | null, characterStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }> } };
+export type OnExpeditionStateChangedSubscription = { __typename?: 'Subscription', expeditionStateChanged: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeCreature?: { __typename?: 'Creature', id: any, name: string } | null, creatureStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }>, monsters: Array<{ __typename?: 'Monster', id: any, name: string, description: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, challengeRating: number, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> }> } };
 
 export type OnMessageCreatedSubscriptionVariables = Exact<{
   expeditionId: Scalars['UUID']['input'];
@@ -689,10 +720,42 @@ export const GetExpeditionByIdDocument = gql`
         id
         name
       }
-      characterStates {
+      creatureStates {
         creatureId
         status
         currentHealth
+      }
+      monsters {
+        id
+        name
+        description
+        gender
+        creatureType
+        alignment
+        challengeRating
+        maxHealth
+        armorClass
+        speedScores {
+          walking
+          swimming
+          flying
+          climbing
+          burrowing
+          teleportation
+        }
+        attributeScores {
+          strength
+          wisdom
+          intelligence
+          dexterity
+          constitution
+          charisma
+        }
+        traits {
+          name
+          effect
+          conditionForPerform
+        }
       }
     }
     participants {
@@ -778,10 +841,42 @@ export const OnExpeditionStateChangedDocument = gql`
       id
       name
     }
-    characterStates {
+    creatureStates {
       creatureId
       status
       currentHealth
+    }
+    monsters {
+      id
+      name
+      description
+      gender
+      creatureType
+      alignment
+      challengeRating
+      maxHealth
+      armorClass
+      speedScores {
+        walking
+        swimming
+        flying
+        climbing
+        burrowing
+        teleportation
+      }
+      attributeScores {
+        strength
+        wisdom
+        intelligence
+        dexterity
+        constitution
+        charisma
+      }
+      traits {
+        name
+        effect
+        conditionForPerform
+      }
     }
   }
 }

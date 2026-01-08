@@ -24,7 +24,7 @@ import {
   Sword,
   Moon,
   Users2} from "lucide-react";
-import { CharacterClass, CreatureGender, CreatureStatus } from "@/__generated__/twisted-taleweaver-api/types";
+import { CharacterClass, CreatureGender, CreatureStatus, type Monster } from "@/__generated__/twisted-taleweaver-api/types";
 import type { LucideIcon } from "lucide-react";
 import type { UserResource } from "@clerk/types";
 import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
@@ -94,14 +94,26 @@ export const getUserParticipant = (participants: ExpeditionViewModel["participan
   return participants.find(p => p.user.externalId === user.id);
 };
 
-export const getCreatureStatus = (character: NonNullable<ExpeditionViewModel["participants"][number]["character"]>, expeditionState: ExpeditionViewModel["state"]) => {
-  const participantState = expeditionState.characterStates.find(p => p.creatureId === character.id)!;
+export const getCharacterStatus = (character: NonNullable<ExpeditionViewModel["participants"][number]["character"]>, expeditionState: ExpeditionViewModel["state"]) => {
+  const participantState = expeditionState.creatureStates.find(p => p.creatureId === character.id)!;
 
   return participantState.status;
 };
 
-export const getCreatureCurrentHealth = (character: NonNullable<ExpeditionViewModel["participants"][number]["character"]>, expeditionState: ExpeditionViewModel["state"]) => {
-  const participantState = expeditionState.characterStates.find(p => p.creatureId === character.id)!;
+export const getCharacterCurrentHealth = (character: NonNullable<ExpeditionViewModel["participants"][number]["character"]>, expeditionState: ExpeditionViewModel["state"]) => {
+  const participantState = expeditionState.creatureStates.find(p => p.creatureId === character.id)!;
 
   return participantState.currentHealth;
 };
+
+export const getMonsterStatus = (monster: Monster, expeditionState: ExpeditionViewModel["state"]) => {
+  const monsterState = expeditionState.creatureStates.find(m => m.creatureId === monster.id)!;
+
+  return monsterState.status;
+}
+
+export const getMonsterCurrentHealth = (monster: Monster, expeditionState: ExpeditionViewModel["state"]) => {
+  const monsterState = expeditionState.creatureStates.find(m => m.creatureId === monster.id)!;
+  
+  return monsterState.currentHealth;
+}

@@ -1,3 +1,4 @@
+using TwistedTaleweaver.Api.Creatures.Entities;
 using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 
 namespace TwistedTaleweaver.Api.Expeditions.Entities;
@@ -18,7 +19,12 @@ public class ExpeditionState
     public ExpeditionStatus Status { get; set; }
 
     /// <summary>
-    /// Unique identifier or the creature, whose turn it is to act.
+    /// Unique identifier of the creature, whose turn it is to act.
     /// </summary>
     public Guid? ActiveCreatureId { get; set; }
+    
+    /// <summary>
+    /// The monsters the expeditioners are currently in combat with. 
+    /// </summary>
+    public required List<Monster> Monsters { get; set; }
 }

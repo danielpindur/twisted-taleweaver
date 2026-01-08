@@ -1,5 +1,6 @@
 using TwistedTaleweaver.Api.Expeditions.Entities;
 using TwistedTaleweaver.Api.Expeditions.Events;
+using TwistedTaleweaver.Gateway.Creatures.Mappers;
 using ExpeditionContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.Expedition;
 using ExpeditionParticipantContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionParticipant;
 using ExpeditionStateContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionState;
@@ -69,7 +70,8 @@ internal static class ExpeditionMapper
         {
             ExpeditionId = expeditionId,
             Status = source.Status,
-            ActiveCreatureId = source.ActiveCreatureId
+            ActiveCreatureId = source.ActiveCreatureId,
+            Monsters = source.Monsters.ToContracts()
         };
     }
     
@@ -79,7 +81,8 @@ internal static class ExpeditionMapper
         {
             ExpeditionId = source.ExpeditionId,
             Status = source.Status,
-            ActiveCreatureId = source.ActiveCreatureId
+            ActiveCreatureId = source.ActiveCreatureId,
+            Monsters = source.Monsters.ToContracts()
         };
     }
 }

@@ -46,10 +46,42 @@ export const ExpeditionByIdQuery = gql(`
           id
           name
         }
-        characterStates {
+        creatureStates {
           creatureId
           status
           currentHealth
+        }
+        monsters {
+          id
+          name
+          description
+          gender
+          creatureType
+          alignment
+          challengeRating
+          maxHealth
+          armorClass
+          speedScores {
+            walking
+            swimming
+            flying
+            climbing
+            burrowing
+            teleportation
+          }
+          attributeScores {
+            strength
+            wisdom
+            intelligence
+            dexterity
+            constitution
+            charisma
+          }
+          traits {
+            name
+            effect
+            conditionForPerform
+          }
         }
       }
       participants {

@@ -12,13 +12,14 @@ import { ActionAdjudicationMessage } from "./ActionAdjudicationMessage";
 export interface ChatMessagesProps {
   messages: ChatMessage[],
   participants: ExpeditionViewModel["participants"],
+  monsters: ExpeditionViewModel["state"]["monsters"],
   loadMoreMessages: () => void,
   isLoadingError: boolean,
   isFetchingMoreMessages: boolean,
   canFetchMoreMessages: boolean
 };
 
-export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadingError, isFetchingMoreMessages, canFetchMoreMessages }: ChatMessagesProps) => {
+export const ChatMessages = ({ messages, participants, monsters, loadMoreMessages, isLoadingError, isFetchingMoreMessages, canFetchMoreMessages }: ChatMessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
@@ -93,7 +94,7 @@ export const ChatMessages = ({ messages, participants, loadMoreMessages, isLoadi
       return <CharacterMessage message={message} participants={participants} />
     }
     else {
-      return <MonsterMessage message={message} />
+      return <MonsterMessage message={message} monsters={monsters} />
     }
   };
 

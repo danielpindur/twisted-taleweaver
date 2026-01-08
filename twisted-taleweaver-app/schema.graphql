@@ -138,10 +138,12 @@ type ExpeditionParticipant {
 type ExpeditionState {
   "Creature whose turn it is to act."
   activeCreature: Creature @cost(weight: "10")
-  "States of characters in the expedition."
-  characterStates: [CombatCreatureState!]! @cost(weight: "10")
+  "States of creatures in the expedition."
+  creatureStates: [CombatCreatureState!]! @cost(weight: "10")
   "Current status of the expedition."
   status: ExpeditionStatus!
+  "List of monsters currently present in the expedition."
+  monsters: [Monster!]!
 }
 
 "A sender of a action message."
@@ -150,6 +152,34 @@ type MessageSender {
   creatureId: UUID!
   "Type of the action message sender."
   senderType: SenderType!
+}
+
+"Represents a monster the players have to face."
+type Monster {
+  "The traits of the monster."
+  traits: [CreatureTrait!]! @cost(weight: "10")
+  "Unique identifier of the monster."
+  id: UUID!
+  "The name of the monster."
+  name: String!
+  "Description of the monster (e.g., backstory, lore)."
+  description: String!
+  "Gender of the monster."
+  gender: CreatureGender!
+  "Type of a creature, that the monster is."
+  creatureType: CreatureType!
+  "Narrative alignment of the monster."
+  alignment: NarrativeAlignment!
+  "Class of the monster."
+  challengeRating: Int!
+  "Maximum health points of the monster."
+  maxHealth: Int!
+  "Armor class of the monster."
+  armorClass: Int!
+  "Speed scores of the monster."
+  speedScores: SpeedScores!
+  "Attribute scores of the monster."
+  attributeScores: AttributeScores!
 }
 
 type Mutation {

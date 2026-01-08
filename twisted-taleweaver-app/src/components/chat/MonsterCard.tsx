@@ -6,29 +6,36 @@ import {
   Shield, 
   Skull,
   Gauge} from "lucide-react";
-import type { Monster } from "@/interfaces/Monster";
 import { getHealthPercentage } from "@/utils/HealthUtils";
+import type { ExpeditionViewModel } from "@/viewmodels/ExpeditionViewModel";
+import { getMonsterCurrentHealth, getMonsterStatus } from "@/utils/CharacterUtils";
+import { CreatureStatus } from "@/__generated__/twisted-taleweaver-api/types";
 
 export interface MonsterCardProps {
-  monster: Monster;
+  monster: ExpeditionViewModel["state"]["monsters"][number];
+  expeditionState: ExpeditionViewModel["state"];
 }
 
-export const MonsterCard = ({ monster }: MonsterCardProps) => {
+export const MonsterCard = ({ monster, expeditionState }: MonsterCardProps) => {
+  const isBossMonster = monster.challengeRating >= 10;
+  const currentHealth = getMonsterCurrentHealth(monster, expeditionState);
+  const status = getMonsterStatus(monster, expeditionState);
+
   return (
     <Card className="min-w-[180px] bg-muted/50 border-destructive/30 cursor-pointer hover:bg-muted/70 transition-colors">
       <CardContent className="p-3">
         <div className="flex items-center justify-between mb-2">
           <div>
             <div className="flex items-center gap-2">
-              <Skull className={`h-4 w-4 ${monster.isBoss ? 'text-warning' : 'text-destructive'}`} />
+              <Skull className={`h-4 w-4 ${isBossMonster ? 'text-warning' : 'text-destructive'}`} />
               <span className="font-crimson font-medium text-sm">{monster.name}</span>
             </div>
             <div className="text-xs text-muted-foreground capitalize">
-              {monster.size} {monster.creatureType}
+              {monster.creatureType}
             </div>
           </div>
-          <Badge variant="outline" className={`${monster.status === 'alive' ? 'text-health' : monster.status === 'injured' ? 'text-warning' : 'text-destructive'}`}>
-            {monster.status}
+          <Badge variant="outline" className={`${status === CreatureStatus.Alive ? 'text-health' : status === CreatureStatus.Injured ? 'text-warning' : 'text-destructive'}`}>
+            {status}
           </Badge>
         </div>
         
@@ -39,10 +46,10 @@ export const MonsterCard = ({ monster }: MonsterCardProps) => {
               <Heart className="h-3 w-3" />
               Health
             </span>
-            <span>{monster.health}/{monster.maxHealth}</span>
+            <span>{currentHealth}/{monster.maxHealth}</span>
           </div>
           <Progress 
-            value={getHealthPercentage(monster.health, monster.maxHealth)} 
+            value={getHealthPercentage(currentHealth, monster.maxHealth)} 
             className="h-2"
           />
         </div>
@@ -53,7 +60,7 @@ export const MonsterCard = ({ monster }: MonsterCardProps) => {
             <Shield className="h-3 w-3" />
             AC
           </span>
-          <span>{monster.armor}</span>
+          <span>{monster.armorClass}</span>
         </div>
 
         {/* Challenge Rating */}

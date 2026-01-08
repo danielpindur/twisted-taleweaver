@@ -9,9 +9,9 @@ internal class CombatCreatureStatesQueryHandler(ICreaturesReader creaturesReader
 {
     public async Task<Dictionary<Guid, List<CombatCreatureState>>> ExecuteAsync(CharactersStatesQuery query)
     {
-        var charactersStates = await creaturesReader.GetCharacterStatesByExpeditionsAsync(query.ExpeditionIds);
+        var creatureStates = await creaturesReader.GetCreatureStatesByExpeditionsAsync(query.ExpeditionIds);
 
-        var characterStatesByExpeditionId = charactersStates
+        var creatureStatesByExpeditionId = creatureStates
             .GroupBy(x => x.ExpeditionId)
             .ToDictionary(
                 x => x.Key,
@@ -24,12 +24,12 @@ internal class CombatCreatureStatesQueryHandler(ICreaturesReader creaturesReader
 
         foreach (var expeditionId in query.ExpeditionIds)
         {
-            if (!characterStatesByExpeditionId.ContainsKey(expeditionId))
+            if (!creatureStatesByExpeditionId.ContainsKey(expeditionId))
             {
-                characterStatesByExpeditionId[expeditionId] = new List<CombatCreatureState>();
+                creatureStatesByExpeditionId[expeditionId] = new List<CombatCreatureState>();
             }
         }
         
-        return characterStatesByExpeditionId;
+        return creatureStatesByExpeditionId;
     }
 }

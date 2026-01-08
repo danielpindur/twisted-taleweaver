@@ -57,10 +57,8 @@ export const ChatRoom = ({ expeditionId, user, onLeaveRoom }: ChatRoomProps) => 
       },
     });
 
-  //const [currentUser] = useState<Character>(mockCharacters[0]); // TODO: Get current user data
   const [partyPanelCollapsed, setPartyPanelCollapsed] = useState(false);
   const [characterPanelCollapsed, setCharacterPanelCollapsed] = useState(false);
-  //const [isInCombat] = useState(true); // TODO: Get from actual game state
   
   if (isLoading) {
     return (

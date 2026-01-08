@@ -5,6 +5,7 @@ using SpeedScoresContract =  TwistedTaleweaver.Gateway.Creatures.Contracts.Speed
 using AttributeScoresContract =  TwistedTaleweaver.Gateway.Creatures.Contracts.AttributeScores;
 using CombatCreatureStateContract = TwistedTaleweaver.Gateway.Creatures.Contracts.CombatCreatureState;
 using CreatureContract = TwistedTaleweaver.Gateway.Creatures.Contracts.Creature;
+using MonsterContract = TwistedTaleweaver.Gateway.Creatures.Contracts.Monster;
 
 namespace TwistedTaleweaver.Gateway.Creatures.Mappers;
 
@@ -112,6 +113,45 @@ internal static class CreaturesMapper
         {
             Id = source.CreatureId,
             Name = source.Name,
+        };
+    }
+
+    public static List<MonsterContract> ToContracts(this List<Monster> source)
+    {
+        return source.Select(ToContract).ToList();
+    }
+    
+    public static MonsterContract ToContract(this Monster source)
+    {
+        return new MonsterContract()
+        {
+            Id = source.CreatureId,
+            Name = source.Name,
+            Description = source.Description,
+            Gender = source.Gender,
+            CreatureType = source.CreatureType,
+            Alignment = source.Alignment,
+            ChallengeRating = source.ChallengeRating,
+            MaxHealth = source.MaxHealth,
+            ArmorClass = source.ArmorClass,
+            SpeedScores = new SpeedScoresContract()
+            {
+                Walking = source.SpeedScores.Walking,
+                Climbing = source.SpeedScores.Climbing,
+                Swimming = source.SpeedScores.Swimming,
+                Burrowing = source.SpeedScores.Burrowing,
+                Flying = source.SpeedScores.Flying,
+                Teleportation = source.SpeedScores.Teleportation
+            },
+            AttributeScores = new AttributeScoresContract()
+            {
+                Strength = source.AttributeScores.Strength,
+                Intelligence = source.AttributeScores.Intelligence,
+                Charisma = source.AttributeScores.Charisma,
+                Constitution = source.AttributeScores.Constitution,
+                Dexterity = source.AttributeScores.Dexterity,
+                Wisdom = source.AttributeScores.Wisdom,
+            }
         };
     }
 }

@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Heart, Shield, Star, Wind } from "lucide-react";
-import { getCreatureCurrentHealth, getGenderSymbol } from "@/utils/CharacterUtils";
+import { getCharacterCurrentHealth, getGenderSymbol } from "@/utils/CharacterUtils";
 import { formatModifier, getAttributeModifier } from "@/utils/AttributeUtils";
 import { ATTRIBUTE_KEYS } from "@/viewmodels/AttributeScoresViewModel";
 import { getHealthColor, getHealthPercentage } from "@/utils/HealthUtils";
@@ -39,11 +39,11 @@ export const CharacterSidePanelContent = ({ character, expeditionState }: Charac
                 <Heart className="h-4 w-4" />
                 Health
               </span>
-              <span>{getCreatureCurrentHealth(character, expeditionState)}/{character.maxHealth}</span>
+              <span>{getCharacterCurrentHealth(character, expeditionState)}/{character.maxHealth}</span>
             </div>
             <Progress 
-              value={getHealthPercentage(getCreatureCurrentHealth(character, expeditionState), character.maxHealth)}
-              className={`h-2 ${getHealthColor(getHealthPercentage(getCreatureCurrentHealth(character, expeditionState), character.maxHealth))}`}
+              value={getHealthPercentage(getCharacterCurrentHealth(character, expeditionState), character.maxHealth)}
+              className={`h-2 ${getHealthColor(getHealthPercentage(getCharacterCurrentHealth(character, expeditionState), character.maxHealth))}`}
             />
           </div>
           
