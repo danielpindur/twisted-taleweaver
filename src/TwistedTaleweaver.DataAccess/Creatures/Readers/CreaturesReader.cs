@@ -18,6 +18,10 @@ public interface ICreaturesReader
     Task<CharacterDto> GetCharacterAsync(Guid characterId);
     
     Task<IEnumerable<MonsterDto>> GetMonstersAsync(List<Guid> expeditionIds);
+    
+    Task<MonsterDto> GetMonsterAsync(Guid monsterId);
+    
+    Task<IEnumerable<MonsterDto>> GetAliveMonstersAsync(Guid expeditionId);
 }
 
 internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), ICreaturesReader
@@ -278,6 +282,81 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
         return QueryAsync<MonsterDto>(sql, new
         {
             ExpeditionIds = expeditionIds
+        });
+    }
+
+    public Task<MonsterDto> GetMonsterAsync(Guid monsterId)
+    {
+        const string sql = @"
+            SELECT 
+                c.creature_id,
+                c.name,
+                c.description,
+                c.type_id AS creature_type,
+                c.alignment_id AS alignment,
+                c.gender_id AS gender,
+                c.strength,
+                c.dexterity,
+                c.intelligence,
+                c.wisdom,
+                c.constitution,
+                c.charisma,
+                cc.max_health,
+                cc.armor_class,
+                cc.walking_speed,
+                cc.flying_speed,
+                cc.swimming_speed,
+                cc.climbing_speed,
+                cc.burrowing_speed,
+                cc.teleportation_speed,
+                m.challenge_rating,
+                m.expedition_id
+            FROM monsters m
+            INNER JOIN combat_creatures cc ON cc.creature_id = m.creature_id
+            INNER JOIN creatures c ON c.creature_id = cc.creature_id
+            WHERE m.creature_id = @MonsterId";
+
+        return QuerySingleAsync<MonsterDto>(sql, new
+        {
+            MonsterId = monsterId
+        });
+    }
+
+    public Task<IEnumerable<MonsterDto>> GetAliveMonstersAsync(Guid expeditionId)
+    {
+        const string sql = @"
+            SELECT 
+                c.creature_id,
+                c.name,
+                c.description,
+                c.type_id AS creature_type,
+                c.alignment_id AS alignment,
+                c.gender_id AS gender,
+                c.strength,
+                c.dexterity,
+                c.intelligence,
+                c.wisdom,
+                c.constitution,
+                c.charisma,
+                cc.max_health,
+                cc.armor_class,
+                cc.walking_speed,
+                cc.flying_speed,
+                cc.swimming_speed,
+                cc.climbing_speed,
+                cc.burrowing_speed,
+                cc.teleportation_speed,
+                m.challenge_rating,
+                m.expedition_id
+            FROM monsters m
+            INNER JOIN combat_creatures cc ON cc.creature_id = m.creature_id
+            INNER JOIN creatures c ON c.creature_id = cc.creature_id
+            WHERE m.expedition_id = @ExpeditionId
+                AND cc.max_health + (SELECT SUM(health_change) FROM creature_state_changes csc WHERE csc.creature_id = c.creature_id) > 0";
+
+        return QueryAsync<MonsterDto>(sql, new
+        {
+            ExpeditionId = expeditionId
         });
     }
 }

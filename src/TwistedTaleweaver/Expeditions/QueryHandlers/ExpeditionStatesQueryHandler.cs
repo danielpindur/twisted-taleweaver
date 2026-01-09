@@ -31,11 +31,13 @@ internal class ExpeditionStatesQueryHandler(
             turnOrderByExpeditionId.TryGetValue(expeditionId, out var turnOrder);
             monstersByExpeditionId.TryGetValue(expeditionId, out var expeditionMonsters);
 
+            var activeCreatureId = status?.Status == ExpeditionStatus.Completed ? null : turnOrder?.CurrentActorId;
+            
             result.Add(new ExpeditionState()
             {
                 ExpeditionId = expeditionId,
                 Status = status?.Status ?? ExpeditionStatus.Created,
-                ActiveCreatureId = turnOrder?.CurrentActorId,
+                ActiveCreatureId = activeCreatureId,
                 Monsters =  expeditionMonsters.ToEntities()
             });
         }

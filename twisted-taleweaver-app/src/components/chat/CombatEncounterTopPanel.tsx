@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -17,7 +17,6 @@ export interface CombatEncounterTopPanelProps {
 
 export const CombatEncounterTopPanel = ({ monsters, expeditionState }: CombatEncounterTopPanelProps) => {
   const [combatEncounterCollapsed, setCombatEncounterCollapsed] = useState(false);
-  const [needsScrollPadding, setNeedsScrollPadding] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const activeMonsters = monsters.filter(m => {
@@ -25,19 +24,6 @@ export const CombatEncounterTopPanel = ({ monsters, expeditionState }: CombatEnc
     return state;
   });
 
-  useEffect(() => {
-    const checkScrollNeed = () => {
-      if (scrollContainerRef.current) {
-        const { scrollWidth, clientWidth } = scrollContainerRef.current;
-        setNeedsScrollPadding(scrollWidth > clientWidth);
-      }
-    };
-
-    checkScrollNeed();
-    window.addEventListener('resize', checkScrollNeed);
-    return () => window.removeEventListener('resize', checkScrollNeed);
-  }, [activeMonsters]);
-  
   return (
     <div>
       <div className={`bg-destructive/10 border-b border-destructive/20 transition-[height,opacity] duration-300 overflow-hidden ${
@@ -46,7 +32,7 @@ export const CombatEncounterTopPanel = ({ monsters, expeditionState }: CombatEnc
           : 'h-0 opacity-0'
       }`}>
         {activeMonsters.length > 0 && (
-          <div className="px-3 pt-3 min-w-0">
+          <div className="px-3 py-3 min-w-0">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-cinzel font-semibold text-sm text-destructive flex items-center gap-2">
                 <Swords className="h-4 w-4" />
@@ -64,7 +50,7 @@ export const CombatEncounterTopPanel = ({ monsters, expeditionState }: CombatEnc
             
             <div 
               ref={scrollContainerRef}
-              className={`flex gap-3 overflow-x-auto max-w-full ${needsScrollPadding ? 'pb-3' : ''}`}
+              className="flex gap-3 overflow-x-auto max-w-full scrollbar-gutter-stable"
             >
               <div className="flex gap-3 min-w-max">
                 {activeMonsters.map((monster) => (

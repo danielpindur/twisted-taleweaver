@@ -4,6 +4,8 @@ public class CreatureTurn : IComparable<CreatureTurn>
 {
     public Guid CreatureId { get; set; }
     
+    public bool IsUserTurn { get; set; }
+    
     public int TurnPriority { get; set; }
     
     public DateTimeOffset AddedAt { get; set; }

@@ -17,7 +17,7 @@ public class NarrativeGenerationCommand
     
     public required List<CharacterContext> Characters { get; set; }
     
-    // TODO: Add monsters?
+    public required List<MonsterContext> AliveMonsters { get; set; }
     
     public required IEnumerable<string> ActionMessagesSinceLastNarration { get; set; }
 }
@@ -41,7 +41,9 @@ internal class NarrativeGenerationAdapter(IEntityGenerator entityGenerator) : IN
         sb.Append("Player controlled characters in the expedition: ");
         sb.Append(JsonSerializer.Serialize(command.Characters));
         
-        // TODO: Add monsters info
+        sb.Append("Monsters currently alive, that the expeditioners are fighting against:\n");
+        sb.Append(JsonSerializer.Serialize(command.AliveMonsters));
+        sb.Append("\n");
         
         var firstActionText = true;
         foreach (var actionText in command.ActionMessagesSinceLastNarration)

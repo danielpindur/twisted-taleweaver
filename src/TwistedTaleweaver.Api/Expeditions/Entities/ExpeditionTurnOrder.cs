@@ -22,8 +22,10 @@ public class ExpeditionTurnOrder
     public List<CreatureTurn> Turns { get; set; } = new();
 
     public Guid? CurrentActorId => AwaitingAction && Turns.Count > 0 ? Turns[CurrentTurnIndex].CreatureId : null;
+
+    public bool ActionGenerationRequired => AwaitingAction && Turns.Count > 0 && !Turns[CurrentTurnIndex].IsUserTurn;
     
-    public void Add(CombatCreature creature)
+    public void Add(CombatCreature creature, bool isUser)
     {
         var currentActorId = Turns.Count > 0
             ? Turns[CurrentTurnIndex].CreatureId
@@ -47,7 +49,8 @@ public class ExpeditionTurnOrder
         {
             CreatureId = creature.CreatureId,
             TurnPriority = priority,
-            AddedAt = DateTimeOffset.Now
+            AddedAt = DateTimeOffset.Now,
+            IsUserTurn = isUser
         };
         
         Turns.Add(creatureTurn);
@@ -55,6 +58,32 @@ public class ExpeditionTurnOrder
 
         CurrentTurnIndex = currentActorId.HasValue 
             ? Turns.FindIndex(t => t.CreatureId == currentActorId.Value) 
+            : 0;
+    }
+
+    public void RemoveCreature(Guid creatureId)
+    {
+        Guid? currentActorAfterRemovalId = null;
+
+        if (Turns.Count > 1) // we have actors remaining after removal
+        {
+            var currentActorId = Turns[CurrentTurnIndex].CreatureId;
+
+            if (currentActorAfterRemovalId == creatureId)
+            {
+                currentActorAfterRemovalId = Turns[(CurrentTurnIndex + 1) % Turns.Count].CreatureId;
+            }
+            else
+            {
+                currentActorAfterRemovalId = currentActorId;
+            }
+        }
+        
+        Turns = Turns.Where(x => x.CreatureId != creatureId).ToList();
+        Turns.Sort();
+        
+        CurrentTurnIndex = currentActorAfterRemovalId.HasValue 
+            ? Turns.FindIndex(t => t.CreatureId == currentActorAfterRemovalId.Value) 
             : 0;
     }
 

@@ -26,4 +26,9 @@ public enum ExpeditionEventType
     /// Action adjudication was processed, narrative can be generated
     /// </summary>
     ActionAdjudicationProcessed,
+    
+    /// <summary>
+    /// A generation of action for a monster is requested
+    /// </summary>
+    MonsterActionRequested,
 }

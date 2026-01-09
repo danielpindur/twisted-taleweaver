@@ -1,4 +1,5 @@
 using System.Text;
+using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 using TwistedTaleweaver.Api.GameEngine.Entities;
 using TwistedTaleweaver.Api.GameEngine.Entities.Enums;
 using TwistedTaleweaver.Api.Messages.Entities.Enums;
@@ -6,8 +7,10 @@ using TwistedTaleweaver.Core.Commands;
 using TwistedTaleweaver.Core.Common.Extensions;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
+using TwistedTaleweaver.Creatures.CommandHandlers;
 using TwistedTaleweaver.Creatures.Extensions;
 using TwistedTaleweaver.Creatures.QueryHandlers;
+using TwistedTaleweaver.DataAccess.Expeditions.Writers;
 using TwistedTaleweaver.DataAccess.Messages.Readers;
 using TwistedTaleweaver.Expeditions.CommandHandlers;
 using TwistedTaleweaver.Expeditions.QueryHandlers;
@@ -42,7 +45,10 @@ internal class ActionAdjudicationCommandHandler(
     IActionOutcomeGenerationAdapter actionOutcomeGenerationAdapter,
     IInternalChatMessagesCommandHandler messagesCommandHandler,
     IUpdateCreaturesStateCommandHandler updateCreaturesStateCommandHandler,
+    IMonsterContextsQueryHandler monsterContextsQueryHandler,
+    ICreateMonsterCommandHandler createMonsterCommandHandler,
     IMessagesReader messagesReader,
+    IExpeditionsWriter expeditionsWriter,
     IKafkaEventPublisher kafkaEventPublisher) : IActionAdjudicationCommandHandler
 {
     public async Task ExecuteAsync(ProcessActionAdjudicationCommand command)
@@ -57,6 +63,9 @@ internal class ActionAdjudicationCommandHandler(
         var expeditionContext = await expeditionContextQueryHandler.ExecuteAsync(
             new ExpeditionContextQuery() { ExpeditionId = command.ExpeditionId });
         
+        var monsterContexts = await monsterContextsQueryHandler.ExecuteAsync(
+            new GetMonsterContextsByExpeditionQuery() { ExpeditionId = command.ExpeditionId });
+
         var adjudicationMessage = await messagesReader.GetAsync(command.ExpeditionId, command.ActionAdjudicationMessageId);
         var previousNarrativeTexts = await messagesReader.GetContents(command.ExpeditionId, MessageType.Narrative, adjudicationMessage.MessageId);
         
@@ -68,15 +77,21 @@ internal class ActionAdjudicationCommandHandler(
                 OtherCharacters = characterContexts.Where(x => x.CreatureId != command.ActionAdjudication.CreatureId).ToList(),
                 Expedition = expeditionContext,
                 PreviousNarrativeTexts = previousNarrativeTexts,
-                CheckResults = checkResults
+                CheckResults = checkResults,
+                AliveMonsters = monsterContexts
             });
         
         var outcomeMessage = GetOutcomeMessage(command, actorCharacterContext, actionOutcome);
 
         await using var scope = new UnitOfWorkScope();
+
+        await CreateSummonedMonsters(command.ExpeditionId, actionOutcome);
         
         var message = await messagesCommandHandler.ExecuteAsync(new AddSystemMessageCommand() { ExpeditionId = command.ExpeditionId, Content = outcomeMessage});
-        await UpdateCreaturesState(actionOutcome, characterContexts);
+       
+        await UpdateCreaturesState(command.ExpeditionId, actionOutcome, characterContexts);
+
+        await UpdateExpeditionState(command.ExpeditionId, actionOutcome);
         
         var action = new ExpeditionActionEvent()
         {
@@ -88,6 +103,48 @@ internal class ActionAdjudicationCommandHandler(
         await kafkaEventPublisher.PublishAsync(action);
         
         await scope.CompleteAsync();
+    }
+
+    private async Task UpdateExpeditionState(Guid expeditionId, GeneratedActionOutcome actionOutcome)
+    {
+        if (!actionOutcome.ExpeditionStateUpdate.HasValue || 
+            !actionOutcome.ExpeditionStateUpdate.ActualValue.ExpeditionHasReachedAnEnd)
+        {
+            return;
+        }
+
+        var outcome = actionOutcome.ExpeditionStateUpdate.ActualValue.OutcomeOfAFinishedExpedition.HasValue
+            ? actionOutcome.ExpeditionStateUpdate.ActualValue.OutcomeOfAFinishedExpedition.ActualValue
+            : (ExpeditionOutcome?)null;
+        
+        // if we didn't get outcome just fallback to based on characters being alive
+        if (outcome is null)
+        {
+            var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
+                new GetCharacterContextsByExpeditionQuery() {  ExpeditionId = expeditionId });
+
+            outcome = characterContexts.Any(x => x.CurrentHealth > 0)
+                ? ExpeditionOutcome.Success
+                : ExpeditionOutcome.Failure;
+        }
+
+        await expeditionsWriter.UpdateStateAsync(expeditionId, ExpeditionStatus.Completed, outcome.Value);
+    }
+
+    private async Task CreateSummonedMonsters(Guid expeditionId, GeneratedActionOutcome actionOutcome)
+    {
+        var newMonsters = actionOutcome.MonstersSummonedDueToActionOutcome.HasValue
+            ? actionOutcome.MonstersSummonedDueToActionOutcome.ActualValue
+            : new List<GeneratedMonster>();
+
+        foreach (var monster in newMonsters)
+        {
+            await createMonsterCommandHandler.ExecuteAsync(new CreateMonsterCommand()
+            {
+                ExpeditionId = expeditionId,
+                Monster = monster
+            });
+        }
     }
 
     private static List<CheckResult> GetCheckResults(ProcessActionAdjudicationCommand command, CharacterContext characterContext)
@@ -118,31 +175,53 @@ internal class ActionAdjudicationCommandHandler(
         return results;
     }
 
-    private Task UpdateCreaturesState(
+    private async Task UpdateCreaturesState(
+        Guid expeditionId,
         GeneratedActionOutcome actionOutcome,
         List<CharacterContext> characterContexts)
     {
-        if (!actionOutcome.PlayerControlledCharacterUpdates.HasValue ||
-            actionOutcome.PlayerControlledCharacterUpdates.ActualValue.Count == 0)
+        var creatureStateUpdates = new List<CreatureStateUpdate>();
+        
+        if (actionOutcome.PlayerControlledCharacterUpdates.HasValue)
         {
-            return Task.CompletedTask;
+            var contextByCreatureId = characterContexts.ToDictionary(x => x.CreatureId);
+
+            creatureStateUpdates.AddRange(actionOutcome.PlayerControlledCharacterUpdates.ActualValue.Select(x =>
+                new CreatureStateUpdate()
+                {
+                    CreatureId = Guid.Parse(x.CreatureId),
+                    HealthUpdate = x.HealthChange.HasValue ? x.HealthChange.ActualValue : null,
+                    Status = x.CreatureStatusChange.HasValue
+                        ? x.CreatureStatusChange.ActualValue
+                        : contextByCreatureId[Guid.Parse(x.CreatureId)].Status
+                }));
         }
 
-        var contextByCreatureId = characterContexts.ToDictionary(x => x.CreatureId);
+        if (actionOutcome.UpdatesForMonstersCharactersAreFightingAgainst.HasValue)
+        {
+            var monsterContexts = await monsterContextsQueryHandler.ExecuteAsync(
+                new GetMonsterContextsByExpeditionQuery() { ExpeditionId = expeditionId });
+            
+            var contextByCreatureId = monsterContexts.ToDictionary(x => x.CreatureId);
+            
+            creatureStateUpdates.AddRange(actionOutcome.UpdatesForMonstersCharactersAreFightingAgainst.ActualValue.Select(x =>
+                new CreatureStateUpdate()
+                {
+                    CreatureId = Guid.Parse(x.CreatureId),
+                    HealthUpdate = x.HealthChange.HasValue ? x.HealthChange.ActualValue : null,
+                    Status = x.CreatureStatusChange.HasValue
+                        ? x.CreatureStatusChange.ActualValue
+                        : contextByCreatureId[Guid.Parse(x.CreatureId)].Status
+                }));
+        }
 
-        return updateCreaturesStateCommandHandler.ExecuteAsync(
-            new UpdateCreaturesStateCommand()
-            {
-                StateUpdates = actionOutcome.PlayerControlledCharacterUpdates.ActualValue.Select(x =>
-                    new CreatureStateUpdate()
-                    {
-                        CreatureId = Guid.Parse(x.CreatureId),
-                        HealthUpdate = x.HealthChange.HasValue ? x.HealthChange.ActualValue : null,
-                        Status = x.CreatureStatusChange.HasValue
-                            ? x.CreatureStatusChange.ActualValue
-                            : contextByCreatureId[Guid.Parse(x.CreatureId)].Status
-                    }).ToList()
-            });
+        if (creatureStateUpdates.Count > 0)
+        {
+            return;
+        }
+
+        await updateCreaturesStateCommandHandler.ExecuteAsync(
+            new UpdateCreaturesStateCommand() { StateUpdates = creatureStateUpdates });
     }
 
     private static string GetOutcomeMessage(

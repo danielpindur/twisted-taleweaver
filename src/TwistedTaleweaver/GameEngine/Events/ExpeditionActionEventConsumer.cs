@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Logging;
+using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.Api.Messages.Entities.Enums;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.Creatures.QueryHandlers;
+using TwistedTaleweaver.DataAccess.Expeditions.Readers;
 using TwistedTaleweaver.DataAccess.Messages.Readers;
 using TwistedTaleweaver.Expeditions.CommandHandlers;
 using TwistedTaleweaver.Expeditions.QueryHandlers;
@@ -25,7 +27,9 @@ internal class ExpeditionActionEventConsumer(
     IExpeditionStateCommandHandler expeditionStateCommandHandler,
     IActionAdjudicationGenerationAdapter actionAdjudicationGenerationAdapter,
     IMessagesReader messagesReader,
-    IActionAdjudicationCommandHandler actionAdjudicationCommandHandler) : IKafkaEventConsumer<ExpeditionActionEvent>
+    IActionAdjudicationCommandHandler actionAdjudicationCommandHandler,
+    IMonsterContextsQueryHandler monsterContextsQueryHandler,
+    IExpeditionTurnOrdersReader turnOrdersReader) : IKafkaEventConsumer<ExpeditionActionEvent>
 {
     public Task ConsumeAsync(ExpeditionActionEvent @event, CancellationToken cancellationToken)
     {
@@ -66,6 +70,9 @@ internal class ExpeditionActionEventConsumer(
         var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
             new GetCharacterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
         
+        var monsterContexts = await monsterContextsQueryHandler.ExecuteAsync(
+            new GetMonsterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
+        
         var generatedNarrative = await narrativeGenerationAdapter.GenerateAsync(
             new NarrativeGenerationCommand()
             {
@@ -73,7 +80,8 @@ internal class ExpeditionActionEventConsumer(
                 PreviousNarrativeTexts = new List<string>(),
                 ActionMessagesSinceLastNarration = new List<string>(),
                 IsFirstNarrativeText = true,
-                Characters = characterContexts
+                Characters = characterContexts,
+                AliveMonsters =  monsterContexts
             });
 
         await using var scope = new UnitOfWorkScope();
@@ -105,6 +113,20 @@ internal class ExpeditionActionEventConsumer(
         await turnOrderCommandHandler.ExecuteAsync(new AdvanceTurnOrderCommand() { ExpeditionId = @event.ExpeditionId });
         await expeditionStateCommandHandler.ExecuteAsync(new PublishUpdatedExpeditionStateCommand() { ExpeditionId = @event.ExpeditionId });
 
+        var turnOrder  = await turnOrdersReader.GetByExpeditionAsync(@event.ExpeditionId);
+
+        if (turnOrder.ActionGenerationRequired)
+        {
+            var action = new ExpeditionActionEvent()
+            {
+                ExpeditionId = @event.ExpeditionId,
+                ExpeditionEventSource = ExpeditionEventSource.System,
+                ExpeditionEventType = ExpeditionEventType.MonsterActionRequested
+            };
+
+            await kafkaEventPublisher.PublishAsync(action);
+        }
+        
         await scope.CompleteAsync();
     }
     
@@ -130,6 +152,9 @@ internal class ExpeditionActionEventConsumer(
         var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
             new GetCharacterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
 
+        var monsterContexts = await monsterContextsQueryHandler.ExecuteAsync(
+            new GetMonsterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
+
         var characterPerformingAction = characterContexts.Single(x => x.CreatureId == actionMessage.SenderCharacterId);
         
         var actionAdjudication = await actionAdjudicationGenerationAdapter.GenerateAsync(
@@ -139,7 +164,8 @@ internal class ExpeditionActionEventConsumer(
                 CharacterPerformingAction = characterPerformingAction,
                 Expedition = expeditionContext,
                 OtherCharacters = characterContexts.Where(x => x.CreatureId != actionMessage.SenderCharacterId).ToList(),
-                PreviousNarrativeTexts = previousNarrativeMessages
+                PreviousNarrativeTexts = previousNarrativeMessages,
+                AliveMonsters = monsterContexts
             });
 
         await using var scope = new UnitOfWorkScope();
@@ -195,6 +221,9 @@ internal class ExpeditionActionEventConsumer(
         var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
             new GetCharacterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
         
+        var monsterContexts = await monsterContextsQueryHandler.ExecuteAsync(
+            new GetMonsterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
+
         var previousNarrativeMessages = await messagesReader.GetContents(
             @event.ExpeditionId, 
             MessageType.Narrative,
@@ -208,7 +237,8 @@ internal class ExpeditionActionEventConsumer(
                 Expedition = expeditionContext,
                 PreviousNarrativeTexts = previousNarrativeMessages,
                 ActionMessagesSinceLastNarration = actionMessagesSinceLastNarration,
-                Characters = characterContexts
+                Characters = characterContexts,
+                AliveMonsters = monsterContexts
             });
         
         await using var scope = new UnitOfWorkScope();

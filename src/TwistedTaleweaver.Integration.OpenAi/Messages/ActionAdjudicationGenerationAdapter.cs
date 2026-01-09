@@ -19,7 +19,7 @@ public class ActionAdjudicationGenerationCommand
     
     public required List<CharacterContext> OtherCharacters { get; set; }
     
-    // TODO: Add monsters?
+    public required List<MonsterContext> AliveMonsters { get; set; }
 }
 
 public interface IActionAdjudicationGenerationAdapter
@@ -27,7 +27,7 @@ public interface IActionAdjudicationGenerationAdapter
     Task<GeneratedActionAdjudication> GenerateAsync(ActionAdjudicationGenerationCommand command);
 }
 
-internal class ActionAdjudicationAdjudicationGenerationAdapter(IEntityGenerator entityGenerator) : IActionAdjudicationGenerationAdapter
+internal class ActionAdjudicationGenerationAdapter(IEntityGenerator entityGenerator) : IActionAdjudicationGenerationAdapter
 {
     public async Task<GeneratedActionAdjudication> GenerateAsync(ActionAdjudicationGenerationCommand command)
     {
@@ -47,6 +47,10 @@ internal class ActionAdjudicationAdjudicationGenerationAdapter(IEntityGenerator 
 
         sb.Append("Expedition context:\n");
         sb.Append(JsonSerializer.Serialize(command.Expedition));
+        sb.Append("\n");
+        
+        sb.Append("Monsters currently alive, that the expeditioners are fighting against:\n");
+        sb.Append(JsonSerializer.Serialize(command.AliveMonsters));
         sb.Append("\n");
 
         sb.Append("Recent narrative context:\n");

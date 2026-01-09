@@ -33,7 +33,7 @@ export const MonsterDialogContent = ({ monster, expeditionState }: MonsterDialog
           {monster.name}
         </DialogTitle>
         <DialogDescription className="text-sm text-muted-foreground">
-          Monster details and abilities
+          {monster.description}
         </DialogDescription>
       </DialogHeader>
       
@@ -97,22 +97,34 @@ export const MonsterDialogContent = ({ monster, expeditionState }: MonsterDialog
                 <span className="text-muted-foreground">Walking</span>
                 <span className="font-medium">{monster.speedScores.walking} ft</span>
               </div>
-              {monster.speedScores.flying && (
+              {(monster.speedScores.flying ?? 0) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Flying</span>
                   <span className="font-medium">{monster.speedScores.flying} ft</span>
                 </div>
               )}
-              {monster.speedScores.swimming && (
+              {(monster.speedScores.swimming ?? 0) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Swimming</span>
                   <span className="font-medium">{monster.speedScores.swimming} ft</span>
                 </div>
               )}
-              {monster.speedScores.climbing && (
+              {(monster.speedScores.climbing ?? 0) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Climbing</span>
                   <span className="font-medium">{monster.speedScores.climbing} ft</span>
+                </div>
+              )}
+              {(monster.speedScores.burrowing ?? 0) > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Burrowing</span>
+                  <span className="font-medium">{monster.speedScores.burrowing} ft</span>
+                </div>
+              )}
+              {(monster.speedScores.teleportation ?? 0) > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Teleportation</span>
+                  <span className="font-medium">{monster.speedScores.teleportation} ft</span>
                 </div>
               )}
             </div>
@@ -147,22 +159,28 @@ export const MonsterDialogContent = ({ monster, expeditionState }: MonsterDialog
           </div>
 
           {/* Collapsible Sections */}
-          <div className="space-y-2">
-            <details className="group">
-              <summary className="cursor-pointer font-cinzel font-medium text-sm flex items-center gap-2 p-2 hover:bg-muted/50 rounded">
-                <Star className="h-4 w-4" />
-                Traits ({monster.traits.length})
-              </summary>
-              <div className="mt-2 space-y-2 pl-6">
-                {monster.traits.map((trait, idx) => (
-                  <div key={idx} className="p-2 bg-muted/30 rounded text-xs">
-                    <div className="font-medium text-sm">{trait.name}</div>
-                    <div className="text-muted-foreground">{trait.effect}</div>
-                  </div>
-                ))}
-              </div>
-            </details>
-          </div>
+          {monster.traits.length > 0 && (
+            <div className="space-y-2">
+              <details className="group">
+                <summary className="cursor-pointer font-cinzel font-medium text-sm flex items-center gap-2 p-2 hover:bg-muted/50 rounded">
+                  <Star className="h-4 w-4" />
+                  Traits ({monster.traits.length})
+                </summary>
+
+                <div className="mt-2 space-y-2 pl-6">
+                  {monster.traits.map((trait, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2 bg-muted/30 rounded text-xs"
+                    >
+                      <div className="font-medium text-sm">{trait.name}</div>
+                      <div className="text-muted-foreground">{trait.effect}</div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            </div>
+          )}
         </div>
       </ScrollArea>
     </DialogContent>

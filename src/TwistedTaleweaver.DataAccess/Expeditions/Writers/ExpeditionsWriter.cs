@@ -14,6 +14,8 @@ public interface IExpeditionsWriter
         int maxParticipants);
 
     Task StartAsync(Guid expeditionId);
+    
+    Task UpdateStateAsync(Guid expeditionId, ExpeditionStatus status, ExpeditionOutcome outcome);
 }
 
 internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IExpeditionsWriter
@@ -48,13 +50,33 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccesso
     {
         const string sql = @"
             UPDATE expeditions 
-            SET status_id = @Status, started_at = CURRENT_TIMESTAMP
+            SET status_id = @Status, 
+                started_at = CURRENT_TIMESTAMP, 
+                updated_at = CURRENT_TIMESTAMP
             WHERE expedition_id = @ExpeditionId";
 
         return ExecuteAsync(sql, new
         {
             ExpeditionId = expeditionId,
             Status = ExpeditionStatus.Started
+        });
+    }
+
+    public Task UpdateStateAsync(Guid expeditionId, ExpeditionStatus status, ExpeditionOutcome outcome)
+    {
+        const string sql = @"
+            UPDATE expeditions 
+            SET status_id = @Status,
+                outcome_id = @Outcome,
+                completed_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE expedition_id = @ExpeditionId";
+
+        return ExecuteAsync(sql, new
+        {
+            ExpeditionId = expeditionId,
+            Status = status,
+            Outcome = outcome
         });
     }
 }

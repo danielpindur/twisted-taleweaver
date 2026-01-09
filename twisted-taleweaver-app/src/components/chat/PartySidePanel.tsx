@@ -204,31 +204,31 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                           <span className="text-muted-foreground">Walking</span>
                           <span className="font-medium">{participant.character?.speedScores.walking} ft</span>
                         </div>
-                        {participant.character?.speedScores.flying && (
+                        {(participant.character?.speedScores.flying ?? 0) > 0 && (
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Flying</span>
                             <span className="font-medium">{participant.character?.speedScores.flying} ft</span>
                           </div>
                         )}
-                        {participant.character?.speedScores.swimming && (
+                        {(participant.character?.speedScores.swimming ?? 0) > 0 && (
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Swimming</span>
                             <span className="font-medium">{participant.character?.speedScores.swimming} ft</span>
                           </div>
                         )}
-                        {participant.character?.speedScores.climbing && (
+                        {(participant.character?.speedScores.climbing ?? 0) > 0 && (
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Climbing</span>
                             <span className="font-medium">{participant.character?.speedScores.climbing} ft</span>
                           </div>
                         )}
-                        {participant.character?.speedScores.burrowing && (
+                        {(participant.character?.speedScores.burrowing ?? 0) > 0 && (
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Burrowing</span>
                             <span className="font-medium">{participant.character?.speedScores.burrowing} ft</span>
                           </div>
                         )}
-                        {participant.character?.speedScores.teleportation && (
+                        {(participant.character?.speedScores.teleportation ?? 0) > 0 && (
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Teleportation</span>
                             <span className="font-medium">{participant.character?.speedScores.teleportation} ft</span>
