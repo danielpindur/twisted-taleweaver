@@ -9,7 +9,7 @@ internal class ExpeditionSearchQueryHandler(IExpeditionsReader expeditionsReader
 {
     public async Task<PaginatedResult<Expedition>> ExecuteAsync(ExpeditionSearchQuery query)
     {
-        var expeditionsWithCount = (await expeditionsReader.GetPageAsync(query.UserId, query.PageNumber, query.PageSize)).ToList();
+        var expeditionsWithCount = (await expeditionsReader.GetPageAsync(query)).ToList();
 
         return new PaginatedResult<Expedition>(expeditionsWithCount, expeditionsWithCount.FirstOrDefault()?.TotalCount ?? 0, query);
     }

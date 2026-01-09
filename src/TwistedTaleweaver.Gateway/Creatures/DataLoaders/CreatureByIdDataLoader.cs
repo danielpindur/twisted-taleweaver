@@ -2,7 +2,7 @@ using TwistedTaleweaver.Api.Creatures.Queries;
 using TwistedTaleweaver.Gateway.Creatures.Contracts;
 using TwistedTaleweaver.Gateway.Creatures.Mappers;
 
-namespace TwistedTaleweaver.Gateway.Expeditions.DataLoaders;
+namespace TwistedTaleweaver.Gateway.Creatures.DataLoaders;
 
 public class CreatureByIdDataLoader(
     IBatchScheduler batchScheduler,

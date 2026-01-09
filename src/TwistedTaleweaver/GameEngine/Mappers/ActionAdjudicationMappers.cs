@@ -7,7 +7,16 @@ namespace TwistedTaleweaver.GameEngine.Mappers;
 
 internal static class ActionAdjudicationMappers
 {
-    public static ActionAdjudication ToActionAdjudication(this GeneratedActionAdjudication source, Guid creatureId)
+    public static ActionAdjudication ToActionAdjudication(this GeneratedCharacterActionAdjudication source, Guid creatureId)
+    {
+        return new ActionAdjudication()
+        {
+            CreatureId = creatureId,
+            RequiredChecks = source.RequiredChecks.ToRequiredChecks()
+        };
+    }
+    
+    public static ActionAdjudication ToActionAdjudication(this GeneratedMonsterActionAdjudication source, Guid creatureId)
     {
         return new ActionAdjudication()
         {

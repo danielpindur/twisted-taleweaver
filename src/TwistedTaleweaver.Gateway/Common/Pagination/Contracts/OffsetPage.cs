@@ -1,7 +1,7 @@
 namespace TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
 
 [GraphQLDescription("Represents a page of items using offset pagination.")]
-public sealed class OffsetPage<T>
+public class OffsetPage<T>
 {
     [GraphQLDescription("The items on the current page.")]
     public required IReadOnlyList<T> Items { get; init; }

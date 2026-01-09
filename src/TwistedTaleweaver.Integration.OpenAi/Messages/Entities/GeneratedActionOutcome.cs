@@ -43,7 +43,7 @@ public class CreatureStateUpdate
     [RegularExpression(@"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")]
     public required string CreatureId { get; set; }
     
-    public required Optional<int> HealthChange { get; set; }
+    public required Optional<int> DamageTaken { get; set; }
     
     public required Optional<CreatureStatus> CreatureStatusChange { get; set; }
 }

@@ -8,7 +8,7 @@ public interface IMessagesReader
 {
     Task<IEnumerable<MessageDto>> SearchAsync(Guid expeditionId, long? lastMessageId, int pageSize);
     
-    Task<IEnumerable<string>> GetContents(Guid expeditionId, MessageType messageType, long lastMessageId);
+    Task<IEnumerable<string>> GetContents(Guid expeditionId, MessageType messageType);
     
     Task<MessageDto> GetAsync(Guid expeditionId, long messageId);
 
@@ -41,20 +41,18 @@ internal class MessagesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(p
         });
     }
 
-    public Task<IEnumerable<string>> GetContents(Guid expeditionId, MessageType messageType, long lastMessageId)
+    public Task<IEnumerable<string>> GetContents(Guid expeditionId, MessageType messageType)
     {
         const string sql = @"
             SELECT 
                 m.content
             FROM messages m
-            WHERE m.expedition_id = @ExpeditionId
-                AND m.message_id < @LastMessageId AND m.type_id = @MessageType
+            WHERE m.expedition_id = @ExpeditionId AND m.type_id = @MessageType
             ORDER BY m.message_id";
 
         return QueryAsync<string>(sql, new
         {
             ExpeditionId = expeditionId,
-            LastMessageId = lastMessageId,
             MessageType = messageType
         });
     }

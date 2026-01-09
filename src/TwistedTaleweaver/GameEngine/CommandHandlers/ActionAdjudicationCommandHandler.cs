@@ -9,6 +9,7 @@ using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.Creatures.CommandHandlers;
 using TwistedTaleweaver.Creatures.Extensions;
+using TwistedTaleweaver.Creatures.Helpers;
 using TwistedTaleweaver.Creatures.QueryHandlers;
 using TwistedTaleweaver.DataAccess.Expeditions.Writers;
 using TwistedTaleweaver.DataAccess.Messages.Readers;
@@ -56,42 +57,21 @@ internal class ActionAdjudicationCommandHandler(
         var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
             new GetCharacterContextsByExpeditionQuery() { ExpeditionId = command.ExpeditionId });
 
-        var actorCharacterContext = characterContexts.Single(x => x.CreatureId == command.ActionAdjudication.CreatureId);
-        
-        var checkResults = GetCheckResults(command, actorCharacterContext);
-        
-        var expeditionContext = await expeditionContextQueryHandler.ExecuteAsync(
-            new ExpeditionContextQuery() { ExpeditionId = command.ExpeditionId });
-        
         var monsterContexts = await monsterContextsQueryHandler.ExecuteAsync(
             new GetMonsterContextsByExpeditionQuery() { ExpeditionId = command.ExpeditionId });
-
-        var adjudicationMessage = await messagesReader.GetAsync(command.ExpeditionId, command.ActionAdjudicationMessageId);
-        var previousNarrativeTexts = await messagesReader.GetContents(command.ExpeditionId, MessageType.Narrative, adjudicationMessage.MessageId);
         
-        var actionOutcome = await actionOutcomeGenerationAdapter.GenerateAsync(
-            new ActionOutcomeGenerationCommand()
-            {
-                ActionAdjudicationMessage = adjudicationMessage.Content,
-                CharacterPerformingAction = actorCharacterContext,
-                OtherCharacters = characterContexts.Where(x => x.CreatureId != command.ActionAdjudication.CreatureId).ToList(),
-                Expedition = expeditionContext,
-                PreviousNarrativeTexts = previousNarrativeTexts,
-                CheckResults = checkResults,
-                AliveMonsters = monsterContexts
-            });
-        
-        var outcomeMessage = GetOutcomeMessage(command, actorCharacterContext, actionOutcome);
+        var actionOutcome = await GetActionOutcome(command, characterContexts, monsterContexts);
 
         await using var scope = new UnitOfWorkScope();
 
-        await CreateSummonedMonsters(command.ExpeditionId, actionOutcome);
-        
-        var message = await messagesCommandHandler.ExecuteAsync(new AddSystemMessageCommand() { ExpeditionId = command.ExpeditionId, Content = outcomeMessage});
-       
-        await UpdateCreaturesState(command.ExpeditionId, actionOutcome, characterContexts);
+        await CreateSummonedMonsters(command.ExpeditionId, actionOutcome.GeneratedOutcome);
 
-        await UpdateExpeditionState(command.ExpeditionId, actionOutcome);
+        var message = await messagesCommandHandler.ExecuteAsync(new AddSystemMessageCommand()
+            { ExpeditionId = command.ExpeditionId, Content = actionOutcome.OutcomeMessageContent });
+       
+        await UpdateCreaturesState(command.ExpeditionId, actionOutcome.GeneratedOutcome, characterContexts);
+
+        await UpdateExpeditionState(command.ExpeditionId, actionOutcome.GeneratedOutcome);
         
         var action = new ExpeditionActionEvent()
         {
@@ -103,6 +83,68 @@ internal class ActionAdjudicationCommandHandler(
         await kafkaEventPublisher.PublishAsync(action);
         
         await scope.CompleteAsync();
+    }
+
+    private async Task<ActionOutcome> GetActionOutcome(
+        ProcessActionAdjudicationCommand command, 
+        List<CharacterContext> characterContexts,
+        List<MonsterContext> monsterContexts)
+    {
+        var expeditionContext = await expeditionContextQueryHandler.ExecuteAsync(new ExpeditionContextQuery() { ExpeditionId = command.ExpeditionId });
+        var adjudicationMessage = await messagesReader.GetAsync(command.ExpeditionId, command.ActionAdjudicationMessageId);
+        var previousNarrativeTexts = await messagesReader.GetContents(command.ExpeditionId, MessageType.Narrative);
+
+        if (characterContexts.Any(x => x.CreatureId == command.ActionAdjudication.CreatureId))
+        {
+            // Character action
+            var actorCharacterContext = characterContexts.Single(x => x.CreatureId == command.ActionAdjudication.CreatureId);
+            var checkResults = GetCharacterCheckResults(command, actorCharacterContext);
+
+            var generatedActionOutcome = await actionOutcomeGenerationAdapter.GenerateAsync(
+                new CharacterActionOutcomeGenerationCommand()
+                {
+                    ActionAdjudicationMessage = adjudicationMessage.Content,
+                    CharacterPerformingAction = actorCharacterContext,
+                    OtherCharacters = characterContexts.Where(x => x.CreatureId != command.ActionAdjudication.CreatureId).ToList(),
+                    Expedition = expeditionContext,
+                    PreviousNarrativeTexts = previousNarrativeTexts,
+                    CheckResults = checkResults,
+                    AliveMonsters = monsterContexts
+                });
+            
+            return new ActionOutcome()
+            {
+                GeneratedOutcome = generatedActionOutcome,
+                OutcomeMessageContent = FormatOutcomeMessage(checkResults, actorCharacterContext.Name, generatedActionOutcome)
+            };
+        }
+        
+        if (monsterContexts.Any(x => x.CreatureId == command.ActionAdjudication.CreatureId))
+        {
+            // Monster action
+            var actorCharacterContext = monsterContexts.Single(x => x.CreatureId == command.ActionAdjudication.CreatureId);
+            var checkResults = GetMonsterCheckResults(command, actorCharacterContext);
+
+            var generatedActionOutcome =  await actionOutcomeGenerationAdapter.GenerateAsync(
+                new MonsterActionOutcomeGenerationCommand()
+                {
+                    ActionAdjudicationMessage = adjudicationMessage.Content,
+                    MonsterPerformingAction = actorCharacterContext,
+                    OtherAliveMonsters = monsterContexts.Where(x => x.CreatureId != command.ActionAdjudication.CreatureId).ToList(),
+                    Expedition = expeditionContext,
+                    PreviousNarrativeTexts = previousNarrativeTexts,
+                    CheckResults = checkResults,
+                    PlayerCharactersInExpedition = characterContexts
+                });
+            
+            return new ActionOutcome()
+            {
+                GeneratedOutcome = generatedActionOutcome,
+                OutcomeMessageContent = FormatOutcomeMessage(checkResults, actorCharacterContext.Name, generatedActionOutcome)
+            };
+        }
+        
+        throw new InvalidOperationException("Creature performing action not found in the expedition");
     }
 
     private async Task UpdateExpeditionState(Guid expeditionId, GeneratedActionOutcome actionOutcome)
@@ -147,7 +189,7 @@ internal class ActionAdjudicationCommandHandler(
         }
     }
 
-    private static List<CheckResult> GetCheckResults(ProcessActionAdjudicationCommand command, CharacterContext characterContext)
+    private static List<CheckResult> GetCharacterCheckResults(ProcessActionAdjudicationCommand command, CharacterContext characterContext)
     {
         var results = new List<CheckResult>();
         
@@ -158,10 +200,38 @@ internal class ActionAdjudicationCommandHandler(
 
         foreach (var requiredCheck in command.ActionAdjudication.RequiredChecks)
         {
-            var attributeBonus = characterContext.AttributeScores.GetAttributeBonus(requiredCheck.Attribute);
-            var diceRolls = RollDices(requiredCheck.DiceType, attributeBonus);
+            var proficiencyBonus = characterContext.AttributeScores.GetAttributeBonus(requiredCheck.Attribute);
+            var diceRolls = RollDices(requiredCheck.DiceType, requiredCheck.DiceCount);
             
-            var total = diceRolls.Sum() + requiredCheck.ValueToBeat;
+            var total = diceRolls.Sum() + proficiencyBonus;
+            var outcome = GetCheckOutcome(diceRolls, total, requiredCheck);
+            
+            results.Add(new CheckResult()
+            {
+                Check = requiredCheck,
+                TotalRolledValue = total,
+                Outcome = outcome,
+            });
+        }
+
+        return results;
+    }
+    
+    private static List<CheckResult> GetMonsterCheckResults(ProcessActionAdjudicationCommand command, MonsterContext monsterContext)
+    {
+        var results = new List<CheckResult>();
+        
+        if (command.ActionAdjudication.RequiredChecks.Count == 0)
+        {
+            return results;
+        }
+
+        foreach (var requiredCheck in command.ActionAdjudication.RequiredChecks)
+        {
+            var proficiencyBonus = monsterContext.GetProficiencyBonus();
+            var diceRolls = RollDices(requiredCheck.DiceType, requiredCheck.DiceCount);
+            
+            var total = diceRolls.Sum() + proficiencyBonus;
             var outcome = GetCheckOutcome(diceRolls, total, requiredCheck);
             
             results.Add(new CheckResult()
@@ -190,7 +260,7 @@ internal class ActionAdjudicationCommandHandler(
                 new CreatureStateUpdate()
                 {
                     CreatureId = Guid.Parse(x.CreatureId),
-                    HealthUpdate = x.HealthChange.HasValue ? x.HealthChange.ActualValue : null,
+                    HealthUpdate = x.DamageTaken.HasValue ? -x.DamageTaken.ActualValue : null,
                     Status = x.CreatureStatusChange.HasValue
                         ? x.CreatureStatusChange.ActualValue
                         : contextByCreatureId[Guid.Parse(x.CreatureId)].Status
@@ -208,45 +278,44 @@ internal class ActionAdjudicationCommandHandler(
                 new CreatureStateUpdate()
                 {
                     CreatureId = Guid.Parse(x.CreatureId),
-                    HealthUpdate = x.HealthChange.HasValue ? x.HealthChange.ActualValue : null,
+                    HealthUpdate = x.DamageTaken.HasValue ? -x.DamageTaken.ActualValue : null,
                     Status = x.CreatureStatusChange.HasValue
                         ? x.CreatureStatusChange.ActualValue
                         : contextByCreatureId[Guid.Parse(x.CreatureId)].Status
                 }));
         }
 
-        if (creatureStateUpdates.Count > 0)
+        if (creatureStateUpdates.Count == 0)
         {
             return;
         }
 
         await updateCreaturesStateCommandHandler.ExecuteAsync(
-            new UpdateCreaturesStateCommand() { StateUpdates = creatureStateUpdates });
+            new UpdateCreaturesStateCommand()
+            {
+                ExpeditionId = expeditionId,
+                StateUpdates = creatureStateUpdates
+            });
     }
 
-    private static string GetOutcomeMessage(
-        ProcessActionAdjudicationCommand command,
-        CharacterContext characterContext, 
+    private static string FormatOutcomeMessage(
+        List<CheckResult> checkResults,
+        string creatureName, 
         GeneratedActionOutcome actionOutcome)
     {
-        if (command.ActionAdjudication.RequiredChecks.Count == 0)
+        if (checkResults.Count == 0)
         {
-            return $"{characterContext.Name}'s action automatically succeed due to no checks being required.\n\n{actionOutcome.ActionOutcomeShortDescription}";
+            return $"{creatureName}'s action automatically succeed due to no checks being required.\n\n{actionOutcome.ActionOutcomeShortDescription}";
         }
         
         var sb = new StringBuilder();
-        sb.AppendLine($"{characterContext.Name} attempts to perform the action with the following checks:");
+        sb.AppendLine($"{creatureName} attempts to perform the action with the following checks:");
         sb.AppendLine();
 
-        foreach (var requiredCheck in command.ActionAdjudication.RequiredChecks)
+        foreach (var checkResult in checkResults)
         {
-            var attributeBonus = characterContext.AttributeScores.GetAttributeBonus(requiredCheck.Attribute);
-            var diceRolls = RollDices(requiredCheck.DiceType, attributeBonus);
             
-            var total = diceRolls.Sum() + requiredCheck.ValueToBeat;
-            var outcome = GetCheckOutcome(diceRolls, total, requiredCheck);
-            
-            sb.AppendLine($"{requiredCheck.Attribute} {requiredCheck.DiceCount}{requiredCheck.DiceType.ToDescription()} -> {total} - {outcome.ToDescription()}");
+            sb.AppendLine($"{checkResult.Check.Attribute} {checkResult.Check.DiceCount}{checkResult.Check.DiceType.ToDescription()} -> {checkResult.TotalRolledValue} - {checkResult.Outcome.ToDescription()}");
         }
 
         sb.AppendLine();
@@ -295,5 +364,12 @@ internal class ActionAdjudicationCommandHandler(
         }
         
         return rollResults;
+    }
+    
+    private struct ActionOutcome
+    {
+        public required GeneratedActionOutcome GeneratedOutcome { get; set; }
+        
+        public required string OutcomeMessageContent { get; set; }
     }
 }

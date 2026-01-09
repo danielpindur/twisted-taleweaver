@@ -352,7 +352,7 @@ internal class CreaturesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(
             INNER JOIN combat_creatures cc ON cc.creature_id = m.creature_id
             INNER JOIN creatures c ON c.creature_id = cc.creature_id
             WHERE m.expedition_id = @ExpeditionId
-                AND cc.max_health + (SELECT SUM(health_change) FROM creature_state_changes csc WHERE csc.creature_id = c.creature_id) > 0";
+                AND cc.max_health + COALESCE((SELECT SUM(health_change) FROM creature_state_changes csc WHERE csc.creature_id = c.creature_id), 0) > 0";
 
         return QueryAsync<MonsterDto>(sql, new
         {

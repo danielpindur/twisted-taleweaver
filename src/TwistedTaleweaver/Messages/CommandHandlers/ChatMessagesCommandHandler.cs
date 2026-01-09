@@ -1,8 +1,6 @@
-using System.Text;
 using TwistedTaleweaver.Api.Messages.Commands;
 using TwistedTaleweaver.Api.Messages.Entities;
 using TwistedTaleweaver.Core.Commands;
-using TwistedTaleweaver.Core.Common.Extensions;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
 using TwistedTaleweaver.DataAccess.Expeditions.Readers;
@@ -12,7 +10,7 @@ using TwistedTaleweaver.GameEngine.CommandHandlers;
 using TwistedTaleweaver.GameEngine.Entities.Enums;
 using TwistedTaleweaver.GameEngine.Events;
 using TwistedTaleweaver.Integration.OpenAi.Messages.Entities;
-using TwistedTaleweaver.Integration.OpenAi.Messages.Entities.Enums;
+using TwistedTaleweaver.Messages.Helpers;
 using TwistedTaleweaver.Messages.Mappers;
 
 namespace TwistedTaleweaver.Messages.CommandHandlers;
@@ -31,18 +29,26 @@ internal class AddNarrativeMessageCommand
     public required string Content { get; set; }
 }
 
-internal class AddActionAdjudicationMessageCommand
+internal class AddCharacterActionAdjudicationMessageCommand
 {
     public Guid ExpeditionId { get; set; }
     
-    public required GeneratedActionAdjudication ActionAdjudication { get; set; }
+    public required GeneratedCharacterActionAdjudication ActionAdjudication { get; set; }
+}
+
+internal class AddMonsterActionAdjudicationMessageCommand
+{
+    public Guid ExpeditionId { get; set; }
+    
+    public required GeneratedMonsterActionAdjudication ActionAdjudication { get; set; }
 }
 
 internal interface IInternalChatMessagesCommandHandler : 
     IChatMessagesCommandHandler,
     ICommandHandler<AddSystemMessageCommand, ChatMessage>,
     ICommandHandler<AddNarrativeMessageCommand, ChatMessage>,
-    ICommandHandler<AddActionAdjudicationMessageCommand, ChatMessage>
+    ICommandHandler<AddCharacterActionAdjudicationMessageCommand, ChatMessage>,
+    ICommandHandler<AddMonsterActionAdjudicationMessageCommand, ChatMessage>
 {
 }
 
@@ -98,9 +104,20 @@ internal class ChatMessagesCommandHandler(
         return messageDto.ToEntity();
     }
 
-    public async Task<ChatMessage> ExecuteAsync(AddActionAdjudicationMessageCommand command)
+    public async Task<ChatMessage> ExecuteAsync(AddCharacterActionAdjudicationMessageCommand command)
     {
-        var content = FormatActionAdjudicationMessage(command.ActionAdjudication);
+        var content = ActionAdjudicationMessageHelper.FormatActionAdjudicationMessage(command.ActionAdjudication);
+        
+        var messageDto = await messagesWriter.AddctionAdjudicationMessage(command.ExpeditionId, content);
+
+        await kafkaEventPublisher.PublishAsync(messageDto.ToMessageCreatedEvent());
+        
+        return messageDto.ToEntity();
+    }
+    
+    public async Task<ChatMessage> ExecuteAsync(AddMonsterActionAdjudicationMessageCommand command)
+    {
+        var content = ActionAdjudicationMessageHelper.FormatActionAdjudicationMessage(command.ActionAdjudication);
         
         var messageDto = await messagesWriter.AddctionAdjudicationMessage(command.ExpeditionId, content);
 
@@ -109,77 +126,5 @@ internal class ChatMessagesCommandHandler(
         return messageDto.ToEntity();
     }
 
-    private static string FormatActionAdjudicationMessage(GeneratedActionAdjudication adjudication)
-    {
-        var sb = new StringBuilder();
-
-        sb.AppendLine(adjudication.IsActionPossible
-            ? "**Action Possible:** ✅"
-            : "**Action Possible:** ❌");
-
-        string riskEmoji = adjudication.RiskLevel switch
-        {
-            ActionRiskLevel.Trivial => "🟢",
-            ActionRiskLevel.Low => "🟡",
-            ActionRiskLevel.Moderate => "🟠",
-            ActionRiskLevel.High => "🔴",
-            ActionRiskLevel.Extreme => "💀",
-            _ => ""
-        };
-        sb.AppendLine($"**Risk Level:** {riskEmoji} {adjudication.RiskLevel.ToString().ToUpper()}");
-        sb.AppendLine();
-
-        if (adjudication.Reasoning.HasValue)
-        {
-            sb.AppendLine("**Reasoning:**");
-            sb.AppendLine($"*{adjudication.Reasoning.ActualValue}*");
-            sb.AppendLine();
-        }
-
-        if (adjudication.RequiredChecks.Count > 0)
-        {
-            sb.AppendLine("**Required Checks:**");
-            foreach (var check in adjudication.RequiredChecks)
-            {
-                sb.AppendLine($"**{check.Attribute} ({check.Difficulty} - {check.NumberOfDicesToRoll}{check.DiceToRoll.ToDescription()}):** *{check.Justification}*");
-            }
-            sb.AppendLine();
-        }
-
-        if (adjudication.AppliedTraits.Count > 0)
-        {
-            sb.AppendLine("**Applied Traits:**");
-            foreach (var trait in adjudication.AppliedTraits)
-            {
-                sb.AppendLine($"✨ **{trait.TraitName}:** {trait.EffectSummary}");
-            }
-            sb.AppendLine();
-        }
-        
-        if (adjudication.PotentialConsequence.HasValue)
-        {
-            var consequence = adjudication.PotentialConsequence.ActualValue;
-            
-            string severityEmoji = consequence.Severity switch
-            {
-                ConsequenceSeverity.Minor => "🟡",
-                ConsequenceSeverity.Moderate => "🟠",
-                ConsequenceSeverity.Severe => "💀",
-                _ => ""
-            };
-
-            
-            sb.AppendLine("**Potential Consequence:**");
-            sb.AppendLine($"**Severity:** {severityEmoji} {consequence.Severity.ToString().ToUpper()}");
-            sb.AppendLine($"**Description:** *{consequence.Description}*");
-            sb.AppendLine();
-        }
-
-        if (!adjudication.IsActionPossible)
-        {
-            sb.AppendLine("⚠️ *Choose your next action wisely… another attempt may yet succeed if you prepare carefully.*");
-        }
-
-        return sb.ToString();
-    }
+    
 }

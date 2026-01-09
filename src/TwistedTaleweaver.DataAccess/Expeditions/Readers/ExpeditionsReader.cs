@@ -1,4 +1,5 @@
 using TwistedTaleweaver.Api.Expeditions.Entities;
+using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Pagination;
 using TwistedTaleweaver.DataAccess.Expeditions.Dtos;
@@ -11,13 +12,14 @@ public interface IExpeditionsReader
 
     Task<bool> ExistsAsync(Guid expeditionId);
 
-    Task<IEnumerable<ExpeditionWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize);
+    Task<IEnumerable<ExpeditionWithCount>> GetPageAsync(ExpeditionSearchQuery query);
     
     Task<IEnumerable<ExpeditionStatusDto>> GetStatusesAsync(List<Guid> expeditionIds);
+    
+    Task<ExpeditionStatistics?> GetStatisticsAsync(ExpeditionStatisticsQuery query);
 }
 
-internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
-    DatabaseAccessor(unitOfWorkProvider), IExpeditionsReader
+internal class ExpeditionsReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IExpeditionsReader
 {
     public Task<Expedition?> GetByIdAsync(Guid expeditionId)
     {
@@ -55,7 +57,7 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
         });
     }
 
-    public Task<IEnumerable<ExpeditionWithCount>> GetPageAsync(Guid userId, int pageNumber, int pageSize)
+    public Task<IEnumerable<ExpeditionWithCount>> GetPageAsync(ExpeditionSearchQuery query)
     {
         const string sql = @"
             SELECT 
@@ -71,15 +73,28 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
                 e.created_by_user_id,
                 COUNT(*) OVER() AS total_count
             FROM expeditions e
-            WHERE e.created_by_user_id = @UserId OR EXISTS(SELECT 1 FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id AND ep.user_id = @UserId)
+            WHERE e.status_id = ANY(@Statuses)
+                AND (@Difficulty IS NULL OR e.difficulty_id = ANY(@Difficulty))
+                AND (@Outcome IS NULL OR e.outcome_id = ANY(@Outcome))
+                AND (@SearchPattern IS NULL OR e.expedition_name LIKE @SearchPattern OR e.description LIKE @SearchPattern)
+                AND (e.created_by_user_id = @UserId 
+                    OR EXISTS(
+                        SELECT 1 
+                        FROM expedition_participants ep
+                        WHERE ep.expedition_id = e.expedition_id AND ep.user_id = @UserId
+                    ))
             ORDER BY e.created_at DESC
             LIMIT @PageSize OFFSET @Offset";
 
         return QueryAsync<ExpeditionWithCount>(sql, new
         {
-            UserId = userId,
-            PageSize = pageSize,
-            Offset = PaginationHelper.CalculateOffset(pageNumber, pageSize)
+            query.UserId,
+            Statuses = query.Statuses.Select(x => (int)x).ToList(),
+            query.Difficulty,
+            query.Outcome,
+            SearchPattern = query.SearchText is not null ? $"%{query.SearchText}%" : null,
+            query.PageSize,
+            Offset = PaginationHelper.CalculateOffset(query.PageNumber, query.PageSize)
         });
     }
 
@@ -95,6 +110,36 @@ internal class ExpeditionsReader(IUnitOfWorkProvider unitOfWorkProvider) :
         return QueryAsync<ExpeditionStatusDto>(sql, new
         {
             ExpeditionIds = expeditionIds
+        });
+    }
+
+    public Task<ExpeditionStatistics?> GetStatisticsAsync(ExpeditionStatisticsQuery query)
+    {
+        const string sql = @"
+            SELECT 
+                COUNT(*) FILTER (WHERE e.outcome_id = 1) AS successful_expeditions,
+                COUNT(*) FILTER (WHERE e.outcome_id = 2) AS failed_expeditions,
+                COUNT(*) AS total_expeditions
+            FROM expeditions e
+            WHERE e.status_id = ANY(@Statuses)
+                AND (@Difficulty IS NULL OR e.difficulty_id = ANY(@Difficulty))
+                AND (@Outcome IS NULL OR e.outcome_id = ANY(@Outcome))
+                AND (@SearchPattern IS NULL OR e.expedition_name LIKE @SearchPattern OR e.description LIKE @SearchPattern)
+                AND (e.created_by_user_id = @UserId 
+                    OR EXISTS(
+                        SELECT 1 
+                        FROM expedition_participants ep 
+                        WHERE ep.expedition_id = e.expedition_id AND ep.user_id = @UserId
+                    ))
+            GROUP BY e.expedition_id";
+
+        return QuerySingleOrDefaultAsync<ExpeditionStatistics>(sql, new
+        {
+            query.UserId,
+            Statuses = query.Statuses.Select(x => (int)x).ToList(),
+            query.Difficulty,
+            query.Outcome,
+            SearchPattern = query.SearchText is not null ? $"%{query.SearchText}%" : null
         });
     }
 }

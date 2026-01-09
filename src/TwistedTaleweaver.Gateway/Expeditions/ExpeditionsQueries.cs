@@ -3,6 +3,7 @@ using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.Gateway.Auth;
 using TwistedTaleweaver.Gateway.Common.Pagination.Contracts;
 using TwistedTaleweaver.Gateway.Common.Pagination.Mappers;
+using TwistedTaleweaver.Gateway.Expeditions.Contracts;
 using TwistedTaleweaver.Gateway.Expeditions.Mappers;
 using ExpeditionContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.Expedition;
 
@@ -28,8 +29,8 @@ public static class ExpeditionsQueries
 
     [GraphQLDescription("Retrieves a paginated list of expeditions.")]
     [Authorize]
-    public static async Task<OffsetPage<ExpeditionContract>> GetExpeditionsAsync(
-        OffsetInput input,
+    public static async Task<ExpeditionOffsetPage> GetExpeditionsAsync(
+        ExpeditionSearchInput input,
         [Service] IExpeditionSearchQueryHandler expeditionSearchQueryHandler,
         [Service] IUserProvider userProvider)
     {
@@ -39,10 +40,14 @@ public static class ExpeditionsQueries
             new ExpeditionSearchQuery()
             {
                 UserId = userId,
+                Statuses = input.Statuses,
+                Difficulty = input.Difficulty,
+                Outcome = input.Outcome,
+                SearchText = input.SearchText,
                 PageNumber = input.Page,
                 PageSize = input.PageSize
             });
 
-        return paginatedExpeditions.ToContract(ExpeditionMapper.ToContract);
+        return paginatedExpeditions.ToContract(input);
     }
 }

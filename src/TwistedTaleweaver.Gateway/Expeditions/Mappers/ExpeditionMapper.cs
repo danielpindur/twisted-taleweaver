@@ -1,9 +1,16 @@
 using TwistedTaleweaver.Api.Expeditions.Entities;
 using TwistedTaleweaver.Api.Expeditions.Events;
+using TwistedTaleweaver.Core.Pagination;
 using TwistedTaleweaver.Gateway.Creatures.Mappers;
+using Expedition = TwistedTaleweaver.Api.Expeditions.Entities.Expedition;
 using ExpeditionContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.Expedition;
+using ExpeditionParticipant = TwistedTaleweaver.Api.Expeditions.Entities.ExpeditionParticipant;
 using ExpeditionParticipantContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionParticipant;
+using ExpeditionState = TwistedTaleweaver.Api.Expeditions.Entities.ExpeditionState;
 using ExpeditionStateContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionState;
+using ExpeditionStatisticsContract = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionStatistics;
+using ExpeditionOffsetPage = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionOffsetPage;
+using ExpeditionSearchInput = TwistedTaleweaver.Gateway.Expeditions.Contracts.ExpeditionSearchInput;
 
 namespace TwistedTaleweaver.Gateway.Expeditions.Mappers;
 
@@ -83,6 +90,28 @@ internal static class ExpeditionMapper
             Status = source.Status,
             ActiveCreatureId = source.ActiveCreatureId,
             Monsters = source.Monsters.ToContracts()
+        };
+    }
+
+    public static ExpeditionOffsetPage ToContract(this PaginatedResult<Expedition> source, ExpeditionSearchInput input)
+    {
+        return new ExpeditionOffsetPage()
+        {
+            Items = source.Items.Select(ToContract).ToList(),
+            Page = source.PageNumber,
+            PageSize = source.PageSize,
+            TotalCount = source.TotalItems,
+            ExpeditionSearchInput = input
+        };
+    }
+
+    public static ExpeditionStatisticsContract ToContract(this ExpeditionStatistics source)
+    {
+        return new ExpeditionStatisticsContract()
+        {
+            TotalExpeditions = source.TotalExpeditions,
+            SuccessfulExpeditions = source.SuccessfulExpeditions,
+            FailedExpeditions = source.FailedExpeditions,
         };
     }
 }

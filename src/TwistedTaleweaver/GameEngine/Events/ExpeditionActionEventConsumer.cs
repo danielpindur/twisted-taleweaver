@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using TwistedTaleweaver.Api.Expeditions.Queries;
 using TwistedTaleweaver.Api.Messages.Entities.Enums;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
@@ -56,6 +55,11 @@ internal class ExpeditionActionEventConsumer(
         if (@event.ExpeditionEventType == ExpeditionEventType.ActionAdjudicationProcessed)
         {
             return ProcessActionAdjudicationProcessed(@event);
+        }
+
+        if (@event.ExpeditionEventType == ExpeditionEventType.MonsterActionRequested)
+        {
+            return ProcessMonsterActionRequested(@event);
         }
 
         logger.LogError("Unsupported expedition action event type: {EventType}", @event.ExpeditionEventType);
@@ -141,10 +145,8 @@ internal class ExpeditionActionEventConsumer(
             throw new InvalidOperationException($"Message with ID {actionMessageId} is not a valid action message.");
         }
         
-        var previousNarrativeMessages = await messagesReader.GetContents(
-            @event.ExpeditionId, 
-            MessageType.Narrative,
-            actionMessageId);
+        var previousNarrativeMessages = await messagesReader
+            .GetContents(@event.ExpeditionId, MessageType.Narrative);
 
         var expeditionContext = await expeditionContextQueryHandler.ExecuteAsync(
             new ExpeditionContextQuery() { ExpeditionId = @event.ExpeditionId });
@@ -158,7 +160,7 @@ internal class ExpeditionActionEventConsumer(
         var characterPerformingAction = characterContexts.Single(x => x.CreatureId == actionMessage.SenderCharacterId);
         
         var actionAdjudication = await actionAdjudicationGenerationAdapter.GenerateAsync(
-            new ActionAdjudicationGenerationCommand()
+            new CharacterActionAdjudicationGenerationCommand()
             {
                 ActionText = actionMessage.Content,
                 CharacterPerformingAction = characterPerformingAction,
@@ -171,7 +173,7 @@ internal class ExpeditionActionEventConsumer(
         await using var scope = new UnitOfWorkScope();
         
         var message = await chatMessagesCommandHandler.ExecuteAsync(
-            new AddActionAdjudicationMessageCommand()
+            new AddCharacterActionAdjudicationMessageCommand()
             {
                 ActionAdjudication = actionAdjudication, 
                 ExpeditionId = @event.ExpeditionId
@@ -213,8 +215,6 @@ internal class ExpeditionActionEventConsumer(
     
     private async Task ProcessActionAdjudicationProcessed(ExpeditionActionEvent @event)
     {
-        var adjudicationSystemMessageId = @event.SourceMessageId ?? throw new InvalidOperationException("SourceMessageId is required for ActionAdjudication events.");
-        
         var expeditionContext = await expeditionContextQueryHandler.ExecuteAsync(
             new ExpeditionContextQuery() { ExpeditionId = @event.ExpeditionId });
 
@@ -224,10 +224,8 @@ internal class ExpeditionActionEventConsumer(
         var monsterContexts = await monsterContextsQueryHandler.ExecuteAsync(
             new GetMonsterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
 
-        var previousNarrativeMessages = await messagesReader.GetContents(
-            @event.ExpeditionId, 
-            MessageType.Narrative,
-            adjudicationSystemMessageId);
+        var previousNarrativeMessages = await messagesReader
+            .GetContents(@event.ExpeditionId, MessageType.Narrative);
         
         var actionMessagesSinceLastNarration = await messagesReader.GetContentsSinceLastNarrativeAsync(@event.ExpeditionId);
         
@@ -259,6 +257,57 @@ internal class ExpeditionActionEventConsumer(
         };
         await kafkaEventPublisher.PublishAsync(action);
         
+        await scope.CompleteAsync();
+    }
+    
+    private async Task ProcessMonsterActionRequested(ExpeditionActionEvent @event)
+    {
+        var previousNarrativeMessages = await messagesReader
+            .GetContents(@event.ExpeditionId, MessageType.Narrative);
+
+        var expeditionContext = await expeditionContextQueryHandler.ExecuteAsync(
+            new ExpeditionContextQuery() { ExpeditionId = @event.ExpeditionId });
+        
+        var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
+            new GetCharacterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
+
+        var monsterContexts = await monsterContextsQueryHandler.ExecuteAsync(
+            new GetMonsterContextsByExpeditionQuery() { ExpeditionId = @event.ExpeditionId });
+        
+        var turnOrder = await turnOrdersReader.GetByExpeditionAsync(@event.ExpeditionId);
+
+        var monsterPerformingAction = monsterContexts.Single(x => x.CreatureId == turnOrder.CurrentActorId);
+        
+        var actionAdjudication = await actionAdjudicationGenerationAdapter.GenerateAsync(
+            new MonsterActionAdjudicationGenerationCommand()
+            {
+                Expedition = expeditionContext,
+                PlayerCharactersInExpedition = characterContexts,
+                MonsterPerformingAction = monsterPerformingAction,
+                OtherAliveMonsters = monsterContexts.Where(x => x.CreatureId != monsterPerformingAction.CreatureId).ToList(),
+                PreviousNarrativeTexts = previousNarrativeMessages,
+            });
+     
+        await using var scope = new UnitOfWorkScope();
+
+        var message = await chatMessagesCommandHandler.ExecuteAsync(
+            new AddMonsterActionAdjudicationMessageCommand()
+            {
+                ActionAdjudication = actionAdjudication, 
+                ExpeditionId = @event.ExpeditionId
+            });
+
+        var action = new ExpeditionActionEvent()
+        {
+            ExpeditionId = @event.ExpeditionId,
+            ExpeditionEventSource = ExpeditionEventSource.System,
+            ExpeditionEventType = ExpeditionEventType.AllowedActionAdjudicationGenerated,
+            SourceMessageId = message.MessageId,
+            ActionAdjudication = actionAdjudication.ToActionAdjudication(monsterPerformingAction.CreatureId)
+        };
+
+        await kafkaEventPublisher.PublishAsync(action);
+
         await scope.CompleteAsync();
     }
 }
