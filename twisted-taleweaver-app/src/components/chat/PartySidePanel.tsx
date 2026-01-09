@@ -108,7 +108,8 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                       </div>
                       <Progress 
                         value={getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)} 
-                        className={`h-2 ${getHealthColor(getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
+                        className={`h-2`}
+                        barColor={getHealthColor(getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}
                       />
                     </div>
 
@@ -170,7 +171,8 @@ export const PartySidePanel = ({ participants, expeditionState, expeditionOwner,
                         </div>
                         <Progress 
                           value={getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth)}
-                          className={`h-3 ${getHealthColor(getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}`}
+                          className={`h-3`}
+                          barColor={getHealthColor(getHealthPercentage(getCharacterCurrentHealth(participant.character, expeditionState), participant.character.maxHealth))}
                         />
                       </div>
 

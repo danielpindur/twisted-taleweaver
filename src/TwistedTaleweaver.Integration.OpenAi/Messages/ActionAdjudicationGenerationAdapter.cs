@@ -88,7 +88,8 @@ internal class ActionAdjudicationGenerationAdapter(IEntityGenerator entityGenera
 
         return await entityGenerator.GenerateEntityAsync<GeneratedCharacterActionAdjudication>(
             sb.ToString(),
-            TwistedTaleweaverContextHelper.ActionAdjudicationContext);
+            TwistedTaleweaverContextHelper.CharacterActionAdjudicationContext,
+            RandomnessSettingsHelper.GenerationSettings);
     }
     
     public async Task<GeneratedMonsterActionAdjudication> GenerateAsync(MonsterActionAdjudicationGenerationCommand command)
@@ -138,6 +139,7 @@ internal class ActionAdjudicationGenerationAdapter(IEntityGenerator entityGenera
 
         return await entityGenerator.GenerateEntityAsync<GeneratedMonsterActionAdjudication>(
             sb.ToString(),
-            TwistedTaleweaverContextHelper.ActionAdjudicationContext);
+            TwistedTaleweaverContextHelper.MonsterActionAdjudicationContext,
+            RandomnessSettingsHelper.GenerationSettings);
     }
 }

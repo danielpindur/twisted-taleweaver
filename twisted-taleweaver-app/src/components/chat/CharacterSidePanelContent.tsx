@@ -43,7 +43,8 @@ export const CharacterSidePanelContent = ({ character, expeditionState }: Charac
             </div>
             <Progress 
               value={getHealthPercentage(getCharacterCurrentHealth(character, expeditionState), character.maxHealth)}
-              className={`h-2 ${getHealthColor(getHealthPercentage(getCharacterCurrentHealth(character, expeditionState), character.maxHealth))}`}
+              className={`h-2`}
+              barColor={getHealthColor(getHealthPercentage(getCharacterCurrentHealth(character, expeditionState), character.maxHealth))}
             />
           </div>
           

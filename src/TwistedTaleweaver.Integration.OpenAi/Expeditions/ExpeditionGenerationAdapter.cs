@@ -63,7 +63,9 @@ internal class ExpeditionGenerationAdapter(IEntityGenerator entityGenerator) : I
         sb.Append(". The generated Name must have less then 45 characters, the generated Description must have less then 350 characters. I will be very disappointed if you generate something longer.");
 
         var generatedExpedition = await entityGenerator.GenerateEntityAsync<GeneratedExpedition>(
-            sb.ToString(), TwistedTaleweaverContextHelper.ExpeditionGenerationContext);
+            sb.ToString(), 
+            TwistedTaleweaverContextHelper.ExpeditionGenerationContext,
+            RandomnessSettingsHelper.GenerationSettings);
 
         if (name is not null)
         {

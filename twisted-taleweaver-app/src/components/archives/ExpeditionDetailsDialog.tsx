@@ -210,53 +210,89 @@ export function ExpeditionDetailsDialog({ expeditionId, open, onOpenChange }: Ex
             </Card>}
 
             {/* Chronicle of Key Events */}
-            {<Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="font-cinzel text-lg text-primary flex items-center gap-2">
-                  <Scroll className="h-5 w-5" />
+            <details className="group bg-card border border-border rounded-lg">
+              <summary
+                className="
+                  cursor-pointer list-none
+                  flex items-center gap-2
+                  px-6 py-4
+                  hover:bg-muted/30
+                  transition
+                "
+              >
+                <Scroll className="h-5 w-5 text-primary" />
+
+                <span className="font-cinzel text-lg text-primary flex-1">
                   Chronicle of Events
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {data.expeditionById.narrativeMessages.map((message, index) => (
-                    <div key={index} className="flex gap-3">
-                      <div className="flex-1 pb-4">
-                        <div className="text-sm text-muted-foreground font-crimson mb-1">
-                          {new Date(message.timestamp).toLocaleString()}
-                        </div>
-                        <div className="font-crimson text-foreground">
-                          {message.content}
-                        </div>
-                      </div>
+                </span>
+
+                <span className="text-muted-foreground transition-transform group-open:rotate-90">
+                  ▶
+                </span>
+              </summary>
+
+              <div className="px-6 pb-6 pt-2 space-y-4">
+                {data.expeditionById.narrativeMessages.map((message, index) => (
+                  <div key={index}>
+                    <div className="text-sm text-muted-foreground font-crimson mb-1">
+                      {new Date(message.timestamp).toLocaleString()}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>}
+                    <div className="font-crimson text-foreground">
+                      {message.content}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </details>
+
 
             {/* Enemies Encountered */}
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="font-cinzel text-lg text-primary flex items-center gap-2">
-                  <Sword className="h-5 w-5" />
+            <details className="group bg-card border border-border rounded-lg">
+              {/* Header */}
+              <summary
+                className="
+                  cursor-pointer list-none
+                  flex items-center gap-2
+                  px-6 py-4
+                  hover:bg-muted/30
+                  transition
+                "
+              >
+                <Sword className="h-5 w-5 text-primary" />
+
+                <span className="font-cinzel text-lg text-primary flex-1">
                   Enemies Encountered
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </span>
+
+                <span
+                  className="
+                    text-muted-foreground
+                    transition-transform
+                    group-open:rotate-90
+                  "
+                >
+                  ▶
+                </span>
+              </summary>
+
+              {/* Content */}
+              <div className="px-6 pb-6 pt-2">
                 <div className="space-y-3">
                   {data.expeditionById.state.monsters.map((monster, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="flex items-start gap-3 p-3 rounded-lg bg-background border border-border"
                     >
-                      <Skull className={`h-5 w-5 mt-0.5 ${getMonsterSurvived(monster) ? 'text-destructive' : 'text-health'}`} />
+                      <Skull
+                        className={`h-5 w-5 mt-0.5 ${
+                          getMonsterSurvived(monster)
+                            ? "text-destructive"
+                            : "text-health"
+                        }`}
+                      />
                       <div className="flex-1">
                         <div className="font-cinzel font-semibold flex items-center gap-2">
                           {monster.name}
-                          <Badge variant={getMonsterSurvived(monster) ? "destructive" : "default"} className="text-xs">
-                            {getMonsterSurvived(monster)? "Survived" : "Defeated"}
-                          </Badge>
                         </div>
                         <div className="text-sm text-muted-foreground font-crimson mt-1">
                           {monster.description}
@@ -265,8 +301,9 @@ export function ExpeditionDetailsDialog({ expeditionId, open, onOpenChange }: Ex
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </details>
+
 
             {/* Legacy */}
             <Card className="bg-card border-border">

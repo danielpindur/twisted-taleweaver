@@ -1,9 +1,9 @@
 using System.Text;
-using System.Text.Json;
 using TwistedTaleweaver.Integration.OpenAi.Creatures.Entities;
 using TwistedTaleweaver.Integration.OpenAi.Expeditions.Entities;
 using TwistedTaleweaver.Integration.OpenAi.Generators;
 using TwistedTaleweaver.Integration.OpenAi.Messages.Entities;
+using TwistedTaleweaver.Integration.OpenAi.Messages.Extensions;
 
 namespace TwistedTaleweaver.Integration.OpenAi.Messages;
 
@@ -33,47 +33,65 @@ internal class NarrativeGenerationAdapter(IEntityGenerator entityGenerator) : IN
     {
         var sb = new StringBuilder();
 
-        sb.Append("Generate the next narrative message for a twisted expedition. ");
-        sb.Append($"Expedition Name: \"{command.Expedition.Name}\". ");
-        sb.Append($"Expedition Description: \"{command.Expedition.Description}\". ");
-        sb.Append($"Expedition Difficulty: \"{command.Expedition.Difficulty.ToString()}\". ");
+        // Instruction for AI
+        sb.AppendLine("You are Twisted Taleweaver, narrating only the consequences of recent actions.");
+        sb.AppendLine("Focus on the environment and external threats. Do not summarize the expedition or repeat prior narration.");
 
-        sb.Append("Player controlled characters in the expedition: ");
-        sb.Append(JsonSerializer.Serialize(command.Characters));
-        
-        sb.Append("Monsters currently alive, that the expeditioners are fighting against:\n");
-        sb.Append(JsonSerializer.Serialize(command.AliveMonsters));
-        sb.Append("\n");
-        
-        var firstActionText = true;
-        foreach (var actionText in command.ActionMessagesSinceLastNarration)
-        {
-            if (firstActionText)
-            {
-                firstActionText = false;
-                sb.Append("Actions since last narrative generation to generate the narrative for: ");
-            }
-            
-            sb.Append($"\"{actionText}\"; ");
-        }
-
+        // Include expedition context only if first message
         if (command.IsFirstNarrativeText)
         {
-            sb.Append("This is the first narrative message. ");
-            sb.Append("Set the scene, introduce the expedition, describe the environment and mood, and hook the adventurers immediately. ");
+            sb.AppendLine($"Expedition Name: {command.Expedition.Name}");
+            sb.AppendLine($"Theme: {command.Expedition.Description}");
+            sb.AppendLine($"Difficulty: {command.Expedition.Difficulty}");
+            sb.AppendLine();
         }
-        
-        sb.Append("The narrative should continue the story in a grotesque, darkly comedic, and theatrical style. ");
-        sb.Append("Include vivid descriptions, twisted events, and shocking or absurd details. ");
-        sb.Append("Do not break character or tone. ");
-        sb.Append("Keep the text concise, under 350 characters. ");
-        sb.Append("Do not repeat previous texts, and focus on advancing the story.");
-        sb.Append("Narrative rules:\n- The environment, threats, and events are external to the party.\n- Player-controlled characters are already present and aware.\n- Never introduce a player character as something newly encountered.\n- Never have a player character beckon, warn, guide, or lure the party.\n- Focus on surroundings, omens, and hostile or uncanny non-player forces.\n");
+
+        // Present characters and monsters briefly
+        sb.AppendLine("Characters currently present:");
+        sb.AppendCharacters(command.Characters);
+        sb.AppendLine();
+        sb.AppendLine("Hostile forces currently active:");
+        sb.AppendMonsters(command.AliveMonsters);
+        sb.AppendLine();
+
+        // Actions since last narration
+        sb.AppendLine("Recent actions and their mechanical outcomes (must be transformed into cruel consequences):");
+        foreach (var action in command.ActionMessagesSinceLastNarration)
+        {
+            sb.AppendLine($"- {action}");
+        }
+        sb.AppendLine();
+
+        // Previous narrative texts to avoid repetition
+        if (!command.IsFirstNarrativeText)
+        {
+            sb.AppendLine("Previous narrative texts (do not repeat or summarize):");
+            foreach (var previousNarrative in command.PreviousNarrativeTexts)
+            {
+                sb.AppendLine($"- {previousNarrative}");
+            }
+            sb.AppendLine();
+        }
+
+        // Explicit narrative instructions
+        sb.AppendLine("Narrative instructions:");
+        sb.AppendLine("- Write only 2–4 sentences.");
+        sb.AppendLine("- Do not ask questions or offer hope.");
+        sb.AppendLine("- Show grotesque, cruel, or absurd consequences of the actions.");
+        sb.AppendLine("- Base narrative strictly on recent actions and their outcomes.");
+        sb.AppendLine("- Do not summarize battles or repeat prior narration.");
+        sb.AppendLine("- Maximum 350 characters.");
+        sb.AppendLine("- Mock suffering and escalate dread.");
+
+        if (!command.IsFirstNarrativeText)
+        {
+            sb.AppendLine("- Do not repeat expedition introduction.");
+        }
 
         var generatedMessage = await entityGenerator.GenerateEntityAsync<GeneratedMessage>(
             sb.ToString(),
             TwistedTaleweaverContextHelper.NarrationContext,
-            command.PreviousNarrativeTexts);
+            RandomnessSettingsHelper.NarrativeSettings);
 
         return generatedMessage;
     }

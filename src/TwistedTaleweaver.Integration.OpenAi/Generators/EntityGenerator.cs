@@ -8,7 +8,32 @@ namespace TwistedTaleweaver.Integration.OpenAi.Generators;
 
 internal interface IEntityGenerator
 {
-    Task<TEntity> GenerateEntityAsync<TEntity>(string prompt, string systemContext, IEnumerable<string>? previousAssistantMessages = null);
+    Task<TEntity> GenerateEntityAsync<TEntity>(
+        string prompt,
+        string systemContext,
+        RandomnessSettings randomnessSettings);
+}
+
+internal class RandomnessSettings
+{
+    public float Temperature { get; set; }
+    
+    public float TopP { get; set; }
+}
+
+internal static class RandomnessSettingsHelper
+{
+    public static RandomnessSettings NarrativeSettings => new()
+    {
+        Temperature = 0.5f, // reduced randomness for consistent consequence-driven narration
+        TopP = 0.7f
+    };
+
+    public static RandomnessSettings GenerationSettings => new()
+    {
+        Temperature = 0.7f,
+        TopP = 0.8f
+    };
 }
 
 internal class EntityGenerator(OpenAIResponseClient responseClient) : IEntityGenerator
@@ -16,7 +41,7 @@ internal class EntityGenerator(OpenAIResponseClient responseClient) : IEntityGen
     public async Task<TEntity> GenerateEntityAsync<TEntity>(
         string prompt,
         string systemContext,
-        IEnumerable<string>? previousAssistantMessages = null)
+        RandomnessSettings randomnessSettings)
     {
         var settings = new SystemTextJsonSchemaGeneratorSettings()
         {
@@ -37,20 +62,15 @@ internal class EntityGenerator(OpenAIResponseClient responseClient) : IEntityGen
                     BinaryData.FromString(schema.ToJson(Formatting.None)),
                     jsonSchemaIsStrict: true)
             },
-            Temperature = 0.7f,
-            TopP = 0.8f
+            Temperature = randomnessSettings.Temperature,
+            TopP = randomnessSettings.TopP
         };
 
         var responseItems = new List<ResponseItem>
         {
-            ResponseItem.CreateUserMessageItem(prompt),
             ResponseItem.CreateSystemMessageItem(systemContext),
+            ResponseItem.CreateUserMessageItem(prompt),
         };
-
-        if (previousAssistantMessages is not null)
-        {
-            responseItems.AddRange(previousAssistantMessages.Select(x => ResponseItem.CreateAssistantMessageItem(x)));
-        }
 
         var response = await responseClient.CreateResponseAsync(responseItems, options);
 

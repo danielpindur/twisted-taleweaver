@@ -149,15 +149,27 @@ internal class ActionAdjudicationCommandHandler(
 
     private async Task UpdateExpeditionState(Guid expeditionId, GeneratedActionOutcome actionOutcome)
     {
-        if (!actionOutcome.ExpeditionFinishInfo.HasValue || 
-            !actionOutcome.ExpeditionFinishInfo.ActualValue.ExpeditionHasReachedAnEnd)
+        if (!actionOutcome.ExpeditionFinishInfo.HasValue)
         {
             return;
         }
-
-        var outcome = actionOutcome.ExpeditionFinishInfo.ActualValue.OutcomeOfAFinishedExpedition;
+        
         var lessonLearned = actionOutcome.ExpeditionFinishInfo.ActualValue.ShortLessonLearnedFromTheExpedition;
 
+        var characterContexts = await characterContextsQueryHandler.ExecuteAsync(new GetCharacterContextsByExpeditionQuery() { ExpeditionId = expeditionId });
+
+        if (!characterContexts.Any(x => x.CurrentHealth > 0))
+        {
+            await expeditionsWriter.CompleteAsync(expeditionId, ExpeditionOutcome.Failure, lessonLearned);
+        }
+        
+        if (!actionOutcome.ExpeditionFinishInfo.ActualValue.ExpeditionHasReachedAnEnd)
+        {
+            return;
+        }
+        
+        var outcome = actionOutcome.ExpeditionFinishInfo.ActualValue.OutcomeOfAFinishedExpedition;
+        
         await expeditionsWriter.CompleteAsync(expeditionId, outcome, lessonLearned);
     }
 

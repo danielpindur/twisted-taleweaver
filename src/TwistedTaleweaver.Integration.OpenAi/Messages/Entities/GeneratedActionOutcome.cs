@@ -28,9 +28,9 @@ public class GeneratedActionOutcome
     public required string ActionOutcomeShortDescription { get; set; }
     
     /// <summary>
-    /// Updates to the state of the expedition as a result of the action
+    /// Information about the expedition's completion status as a result of the action
     /// </summary>
-    public required Optional<ExpeditionStateUpdate> ExpeditionStateUpdate { get; set; }
+    public required Optional<ExpeditionFinishInfo> ExpeditionFinishInfo { get; set; }
     
     /// <summary>
     /// Monsters that have been summoned or generated as a result of the action
@@ -40,17 +40,41 @@ public class GeneratedActionOutcome
 
 public class CreatureStateUpdate
 {
+    /// <summary>
+    /// Identifier of the creature whose state is being updated
+    /// </summary>
     [RegularExpression(@"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")]
     public required string CreatureId { get; set; }
     
+    /// <summary>
+    /// Amount of damage taken by the creature as a result of the action
+    /// </summary>
     public required Optional<int> DamageTaken { get; set; }
     
+    /// <summary>
+    /// Change in the creature's status (e.g., poisoned, stunned) as a result of the action
+    /// </summary>
     public required Optional<CreatureStatus> CreatureStatusChange { get; set; }
 }
 
-public class ExpeditionStateUpdate
+/// <summary>
+/// Information about whether the expedition has finished and its outcome
+/// </summary>
+public class ExpeditionFinishInfo
 {
+    /// <summary>
+    /// Indicates whether the expedition has reached an end
+    /// </summary>
     public bool ExpeditionHasReachedAnEnd { get; set; }
     
-    public required Optional<ExpeditionOutcome> OutcomeOfAFinishedExpedition { get; set; }
+    /// <summary>
+    /// Outcome of the expedition if it has finished
+    /// </summary>
+    public required ExpeditionOutcome OutcomeOfAFinishedExpedition { get; set; }
+    
+    /// <summary>
+    /// Short lesson learned from the expedition if it has finished
+    /// </summary>
+    [MaxLength(500)]
+    public required string ShortLessonLearnedFromTheExpedition { get; set; }
 }

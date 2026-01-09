@@ -17,6 +17,8 @@ public interface IExpeditionsReader
     Task<IEnumerable<ExpeditionStatusDto>> GetStatusesAsync(List<Guid> expeditionIds);
     
     Task<ExpeditionStatistics?> GetStatisticsAsync(ExpeditionStatisticsQuery query);
+
+    Task<ExpeditionStatusDto> GetStatusAsync(Guid expeditionId);
 }
 
 internal class ExpeditionsReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IExpeditionsReader
@@ -118,6 +120,21 @@ internal class ExpeditionsReader(IUnitOfWorkProvider provider) : DatabaseAccesso
         return QueryAsync<ExpeditionStatusDto>(sql, new
         {
             ExpeditionIds = expeditionIds
+        });
+    }
+    
+    public Task<ExpeditionStatusDto> GetStatusAsync(Guid expeditionId)
+    {
+        const string sql = @"
+            SELECT 
+                e.expedition_id,
+                e.status_id AS status
+            FROM expeditions e
+            WHERE e.expedition_id = @ExpeditionId";
+
+        return QuerySingleAsync<ExpeditionStatusDto>(sql, new
+        {
+            ExpeditionId = expeditionId
         });
     }
 

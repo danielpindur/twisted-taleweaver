@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using TwistedTaleweaver.Api.Expeditions.Entities.Enums;
 using TwistedTaleweaver.Api.Messages.Entities.Enums;
 using TwistedTaleweaver.Core.Database;
 using TwistedTaleweaver.Core.Kafka;
@@ -28,7 +29,8 @@ internal class ExpeditionActionEventConsumer(
     IMessagesReader messagesReader,
     IActionAdjudicationCommandHandler actionAdjudicationCommandHandler,
     IMonsterContextsQueryHandler monsterContextsQueryHandler,
-    IExpeditionTurnOrdersReader turnOrdersReader) : IKafkaEventConsumer<ExpeditionActionEvent>
+    IExpeditionTurnOrdersReader turnOrdersReader,
+    IExpeditionsReader expeditionsReader) : IKafkaEventConsumer<ExpeditionActionEvent>
 {
     public Task ConsumeAsync(ExpeditionActionEvent @event, CancellationToken cancellationToken)
     {
@@ -117,9 +119,10 @@ internal class ExpeditionActionEventConsumer(
         await turnOrderCommandHandler.ExecuteAsync(new AdvanceTurnOrderCommand() { ExpeditionId = @event.ExpeditionId });
         await expeditionStateCommandHandler.ExecuteAsync(new PublishUpdatedExpeditionStateCommand() { ExpeditionId = @event.ExpeditionId });
 
+        var expeditionState = await expeditionsReader.GetStatusAsync(@event.ExpeditionId);
         var turnOrder  = await turnOrdersReader.GetByExpeditionAsync(@event.ExpeditionId);
 
-        if (turnOrder.ActionGenerationRequired)
+        if (expeditionState.Status == ExpeditionStatus.Started && turnOrder.ActionGenerationRequired)
         {
             var action = new ExpeditionActionEvent()
             {

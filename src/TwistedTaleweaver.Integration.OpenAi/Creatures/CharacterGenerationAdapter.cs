@@ -60,7 +60,9 @@ internal class CharacterGenerationAdapter(IEntityGenerator entityGenerator) : IC
             ". The generated Name must have less then 45 characters, the generated Description must have less then 350 characters and not contain information contained in other response fields and request. I will be very disappointed if you generate something longer.");
 
         var generatedCharacter = await entityGenerator.GenerateEntityAsync<GeneratedCharacter>(
-            sb.ToString(), TwistedTaleweaverContextHelper.CharacterGenerationContext);
+            sb.ToString(), 
+            TwistedTaleweaverContextHelper.CharacterGenerationContext,
+            RandomnessSettingsHelper.GenerationSettings);
 
         if (name is not null)
         {
