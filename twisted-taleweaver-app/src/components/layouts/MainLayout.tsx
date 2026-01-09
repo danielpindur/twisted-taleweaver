@@ -5,11 +5,11 @@ import { FooterQuote } from "@/components/ui/footerquote";
 interface MainLayoutProps {
   user: UserResource;
   onLogout: () => void;
-  showFooterQuote: boolean;
+  footerQuote?: string;
   children: React.ReactNode;
 }
 
-export const MainLayout = ({ user, onLogout, showFooterQuote, children }: MainLayoutProps) => {
+export const MainLayout = ({ user, onLogout, footerQuote, children }: MainLayoutProps) => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <TopNavigation user={user} onLogout={onLogout} />
@@ -18,8 +18,8 @@ export const MainLayout = ({ user, onLogout, showFooterQuote, children }: MainLa
         {children}
       </main>
 
-      {showFooterQuote && (
-        <FooterQuote />
+      {footerQuote && footerQuote.length > 0 && (
+        <FooterQuote footerQuote={footerQuote} />
       )}
     </div>
   );

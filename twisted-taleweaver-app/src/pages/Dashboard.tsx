@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 const Dashboard = () => {
   const { signOut } = useClerk();
   const { user, isLoaded } = useUser();
+  const footerQuote = "\"Choose wisely, for each path leads but to a different shade of ruin...\"";
 
   const navigate = useNavigate();
 
@@ -23,7 +24,7 @@ const Dashboard = () => {
   }
 
   return (
-    <MainLayout user={user!} onLogout={handleLogout} showFooterQuote={true}>
+    <MainLayout user={user!} onLogout={handleLogout} footerQuote={footerQuote}>
       <ExpeditionSelection />
     </MainLayout>
   );

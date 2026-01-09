@@ -13,6 +13,8 @@ public interface IMessagesReader
     Task<MessageDto> GetAsync(Guid expeditionId, long messageId);
 
     Task<IEnumerable<string>> GetContentsSinceLastNarrativeAsync(Guid expeditionId);
+    
+    Task<IEnumerable<MessageDto>> GetAsync(List<Guid> expeditionIds, MessageType messageType);
 }
 
 internal class MessagesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IMessagesReader
@@ -97,6 +99,27 @@ internal class MessagesReader(IUnitOfWorkProvider provider) : DatabaseAccessor(p
         {
             ExpeditionId = expeditionId,
             NarrativeType = MessageType.Narrative
+        });
+    }
+
+    public Task<IEnumerable<MessageDto>> GetAsync(List<Guid> expeditionIds, MessageType messageType)
+    {
+        const string sql = @"
+            SELECT 
+                m.message_id,
+                m.expedition_id,
+                m.sender_character_id,
+                m.type_id AS type,
+                m.content,
+                m.created_at
+            FROM messages m
+            WHERE m.expedition_id = ANY(@ExpeditionIds) AND m.type_id = @MessageType
+            ORDER BY m.created_at";
+
+        return QueryAsync<MessageDto>(sql, new
+        {
+            ExpeditionIds = expeditionIds,
+            MessageType = messageType
         });
     }
 }

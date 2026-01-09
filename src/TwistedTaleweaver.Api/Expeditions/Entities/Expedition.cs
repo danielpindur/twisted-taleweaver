@@ -52,9 +52,29 @@ public class Expedition
     /// Outcome of the expedition, if completed
     /// </summary>    
     public ExpeditionOutcome? Outcome { get; set; }
+    
+    /// <summary>
+    /// Lesson learned from the expedition, if any
+    /// </summary>
+    public string? LessonLearned { get; init; }
 
     /// <summary>
     /// User who created the expedition
     /// </summary>
     public Guid CreatedByUserId { get; set; }
+    
+    /// <summary>
+    /// Date and time when the expedition was created
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    /// <summary>
+    /// Date and time when the expedition was started, if applicable
+    /// </summary>
+    public DateTimeOffset? StartedAt { get; set; }
+    
+    /// <summary>
+    /// Date and time when the expedition was completed, if applicable
+    /// </summary>
+    public DateTimeOffset? CompletedAt { get; set; }
 }

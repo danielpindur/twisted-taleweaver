@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { User, Users, Crown, Play, Clock, Loader2 } from "lucide-react";
 import { CharacterCreationForm } from "@/components/chat/CharacterCreationForm";
 import { getClassIcon } from "@/utils/CharacterUtils";
-import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
+import { getDifficultyColor } from "@/utils/ExpeditionUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
 import type { UserResource } from "@clerk/types";

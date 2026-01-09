@@ -18,12 +18,7 @@ internal static class ExpeditionMapper
 {
     public static ExpeditionContract? ToNullableContract(this Expedition? source)
     {
-        if (source is null)
-        {
-            return null;
-        }
-
-        return source.ToContract();
+        return source?.ToContract();
     }
     
     public static ExpeditionContract ToContract(this Expedition source)
@@ -37,7 +32,12 @@ internal static class ExpeditionMapper
             MinParticipants = source.MinParticipants,
             MaxParticipants = source.MaxParticipants,
             CurrentParticipants = source.CurrentParticipants,
-            CreatedByUserId = source.CreatedByUserId
+            CreatedByUserId = source.CreatedByUserId,
+            Outcome = source.Outcome,
+            LessonLearned = source.LessonLearned,
+            CreatedAt = source.CreatedAt,
+            CompletedAt = source.CompletedAt,
+            StartedAt = source.StartedAt,
         };
     }
 

@@ -29,6 +29,18 @@ public class Expedition
     [GraphQLDescription("Outcome of the expedition, if completed.")]
     public ExpeditionOutcome? Outcome { get; init; }
 
+    [GraphQLDescription("Date and time when the expedition was created.")]
+    public DateTimeOffset CreatedAt { get; init; }
+    
+    [GraphQLDescription("Date and time when the expedition was started, if applicable.")]
+    public DateTimeOffset? StartedAt { get; init; }
+    
+    [GraphQLDescription("Date and time when the expedition was completed, if applicable.")]
+    public DateTimeOffset? CompletedAt { get; init; }
+
+    [GraphQLDescription("Lesson learned from the expedition, if any.")]    
+    public string? LessonLearned { get; init; }
+    
     [GraphQLIgnore]
     public Guid CreatedByUserId { get; init; }
 }

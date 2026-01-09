@@ -61,4 +61,20 @@ internal static class MessagesMapper
             Timestamp = source.Timestamp
         };
     }
+    
+    public static Dictionary<Guid, List<ChatMessageContract>> ToContracts(
+        this Dictionary<Guid, List<ChatMessage>> source)
+    {
+        var result = new Dictionary<Guid, List<ChatMessageContract>>();
+
+        foreach (var kvp in source)
+        {
+            if (!result.ContainsKey(kvp.Key))
+            {
+                result.Add(kvp.Key, kvp.Value.ToContracts());
+            }
+        }
+        
+        return result;
+    }
 }

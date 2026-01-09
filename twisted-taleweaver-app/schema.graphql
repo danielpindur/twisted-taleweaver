@@ -108,6 +108,8 @@ type Expedition {
   participants: [ExpeditionParticipant!]! @cost(weight: "10")
   "The state of the expedition."
   state: ExpeditionState! @cost(weight: "10")
+  "The narrative messages of the expedition."
+  narrativeMessages: [ChatMessage!]! @cost(weight: "10")
   "Unique identifier of the expedition."
   id: UUID!
   "Name of the expedition."
@@ -124,6 +126,30 @@ type Expedition {
   currentParticipants: Int!
   "Outcome of the expedition, if completed."
   outcome: ExpeditionOutcome
+  "Date and time when the expedition was created."
+  createdAt: DateTime!
+  "Date and time when the expedition was started, if applicable."
+  startedAt: DateTime
+  "Date and time when the expedition was completed, if applicable."
+  completedAt: DateTime
+  "Lesson learned from the expedition, if any."
+  lessonLearned: String
+}
+
+"Offset paginated expeditions."
+type ExpeditionOffsetPage {
+  "Statistics about the expeditions."
+  statistics: ExpeditionStatistics! @cost(weight: "10")
+  "The items on the current page."
+  items: [Expedition!]!
+  "Total number of items available."
+  totalCount: Int!
+  "Current page number (1-based)."
+  page: Int!
+  "Number of items per page."
+  pageSize: Int!
+  "Total number of pages available."
+  totalPages: Int!
 }
 
 "Represents a participant in an expedition."
@@ -144,6 +170,16 @@ type ExpeditionState {
   status: ExpeditionStatus!
   "List of monsters currently present in the expedition."
   monsters: [Monster!]!
+}
+
+"Represents statistics about expeditions."
+type ExpeditionStatistics {
+  "Total number of expeditions."
+  totalExpeditions: Int!
+  "Number of successful expeditions."
+  successfulExpeditions: Int!
+  "Number of failed expeditions."
+  failedExpeditions: Int!
 }
 
 "A sender of a action message."
@@ -195,25 +231,11 @@ type Mutation {
   addMessage(input: AddMessageInput!): ChatMessage! @authorize @cost(weight: "10")
 }
 
-"Represents a page of items using offset pagination."
-type OffsetPageOfExpedition {
-  "The items on the current page."
-  items: [Expedition!]!
-  "Total number of items available."
-  totalCount: Int!
-  "Current page number (1-based)."
-  page: Int!
-  "Number of items per page."
-  pageSize: Int!
-  "Total number of pages available."
-  totalPages: Int!
-}
-
 type Query {
   "Retrieves an expedition by its unique identifier."
   expeditionById(id: UUID!): Expedition @authorize @cost(weight: "10")
   "Retrieves a paginated list of expeditions."
-  expeditions(input: OffsetInput!): OffsetPageOfExpedition! @authorize @cost(weight: "10")
+  expeditions(input: ExpeditionSearchInput!): ExpeditionOffsetPage! @authorize @cost(weight: "10")
   "Retrieves a paginated list of messages for a given expedition."
   messages(input: MessageSearchInput!): CursorPageOfChatMessageAndInt64! @authorize @cost(weight: "10")
 }
@@ -311,6 +333,22 @@ input AttributeScoresInput {
   charisma: Int!
 }
 
+"Input for searching expeditions with pagination and status filters."
+input ExpeditionSearchInput {
+  "List of expedition statuses to filter the search results."
+  statuses: [ExpeditionStatus!]!
+  "Filter expeditions by their difficulty level."
+  difficulty: ExpeditionDifficulty
+  "Filter expeditions by their outcome."
+  outcome: ExpeditionOutcome
+  "Text to search for in expedition names or descriptions."
+  searchText: String
+  "Current page number (1-based)."
+  page: Int!
+  "Number of items per page."
+  pageSize: Int!
+}
+
 "Request to join an existing expedition."
 input JoinExpeditionInput {
   "Unique identifier of the expedition to join."
@@ -324,14 +362,6 @@ input MessageSearchInput {
   "The cursor after which to start fetching items."
   after: Long
   "Number of items to fetch."
-  pageSize: Int!
-}
-
-"Input for offset pagination."
-input OffsetInput {
-  "Current page number (1-based)."
-  page: Int!
-  "Number of items per page."
   pageSize: Int!
 }
 

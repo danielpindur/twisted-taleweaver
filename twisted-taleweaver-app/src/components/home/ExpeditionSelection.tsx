@@ -14,11 +14,10 @@ import { useGraphQlClient } from "@/hooks/useGraphQlClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExpeditionDifficulty, ExpeditionStatus } from "@/__generated__/twisted-taleweaver-api/types";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { getDifficultyColor } from "@/utils/ExpeditionDifficultyUtils";
+import { getDifficultyColor, getStatusColor } from "@/utils/ExpeditionUtils";
 import { extractGraphQLErrors, isValidationGraphQLError, normalizeValidationErrors } from "@/utils/GraphQlErrorUtils";
-import type { AddExpeditionInput, JoinExpeditionInput, OffsetInput } from "@/__generated__/twisted-taleweaver-api/types";
+import type { AddExpeditionInput, ExpeditionSearchInput, JoinExpeditionInput } from "@/__generated__/twisted-taleweaver-api/types";
 import type { ValidationGraphQLErrorExtensions } from "@/graphql/errors/graphQlError";
-import { getStatusColor } from "@/utils/ExpeditionStatusUtils";
 
 export const ExpeditionSelection = () => {
   const navigate = useNavigate();
@@ -152,9 +151,10 @@ export const ExpeditionSelection = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["expeditions", currentPage, pageSize],
     queryFn: () => {
-      const input: OffsetInput = {
+      const input: ExpeditionSearchInput = {
         page: currentPage,
         pageSize: pageSize,
+        statuses: [ExpeditionStatus.Created, ExpeditionStatus.Started],
       };
       return requestWithAuth((sdk) => sdk.GetExpeditions({ input }));
     },

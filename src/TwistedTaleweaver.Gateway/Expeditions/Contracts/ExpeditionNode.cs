@@ -1,4 +1,6 @@
 using TwistedTaleweaver.Gateway.Expeditions.DataLoaders;
+using TwistedTaleweaver.Gateway.Messages.Contracts;
+using TwistedTaleweaver.Gateway.Messages.DataLoaders;
 using TwistedTaleweaver.Gateway.Users.Contracts;
 using TwistedTaleweaver.Gateway.Users.DataLoaders;
 
@@ -35,5 +37,15 @@ public static partial class ExpeditionNode
     {
         var state = await dataLoader.LoadAsync(expedition.Id, cancellationToken);
         return state ?? throw new InvalidOperationException($"Expedition state not found for expedition with ID {expedition.Id}");
+    }
+    
+    [GraphQLDescription("The narrative messages of the expedition.")]
+    public static async Task<List<ChatMessage>> GetNarrativeMessagesAsync(
+        [Parent] Expedition expedition,
+        ExpeditionNarrativeMessagesDataLoader dataLoader,
+        CancellationToken cancellationToken)
+    {
+        var chatMessages = await dataLoader.LoadAsync(expedition.Id, cancellationToken);
+        return chatMessages ?? throw new InvalidOperationException($"Narrative messages not found for expedition with ID {expedition.Id}");
     }
 }

@@ -271,6 +271,10 @@ export type CursorPageOfChatMessageAndInt64 = {
 /** Represents an expedition. */
 export type Expedition = {
   __typename?: 'Expedition';
+  /** Date and time when the expedition was completed, if applicable. */
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** Date and time when the expedition was created. */
+  createdAt: Scalars['DateTime']['output'];
   /** Current number of participants in the expedition. */
   currentParticipants: Scalars['Int']['output'];
   /** Description of the expedition. */
@@ -279,16 +283,22 @@ export type Expedition = {
   difficulty: ExpeditionDifficulty;
   /** Unique identifier of the expedition. */
   id: Scalars['UUID']['output'];
+  /** Lesson learned from the expedition, if any. */
+  lessonLearned?: Maybe<Scalars['String']['output']>;
   /** Maximum number of participants allowed for the expedition. */
   maxParticipants: Scalars['Int']['output'];
   /** Minimum number of participants required for the expedition. */
   minParticipants: Scalars['Int']['output'];
   /** Name of the expedition. */
   name: Scalars['String']['output'];
+  /** The narrative messages of the expedition. */
+  narrativeMessages: Array<ChatMessage>;
   /** Outcome of the expedition, if completed. */
   outcome?: Maybe<ExpeditionOutcome>;
   /** Participants of the expedition. */
   participants: Array<ExpeditionParticipant>;
+  /** Date and time when the expedition was started, if applicable. */
+  startedAt?: Maybe<Scalars['DateTime']['output']>;
   /** The state of the expedition. */
   state: ExpeditionState;
   /** User who created the expedition. */
@@ -301,6 +311,23 @@ export enum ExpeditionDifficulty {
   Medium = 'MEDIUM',
   Nightmare = 'NIGHTMARE'
 }
+
+/** Offset paginated expeditions. */
+export type ExpeditionOffsetPage = {
+  __typename?: 'ExpeditionOffsetPage';
+  /** The items on the current page. */
+  items: Array<Expedition>;
+  /** Current page number (1-based). */
+  page: Scalars['Int']['output'];
+  /** Number of items per page. */
+  pageSize: Scalars['Int']['output'];
+  /** Statistics about the expeditions. */
+  statistics: ExpeditionStatistics;
+  /** Total number of items available. */
+  totalCount: Scalars['Int']['output'];
+  /** Total number of pages available. */
+  totalPages: Scalars['Int']['output'];
+};
 
 export enum ExpeditionOutcome {
   Failure = 'FAILURE',
@@ -316,6 +343,22 @@ export type ExpeditionParticipant = {
   user: User;
 };
 
+/** Input for searching expeditions with pagination and status filters. */
+export type ExpeditionSearchInput = {
+  /** Filter expeditions by their difficulty level. */
+  difficulty?: InputMaybe<ExpeditionDifficulty>;
+  /** Filter expeditions by their outcome. */
+  outcome?: InputMaybe<ExpeditionOutcome>;
+  /** Current page number (1-based). */
+  page: Scalars['Int']['input'];
+  /** Number of items per page. */
+  pageSize: Scalars['Int']['input'];
+  /** Text to search for in expedition names or descriptions. */
+  searchText?: InputMaybe<Scalars['String']['input']>;
+  /** List of expedition statuses to filter the search results. */
+  statuses: Array<ExpeditionStatus>;
+};
+
 /** Information regarding the state the expedition is in. */
 export type ExpeditionState = {
   __typename?: 'ExpeditionState';
@@ -327,6 +370,17 @@ export type ExpeditionState = {
   monsters: Array<Monster>;
   /** Current status of the expedition. */
   status: ExpeditionStatus;
+};
+
+/** Represents statistics about expeditions. */
+export type ExpeditionStatistics = {
+  __typename?: 'ExpeditionStatistics';
+  /** Number of failed expeditions. */
+  failedExpeditions: Scalars['Int']['output'];
+  /** Number of successful expeditions. */
+  successfulExpeditions: Scalars['Int']['output'];
+  /** Total number of expeditions. */
+  totalExpeditions: Scalars['Int']['output'];
 };
 
 export enum ExpeditionStatus {
@@ -450,35 +504,12 @@ export enum NarrativeAlignment {
   Unknown = 'UNKNOWN'
 }
 
-/** Input for offset pagination. */
-export type OffsetInput = {
-  /** Current page number (1-based). */
-  page: Scalars['Int']['input'];
-  /** Number of items per page. */
-  pageSize: Scalars['Int']['input'];
-};
-
-/** Represents a page of items using offset pagination. */
-export type OffsetPageOfExpedition = {
-  __typename?: 'OffsetPageOfExpedition';
-  /** The items on the current page. */
-  items: Array<Expedition>;
-  /** Current page number (1-based). */
-  page: Scalars['Int']['output'];
-  /** Number of items per page. */
-  pageSize: Scalars['Int']['output'];
-  /** Total number of items available. */
-  totalCount: Scalars['Int']['output'];
-  /** Total number of pages available. */
-  totalPages: Scalars['Int']['output'];
-};
-
 export type Query = {
   __typename?: 'Query';
   /** Retrieves an expedition by its unique identifier. */
   expeditionById?: Maybe<Expedition>;
   /** Retrieves a paginated list of expeditions. */
-  expeditions: OffsetPageOfExpedition;
+  expeditions: ExpeditionOffsetPage;
   /** Retrieves a paginated list of messages for a given expedition. */
   messages: CursorPageOfChatMessageAndInt64;
 };
@@ -490,7 +521,7 @@ export type QueryExpeditionByIdArgs = {
 
 
 export type QueryExpeditionsArgs = {
-  input: OffsetInput;
+  input: ExpeditionSearchInput;
 };
 
 
@@ -598,11 +629,18 @@ export type AddMessageMutationVariables = Exact<{
 export type AddMessageMutation = { __typename?: 'Mutation', addMessage: { __typename?: 'ChatMessage', id: any } };
 
 export type GetExpeditionsQueryVariables = Exact<{
-  input: OffsetInput;
+  input: ExpeditionSearchInput;
 }>;
 
 
-export type GetExpeditionsQuery = { __typename?: 'Query', expeditions: { __typename?: 'OffsetPageOfExpedition', totalCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus } }> } };
+export type GetExpeditionsQuery = { __typename?: 'Query', expeditions: { __typename?: 'ExpeditionOffsetPage', totalCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus } }> } };
+
+export type GetArchivedExpeditionsQueryVariables = Exact<{
+  input: ExpeditionSearchInput;
+}>;
+
+
+export type GetArchivedExpeditionsQuery = { __typename?: 'Query', expeditions: { __typename?: 'ExpeditionOffsetPage', totalCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, createdAt: any, startedAt?: any | null, completedAt?: any | null, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, creatureStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, currentHealth: number }> }, participants: Array<{ __typename?: 'ExpeditionParticipant', character?: { __typename?: 'Character', id: any } | null }> }>, statistics: { __typename?: 'ExpeditionStatistics', totalExpeditions: number, successfulExpeditions: number, failedExpeditions: number } } };
 
 export type GetExpeditionByIdQueryVariables = Exact<{
   id: Scalars['UUID']['input'];
@@ -610,6 +648,13 @@ export type GetExpeditionByIdQueryVariables = Exact<{
 
 
 export type GetExpeditionByIdQuery = { __typename?: 'Query', expeditionById?: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, minParticipants: number, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, userCreated: { __typename?: 'User', id: any, externalId: string, name: string }, state: { __typename?: 'ExpeditionState', status: ExpeditionStatus, activeCreature?: { __typename?: 'Creature', id: any, name: string } | null, creatureStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, status: CreatureStatus, currentHealth: number }>, monsters: Array<{ __typename?: 'Monster', id: any, name: string, description: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, challengeRating: number, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> }> }, participants: Array<{ __typename?: 'ExpeditionParticipant', user: { __typename?: 'User', id: any, externalId: string, name: string }, character?: { __typename?: 'Character', id: any, name: string, description: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, class: CharacterClass, maxHealth: number, armorClass: number, speedScores: { __typename?: 'SpeedScores', walking: number, swimming?: number | null, flying?: number | null, climbing?: number | null, burrowing?: number | null, teleportation?: number | null }, attributeScores: { __typename?: 'AttributeScores', strength: number, wisdom: number, intelligence: number, dexterity: number, constitution: number, charisma: number }, traits: Array<{ __typename?: 'CreatureTrait', name: string, effect: string, conditionForPerform?: string | null }> } | null }> } | null };
+
+export type GetArchivedExpeditionByIdQueryVariables = Exact<{
+  id: Scalars['UUID']['input'];
+}>;
+
+
+export type GetArchivedExpeditionByIdQuery = { __typename?: 'Query', expeditionById?: { __typename?: 'Expedition', id: any, name: string, description: string, difficulty: ExpeditionDifficulty, maxParticipants: number, currentParticipants: number, outcome?: ExpeditionOutcome | null, lessonLearned?: string | null, startedAt?: any | null, completedAt?: any | null, state: { __typename?: 'ExpeditionState', creatureStates: Array<{ __typename?: 'CombatCreatureState', creatureId: any, currentHealth: number }>, monsters: Array<{ __typename?: 'Monster', id: any, name: string, description: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, challengeRating: number, maxHealth: number, armorClass: number }> }, participants: Array<{ __typename?: 'ExpeditionParticipant', character?: { __typename?: 'Character', id: any, name: string, description: string, gender: CreatureGender, creatureType: CreatureType, alignment: NarrativeAlignment, class: CharacterClass, maxHealth: number, armorClass: number } | null }>, narrativeMessages: Array<{ __typename?: 'ChatMessage', id: any, content: string, timestamp: any }> } | null };
 
 export type GetMessagesQueryVariables = Exact<{
   input: MessageSearchInput;
@@ -676,7 +721,7 @@ export const AddMessageDocument = gql`
 }
     `;
 export const GetExpeditionsDocument = gql`
-    query GetExpeditions($input: OffsetInput!) {
+    query GetExpeditions($input: ExpeditionSearchInput!) {
   expeditions(input: $input) {
     items {
       id
@@ -690,6 +735,46 @@ export const GetExpeditionsDocument = gql`
       state {
         status
       }
+    }
+    totalCount
+    page
+    pageSize
+    totalPages
+  }
+}
+    `;
+export const GetArchivedExpeditionsDocument = gql`
+    query GetArchivedExpeditions($input: ExpeditionSearchInput!) {
+  expeditions(input: $input) {
+    items {
+      id
+      name
+      description
+      difficulty
+      minParticipants
+      maxParticipants
+      currentParticipants
+      outcome
+      createdAt
+      startedAt
+      completedAt
+      state {
+        status
+        creatureStates {
+          creatureId
+          currentHealth
+        }
+      }
+      participants {
+        character {
+          id
+        }
+      }
+    }
+    statistics {
+      totalExpeditions
+      successfulExpeditions
+      failedExpeditions
     }
     totalCount
     page
@@ -796,6 +881,57 @@ export const GetExpeditionByIdDocument = gql`
           conditionForPerform
         }
       }
+    }
+  }
+}
+    `;
+export const GetArchivedExpeditionByIdDocument = gql`
+    query GetArchivedExpeditionById($id: UUID!) {
+  expeditionById(id: $id) {
+    id
+    name
+    description
+    difficulty
+    maxParticipants
+    currentParticipants
+    outcome
+    lessonLearned
+    startedAt
+    completedAt
+    state {
+      creatureStates {
+        creatureId
+        currentHealth
+      }
+      monsters {
+        id
+        name
+        description
+        gender
+        creatureType
+        alignment
+        challengeRating
+        maxHealth
+        armorClass
+      }
+    }
+    participants {
+      character {
+        id
+        name
+        description
+        gender
+        creatureType
+        alignment
+        class
+        maxHealth
+        armorClass
+      }
+    }
+    narrativeMessages {
+      id
+      content
+      timestamp
     }
   }
 }
@@ -921,8 +1057,14 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     GetExpeditions(variables: GetExpeditionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetExpeditionsQuery>({ document: GetExpeditionsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetExpeditions', 'query', variables);
     },
+    GetArchivedExpeditions(variables: GetArchivedExpeditionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetArchivedExpeditionsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetArchivedExpeditionsQuery>({ document: GetArchivedExpeditionsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetArchivedExpeditions', 'query', variables);
+    },
     GetExpeditionById(variables: GetExpeditionByIdQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetExpeditionByIdQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetExpeditionByIdQuery>({ document: GetExpeditionByIdDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetExpeditionById', 'query', variables);
+    },
+    GetArchivedExpeditionById(variables: GetArchivedExpeditionByIdQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetArchivedExpeditionByIdQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetArchivedExpeditionByIdQuery>({ document: GetArchivedExpeditionByIdDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetArchivedExpeditionById', 'query', variables);
     },
     GetMessages(variables: GetMessagesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetMessagesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetMessagesQuery>({ document: GetMessagesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetMessages', 'query', variables);

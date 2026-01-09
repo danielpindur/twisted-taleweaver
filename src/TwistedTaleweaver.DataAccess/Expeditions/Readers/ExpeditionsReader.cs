@@ -31,6 +31,10 @@ internal class ExpeditionsReader(IUnitOfWorkProvider provider) : DatabaseAccesso
                 e.difficulty_id AS difficulty,
                 e.min_participants,
                 e.max_participants,
+                e.lesson_learned,
+                e.created_at,
+                e.started_at,
+                e.completed_at,
                 (SELECT COUNT (*) FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id) AS current_participants,
                 e.outcome_id AS outcome,
                 e.created_by_user_id
@@ -70,12 +74,16 @@ internal class ExpeditionsReader(IUnitOfWorkProvider provider) : DatabaseAccesso
                 e.max_participants,
                 (SELECT COUNT (*) FROM expedition_participants ep WHERE ep.expedition_id = e.expedition_id) AS current_participants,
                 e.outcome_id AS outcome,
+                e.lesson_learned,
                 e.created_by_user_id,
+                e.created_at,
+                e.started_at,
+                e.completed_at,
                 COUNT(*) OVER() AS total_count
             FROM expeditions e
             WHERE e.status_id = ANY(@Statuses)
-                AND (@Difficulty IS NULL OR e.difficulty_id = ANY(@Difficulty))
-                AND (@Outcome IS NULL OR e.outcome_id = ANY(@Outcome))
+                AND (@Difficulty IS NULL OR e.difficulty_id = @Difficulty)
+                AND (@Outcome IS NULL OR e.outcome_id = @Outcome)
                 AND (@SearchPattern IS NULL OR e.expedition_name LIKE @SearchPattern OR e.description LIKE @SearchPattern)
                 AND (e.created_by_user_id = @UserId 
                     OR EXISTS(
@@ -122,8 +130,8 @@ internal class ExpeditionsReader(IUnitOfWorkProvider provider) : DatabaseAccesso
                 COUNT(*) AS total_expeditions
             FROM expeditions e
             WHERE e.status_id = ANY(@Statuses)
-                AND (@Difficulty IS NULL OR e.difficulty_id = ANY(@Difficulty))
-                AND (@Outcome IS NULL OR e.outcome_id = ANY(@Outcome))
+                AND (@Difficulty IS NULL OR e.difficulty_id = @Difficulty)
+                AND (@Outcome IS NULL OR e.outcome_id = @Outcome)
                 AND (@SearchPattern IS NULL OR e.expedition_name LIKE @SearchPattern OR e.description LIKE @SearchPattern)
                 AND (e.created_by_user_id = @UserId 
                     OR EXISTS(

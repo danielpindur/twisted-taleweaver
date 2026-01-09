@@ -28,12 +28,12 @@ export const TopNavigation = ({ user, onLogout }: TopNavigationProps) => {
             <div className="flex gap-2">
               <Button
                 asChild
-                variant={isActive("/rooms") ? "default" : "ghost"}
+                variant={isActive("/") ? "default" : "ghost"}
                 className={cn(
                   "gap-2 font-crimson"
                 )}
               >
-                <Link to="/rooms">
+                <Link to="/">
                   <Home className="h-4 w-4" />
                   Rooms
                 </Link>

@@ -26,15 +26,12 @@ export const ChatMessages = ({ messages, participants, monsters, loadMoreMessage
   const isPrependingRef = useRef(false);
   const prevScrollHeightRef = useRef<number | null>(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
-  const [hasMounted, setHasMounted] = useState(false);
-  const isFirstLoad = !hasMounted && messages.length > 0;
 
   useLayoutEffect(() => {
-    if (messagesEndRef.current && scrollAreaRef.current && isFirstLoad) {
+    if (scrollAreaRef.current && shouldScrollToBottom) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-      setHasMounted(true);
     }
-  }, [messages, isFirstLoad]);
+  }, [messages, shouldScrollToBottom]);
 
   const handleScroll = useCallback((event: any) => {
     const scrollTop = event.target.scrollTop;

@@ -149,28 +149,16 @@ internal class ActionAdjudicationCommandHandler(
 
     private async Task UpdateExpeditionState(Guid expeditionId, GeneratedActionOutcome actionOutcome)
     {
-        if (!actionOutcome.ExpeditionStateUpdate.HasValue || 
-            !actionOutcome.ExpeditionStateUpdate.ActualValue.ExpeditionHasReachedAnEnd)
+        if (!actionOutcome.ExpeditionFinishInfo.HasValue || 
+            !actionOutcome.ExpeditionFinishInfo.ActualValue.ExpeditionHasReachedAnEnd)
         {
             return;
         }
 
-        var outcome = actionOutcome.ExpeditionStateUpdate.ActualValue.OutcomeOfAFinishedExpedition.HasValue
-            ? actionOutcome.ExpeditionStateUpdate.ActualValue.OutcomeOfAFinishedExpedition.ActualValue
-            : (ExpeditionOutcome?)null;
-        
-        // if we didn't get outcome just fallback to based on characters being alive
-        if (outcome is null)
-        {
-            var characterContexts = await characterContextsQueryHandler.ExecuteAsync(
-                new GetCharacterContextsByExpeditionQuery() {  ExpeditionId = expeditionId });
+        var outcome = actionOutcome.ExpeditionFinishInfo.ActualValue.OutcomeOfAFinishedExpedition;
+        var lessonLearned = actionOutcome.ExpeditionFinishInfo.ActualValue.ShortLessonLearnedFromTheExpedition;
 
-            outcome = characterContexts.Any(x => x.CurrentHealth > 0)
-                ? ExpeditionOutcome.Success
-                : ExpeditionOutcome.Failure;
-        }
-
-        await expeditionsWriter.UpdateStateAsync(expeditionId, ExpeditionStatus.Completed, outcome.Value);
+        await expeditionsWriter.CompleteAsync(expeditionId, outcome, lessonLearned);
     }
 
     private async Task CreateSummonedMonsters(Guid expeditionId, GeneratedActionOutcome actionOutcome)

@@ -15,7 +15,7 @@ public interface IExpeditionsWriter
 
     Task StartAsync(Guid expeditionId);
     
-    Task UpdateStateAsync(Guid expeditionId, ExpeditionStatus status, ExpeditionOutcome outcome);
+    Task CompleteAsync(Guid expeditionId, ExpeditionOutcome outcome, string lessonLearned);
 }
 
 internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccessor(provider), IExpeditionsWriter
@@ -62,12 +62,13 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccesso
         });
     }
 
-    public Task UpdateStateAsync(Guid expeditionId, ExpeditionStatus status, ExpeditionOutcome outcome)
+    public Task CompleteAsync(Guid expeditionId, ExpeditionOutcome outcome, string lessonLearned)
     {
         const string sql = @"
             UPDATE expeditions 
             SET status_id = @Status,
                 outcome_id = @Outcome,
+                lesson_learned = @LessonLearned,
                 completed_at = CURRENT_TIMESTAMP,
                 updated_at = CURRENT_TIMESTAMP
             WHERE expedition_id = @ExpeditionId";
@@ -75,8 +76,9 @@ internal class ExpeditionsWriter(IUnitOfWorkProvider provider) : DatabaseAccesso
         return ExecuteAsync(sql, new
         {
             ExpeditionId = expeditionId,
-            Status = status,
-            Outcome = outcome
+            Status = ExpeditionStatus.Completed,
+            Outcome = outcome,
+            LessonLearned = lessonLearned
         });
     }
 }

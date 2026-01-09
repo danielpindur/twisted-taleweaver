@@ -1,7 +1,7 @@
 import { gql } from "@/__generated__/twisted-taleweaver-api/gql";
 
 export const ExpeditionsQuery = gql(`
-  query GetExpeditions($input: OffsetInput!) {
+  query GetExpeditions($input: ExpeditionSearchInput!) {
     expeditions(input: $input) {
       items {
         id
@@ -15,6 +15,47 @@ export const ExpeditionsQuery = gql(`
         state {
           status
         }
+      }
+      totalCount
+      page
+      pageSize
+      totalPages
+    }
+  }
+`);
+
+export const ArchivedExpeditionsQuery = gql(`
+  query GetArchivedExpeditions($input: ExpeditionSearchInput!) {
+    expeditions(input: $input) {
+      items {
+        id
+        name
+        description
+        difficulty
+        minParticipants
+        maxParticipants
+        currentParticipants
+        outcome
+        createdAt
+        startedAt
+        completedAt
+        state {
+          status
+          creatureStates {
+            creatureId
+            currentHealth
+          }
+        }
+        participants {
+          character {
+            id
+          }
+        }
+      }
+      statistics {
+        totalExpeditions
+        successfulExpeditions
+        failedExpeditions
       }
       totalCount
       page
@@ -122,6 +163,58 @@ export const ExpeditionByIdQuery = gql(`
             conditionForPerform
           }
         }
+      }
+    }
+  }
+`);
+
+export const ArchivedExpeditionByIdQuery = gql(`
+  query GetArchivedExpeditionById($id: UUID!) {
+    expeditionById(id: $id) {
+      id
+      name
+      description
+      difficulty
+      maxParticipants
+      currentParticipants
+      outcome
+      lessonLearned
+      startedAt
+      completedAt
+      state {
+        creatureStates {
+          creatureId
+          currentHealth
+        }
+        monsters {
+          id
+          name
+          description
+          gender
+          creatureType
+          alignment
+          challengeRating
+          maxHealth
+          armorClass
+        }
+      }
+      participants {
+        character {
+          id
+          name
+          description
+          gender
+          creatureType
+          alignment
+          class
+          maxHealth
+          armorClass
+        }
+      }
+      narrativeMessages {
+        id
+        content
+        timestamp
       }
     }
   }

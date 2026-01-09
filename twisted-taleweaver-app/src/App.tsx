@@ -11,6 +11,7 @@ import NotFound from "@/pages/NotFound";
 import Dashboard from "@/pages/Dashboard";
 import Expedition from "@/pages/Expedition";
 import { WebSocketClientProvider } from "./components/websocket/WebSocketClientProvider";
+import Archives from "./pages/Archives";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
@@ -45,6 +46,15 @@ function App() {
                   <ProtectedRoute>
                     <Expedition />
                   </ProtectedRoute>
+                  } 
+                />
+
+                <Route 
+                  path="/archives" 
+                  element={
+                    <ProtectedRoute>
+                      <Archives />
+                    </ProtectedRoute>
                   } 
                 />
 
